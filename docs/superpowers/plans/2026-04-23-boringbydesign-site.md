@@ -1655,7 +1655,7 @@ const writingEntries = writing.map((post) => ({
           title={p.data.title}
           summary={p.data.summary}
           tech={p.data.tech}
-          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
           status={p.data.status}
         />
       ))
@@ -1862,7 +1862,7 @@ const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
           title={p.data.title}
           summary={p.data.summary}
           tech={p.data.tech}
-          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
           status={p.data.status}
         />
       ))
@@ -1892,7 +1892,7 @@ const { data } = entry;
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
   <p class="lede">{data.summary}</p>
   <dl class="facts">
-    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getFullYear()}</dd></div>
+    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
     <div><dt>Status</dt><dd>{data.status}</dd></div>
     <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
     {
@@ -3030,7 +3030,7 @@ git push origin v0.1.0
 
 **Placeholder scan:** no "TBD", "add appropriate error handling", or similar in any task. "Placeholder" appears only in seed-content frontmatter bodies, clearly labeled.
 
-**Type consistency:** `ProjectCard` props, `EntryList.Entry`, and `getCollection` filter predicates all use the schema defined in C1. Dates are `Date` throughout (sourced from Zod `z.date()`). `displayYear` is `string | undefined`; when absent we fall back to `startedAt.getFullYear()` — consistent in both index.astro (Task C4) and projects/index.astro (Task C6).
+**Type consistency:** `ProjectCard` props, `EntryList.Entry`, and `getCollection` filter predicates all use the schema defined in C1. Dates are `Date` throughout (sourced from Zod `z.date()`). `displayYear` is `string | undefined`; when absent we fall back to `startedAt.getUTCFullYear()` — consistent in both index.astro (Task C4) and projects/index.astro (Task C6), and matches the UTC date-formatter in ProseLayout/EntryList so no host-timezone skew.
 
 **Known gaps / deferred:**
 

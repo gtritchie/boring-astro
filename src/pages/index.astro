@@ -39,7 +39,7 @@ const writingEntries = writing.map((post) => ({
           title={p.data.title}
           summary={p.data.summary}
           tech={p.data.tech}
-          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
           status={p.data.status}
         />
       ))

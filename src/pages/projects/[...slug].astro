@@ -16,7 +16,7 @@ const { data } = entry;
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
   <p class="lede">{data.summary}</p>
   <dl class="facts">
-    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getFullYear()}</dd></div>
+    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
     <div><dt>Status</dt><dd>{data.status}</dd></div>
     <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
     {
