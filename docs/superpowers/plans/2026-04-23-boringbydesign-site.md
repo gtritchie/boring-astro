@@ -228,7 +228,7 @@ Why `trailingSlash: 'always'` + `format: 'directory'`: produces `/about/index.ht
 ```json
 {
   "extends": "astro/tsconfigs/strict",
-  "include": ["src/**/*", "astro.config.mjs", "*.ts"],
+  "include": ["src/**/*", ".astro/types.d.ts", "astro.config.mjs", "*.ts"],
   "exclude": ["dist/**/*", "node_modules/**/*"],
   "compilerOptions": {
     "strict": true,
@@ -241,6 +241,14 @@ Why `trailingSlash: 'always'` + `format: 'directory'`: produces `/about/index.ht
   }
 }
 ```
+
+Note: providing a custom `include` overrides the base from
+`astro/tsconfigs/strict` rather than extending it, so
+`.astro/types.d.ts` must be listed explicitly. That file is generated
+by `astro sync` / `astro check` and holds virtual types for content
+collections (`astro:content`), `ImportMetaEnv`, image types, etc.
+Without it, any later task that imports from `astro:content` fails
+typecheck.
 
 - [ ] **Step 3: Write `wrangler.jsonc`**
 
