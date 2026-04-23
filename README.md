@@ -24,7 +24,7 @@ transitions.
 | `npm run dev`           | Astro dev server with hot reload at `http://localhost:4321/`                                      |
 | `npm run build`         | Produces `dist/client/` static output                                                             |
 | `npm run preview`       | Runs `wrangler dev` — serves the built site via the real Workers runtime on `:8787`               |
-| `npm run preview:astro` | Serves the built site via `astro preview` on `127.0.0.1:4321` — port pa11y expects                |
+| `npm run preview:astro` | Builds, then serves via `astro preview` on `127.0.0.1:4321` — port pa11y expects                  |
 | `npm run check`         | `astro check` + `tsc` + `prettier --check` + `eslint`                                             |
 | `npm run pa11y`         | Audits every sitemap URL for WCAG AAA (needs `npm run preview:astro` running in another terminal) |
 | `npm run lighthouse`    | Builds, then runs LHCI against the budgets in `.lighthouserc.json`                                |

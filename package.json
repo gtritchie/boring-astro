@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
-    "preview:astro": "astro preview --host 127.0.0.1 --port 4321",
+    "preview:astro": "astro build && astro preview --host 127.0.0.1 --port 4321",
     "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0",
     "pa11y": "node scripts/run-pa11y.mjs",
     "lighthouse": "astro build && lhci autorun",
