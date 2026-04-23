@@ -4,9 +4,9 @@
 // invokes pa11y-ci against that flat URL list. All URLs are rewritten to the
 // preview origin so the audit validates the build under test — never the
 // deployed site.
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, statSync, accessSync, constants } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { tmpdir } from "node:os";
+import { tmpdir, platform } from "node:os";
 import { join } from "node:path";
 import { Launcher } from "chrome-launcher";
 
@@ -32,25 +32,61 @@ function toLocal(absoluteUrl) {
 // another way:
 //
 //   1. PUPPETEER_EXECUTABLE_PATH — explicit override. If set, it MUST
-//      point at a real file; we fail fast on a bad path rather than
-//      silently falling back, which would mask typos and broken CI
-//      action outputs.
+//      resolve to an executable regular file; we fail fast on a bad
+//      path rather than silently falling back, which would mask typos
+//      and broken CI action outputs.
 //   2. chrome-launcher's Launcher.getInstallations() — cross-platform
 //      discovery (handles macOS app bundles including user-local,
 //      Linux incl. Snap/Flatpak, and Windows).
 //   3. Nothing found → fail with an actionable message.
+function validateOverride(path) {
+  let st;
+  try {
+    st = statSync(path);
+  } catch {
+    throw new Error(
+      `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but no file exists there. ` +
+        `Fix the path or unset the variable to auto-detect.`,
+    );
+  }
+  if (!st.isFile()) {
+    throw new Error(
+      `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but that path is not a regular file. ` +
+        `Point it at the Chrome binary, not its app bundle or enclosing directory.`,
+    );
+  }
+  // X_OK check only meaningful on POSIX; Windows reports everything as executable.
+  if (platform() !== "win32") {
+    try {
+      accessSync(path, constants.X_OK);
+    } catch {
+      throw new Error(
+        `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but that file is not executable. ` +
+          `chmod +x or choose a different binary.`,
+      );
+    }
+  }
+}
+
 function resolveChromePath() {
   const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH;
   if (fromEnv !== undefined && fromEnv !== "") {
-    if (!existsSync(fromEnv)) {
-      throw new Error(
-        `PUPPETEER_EXECUTABLE_PATH is set to "${fromEnv}" but no file exists there. ` +
-          `Fix the path or unset the variable to auto-detect.`,
-      );
-    }
+    validateOverride(fromEnv);
     return fromEnv;
   }
-  const found = Launcher.getInstallations();
+  let found = [];
+  try {
+    found = Launcher.getInstallations();
+  } catch (err) {
+    // chrome-launcher throws (e.g. ERR_LAUNCHER_PATH_NOT_SET on Linux)
+    // instead of returning [] when nothing is installed. Translate to
+    // our own install-or-override message so the guidance is consistent.
+    throw new Error(
+      "Chrome auto-detection failed (chrome-launcher: " +
+        (err instanceof Error ? err.message : String(err)) +
+        "). Install Google Chrome/Chromium, or set PUPPETEER_EXECUTABLE_PATH to a valid binary.",
+    );
+  }
   if (found.length > 0) return found[0];
   throw new Error(
     "No Chrome installation found. Install Google Chrome/Chromium, " +
