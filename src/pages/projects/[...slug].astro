@@ -1,0 +1,33 @@
+---
+// src/pages/projects/[...slug].astro
+import ProseLayout from "../../layouts/ProseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", p => !p.data.draft);
+  return projects.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { data } = entry;
+---
+<ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
+  <p class="lede">{data.summary}</p>
+  <dl class="facts">
+    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getFullYear()}</dd></div>
+    <div><dt>Status</dt><dd>{data.status}</dd></div>
+    <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
+    {data.links?.repo && <div><dt>Repo</dt><dd><a href={data.links.repo}>{data.links.repo}</a></dd></div>}
+    {data.links?.site && <div><dt>Site</dt><dd><a href={data.links.site}>{data.links.site}</a></dd></div>}
+  </dl>
+  <Content />
+</ProseLayout>
+
+<style>
+  .lede { font-size: 1.05rem; color: var(--fg-muted); }
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--sp-2) var(--sp-5); margin: var(--sp-6) 0; }
+  .facts > div { display: contents; }
+  .facts dt { color: var(--fg-muted); font-size: 0.9rem; }
+  .facts dd { margin: 0; }
+</style>

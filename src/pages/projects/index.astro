@@ -1,0 +1,24 @@
+---
+// src/pages/projects/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const projects = (await getCollection("projects", p => !p.data.draft))
+  .sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime());
+---
+<BaseLayout title="Projects" description="Software projects — personal and professional.">
+  <main id="main">
+    <h1>Projects</h1>
+    {projects.map(p => (
+      <ProjectCard
+        href={`/projects/${p.id}/`}
+        title={p.data.title}
+        summary={p.data.summary}
+        tech={p.data.tech}
+        displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+        status={p.data.status}
+      />
+    ))}
+  </main>
+</BaseLayout>
