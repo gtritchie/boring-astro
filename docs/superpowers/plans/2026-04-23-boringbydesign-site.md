@@ -1725,7 +1725,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </p>
     <p>
       If you want to reach me, <a href="mailto:gary.t.ritchie@gmail.com">email works</a>. I'm also
-      on <a href="https://github.com/" rel="me">GitHub</a>.
+      on <a href="https://github.com/gtritchie" rel="me">GitHub</a>.
     </p>
   </main>
 </BaseLayout>
@@ -2737,7 +2737,7 @@ npm run build
 lychee --config lychee.toml .
 ```
 
-Expected: 0 broken links. If the GitHub URL in the footer (`https://github.com/`) reports as "too generic" or similar, replace it with Gary's actual handle once he decides on one, or temporarily `exclude` it.
+Expected: 0 broken links across the whole built site.
 
 - [ ] **Step 4: Commit**
 
