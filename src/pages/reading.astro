@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Reading" description="Recently read, currently reading.">
+  <main id="main" class="prose">
+    <h1>Reading</h1>
+    <p>Placeholder. A chronological log of books, with notes on the ones worth re-reading.</p>
+  </main>
+</BaseLayout>
+
+<style>
+  .prose { max-width: var(--reading-width); }
+  .prose p { margin: var(--sp-4) 0; }
+</style>
