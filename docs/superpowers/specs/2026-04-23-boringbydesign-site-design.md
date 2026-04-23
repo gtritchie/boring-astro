@@ -286,9 +286,10 @@ All sizing in `rem` so the user's browser font-size preference propagates.
   (they route through the Image pipeline at build time)
 - No decorative images in site chrome
 - **Alt text is an authoring responsibility.** pa11y-ci (section 7) audits
-  the rendered HTML in CI and flags missing or empty alt regardless of
-  source syntax (`<Image />`, `<img>`, or `![]()`). No source-level AST
-  validator — the rendered-HTML audit covers every case.
+  every page in the generated sitemap (not a sample) in CI and flags
+  missing or empty alt regardless of source syntax (`<Image />`, `<img>`,
+  or `![]()`). No source-level AST validator needed — the rendered-HTML
+  audit against the full site covers every case.
 
 ---
 
@@ -303,10 +304,11 @@ All sizing in `rem` so the user's browser font-size preference propagates.
   visible on focus, jumps to `<main>`
 - **Landmarks**: one `<header>`, one `<main>`, one `<footer>` per page;
   `<nav>` with `aria-label`
-- **Headings**: single `<h1>` per page, no level skips. Authoring convention;
-  verified by pa11y-ci against the rendered HTML in CI, which catches
-  violations regardless of whether they originated as Markdown, MDX JSX,
-  or raw HTML
+- **Headings**: heading-order (no level skips) and at-least-one-`<h1>` are
+  enforced by pa11y-ci / axe-core in CI across the full sitemap.
+  Single-`<h1>`-per-page is a self-imposed authoring convention — axe-core
+  does not fail on multiple `<h1>` elements (they are technically valid
+  HTML5), so this rule is maintained by hand rather than by automation
 - **Motion**: `prefers-reduced-motion: reduce` disables view transitions and
   theme-toggle animation
 - **Color not sole signifier**: links always underlined; status markers use
@@ -442,8 +444,9 @@ prettier --check .
 ```
 astro build                  # bad frontmatter fails here
 lychee --no-progress         # internal link checker
-pa11y-ci                     # a11y scan on sampled built pages — catches
-                             #   missing alt, heading-hierarchy issues, etc.
+pa11y-ci                     # a11y scan across the full sitemap (not sampled);
+                             #   catches missing alt, heading-order skips,
+                             #   landmarks, contrast, aria errors, etc.
 lhci autorun                 # Lighthouse CI — accessibility must stay at 100
 ```
 
