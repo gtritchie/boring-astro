@@ -2013,6 +2013,7 @@ git commit -m "Add placeholder favicon — white B on rust"
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 - Create: `eslint.config.js`
+- Modify: `package.json` (extend the `check` script)
 
 - [ ] **Step 1: Install dev deps**
 
