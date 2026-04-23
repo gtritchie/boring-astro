@@ -2920,9 +2920,10 @@ This task creates a documented runbook. The actual DNS work is Gary's hands-on s
 
 Create `docs/superpowers/runbooks/2026-04-23-dns-migration.md` covering:
 the nameserver swap from GoDaddy to Cloudflare, adding custom domains to
-the Worker, SSL/TLS settings, the four GitHub repo secrets required
-(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_CF_WA_TOKEN`,
-`LHCI_GITHUB_APP_TOKEN`), verification steps, and a rollback plan.
+the Worker, SSL/TLS settings, the three required GitHub repo secrets
+(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_CF_WA_TOKEN`)
+plus the optional `LHCI_GITHUB_APP_TOKEN` for Lighthouse CI PR
+annotations, verification steps, and a rollback plan.
 
 See the landed file for the exact content.
 
