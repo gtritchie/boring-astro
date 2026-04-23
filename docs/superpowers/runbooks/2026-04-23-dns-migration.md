@@ -7,34 +7,57 @@
 ## Steps
 
 1. **Log in to Cloudflare.** Add `boringbydesign.ca` as a site on the Free plan.
-2. **Copy the two nameservers** Cloudflare assigns (of the form `xxx.ns.cloudflare.com`).
-3. **Log in to GoDaddy → Domain Settings → Nameservers.** Choose "Custom" and
+2. **Audit the imported DNS records** before changing anything else.
+   Cloudflare attempts a best-effort scan of the existing GoDaddy zone but
+   this is not guaranteed complete. Compare Cloudflare's DNS tab against
+   your GoDaddy DNS page side-by-side and recreate anything missing —
+   especially MX records (mail), TXT records (SPF, DKIM, DMARC, domain
+   verification), and any CNAMEs you depend on for other services. The
+   nameserver cutover in step 4 switches authority immediately once it
+   propagates; any record that's missing from Cloudflare stops resolving
+   the moment propagation completes. Run
+   `dig +short MX boringbydesign.ca @<old-godaddy-ns>` against the
+   current GoDaddy nameservers and confirm every returned record is
+   mirrored in Cloudflare before proceeding.
+3. **Copy the two nameservers** Cloudflare assigns (of the form `xxx.ns.cloudflare.com`).
+4. **Log in to GoDaddy → Domain Settings → Nameservers.** Choose "Custom" and
    replace the existing nameservers with the Cloudflare pair. Save. (Keep the
    domain registration at GoDaddy — no transfer needed.)
-4. **Wait for propagation.** Usually under an hour. Verify with:
+5. **Wait for propagation.** Usually under an hour. Verify with:
    ```
    dig boringbydesign.ca NS +short
    ```
    …returns the Cloudflare nameservers.
-5. **In Cloudflare → Workers & Pages → your worker → Custom Domains:**
+6. **In Cloudflare → Workers & Pages → your worker → Custom Domains:**
    - Add `boringbydesign.ca`
    - Add `www.boringbydesign.ca` as a redirect-to-apex
-6. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and
+7. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and
    "Automatic HTTPS Rewrites".
-7. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard
+8. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard
    (Analytics & Logs → Web Analytics → Add a site). Copy the site token.
 
 ## Secrets to set in the GitHub repo
 
-All four must be configured under Settings → Secrets and variables → Actions
-before the first push to `main` triggers the deploy workflow.
+Configure under Settings → Secrets and variables → Actions before the first
+push to `main` triggers the deploy workflow.
 
-| Secret                  | Used by                                                     | Scope                                                                                                                                                                                            |
-| ----------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `CLOUDFLARE_API_TOKEN`  | `deploy` job (wrangler-action)                              | Workers Scripts: Edit + Workers Routes: Edit + Zone: Edit for `boringbydesign.ca`. Do **not** use a global API key.                                                                              |
-| `CLOUDFLARE_ACCOUNT_ID` | `deploy` job (wrangler-action)                              | Cloudflare dashboard → right sidebar (on any zone).                                                                                                                                              |
-| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from step 7 above. Astro reads `PUBLIC_*` env vars at build time and inlines them — without this, the analytics beacon does not ship.                                        |
-| `LHCI_GITHUB_APP_TOKEN` | `build-and-check` job LHCI step                             | Install the Lighthouse CI GitHub App on the repo; the install flow emits this token. Enables LHCI to post per-PR status checks. Optional — builds work without it; LHCI just won't annotate PRs. |
+### Required
+
+| Secret                  | Used by                                                     | Scope                                                                                                                                                                                                    |
+| ----------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | `deploy` job (wrangler-action)                              | Minimum: **Workers Scripts: Edit** (for deploying to the existing Worker). No Workers Routes or Zone permissions — route/custom-domain setup is manual in this runbook. Do **not** use a global API key. |
+| `CLOUDFLARE_ACCOUNT_ID` | `deploy` job (wrangler-action)                              | Cloudflare dashboard → right sidebar (on any zone).                                                                                                                                                      |
+| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from step 8 above. Astro reads `PUBLIC_*` env vars at build time and inlines them — without this, the analytics beacon does not ship.                                                |
+
+### Optional
+
+| Secret                  | Used by                         | Scope                                                                                                                                                                                    |
+| ----------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LHCI_GITHUB_APP_TOKEN` | `build-and-check` job LHCI step | Install the Lighthouse CI GitHub App on the repo; the install flow emits this token. Enables LHCI to post per-PR status checks. Builds succeed without it; LHCI just won't annotate PRs. |
+
+If the deploy workflow ever starts managing Worker routes or DNS programmatically,
+widen `CLOUDFLARE_API_TOKEN` to include **Workers Routes: Edit** and **Zone: Edit
+for `boringbydesign.ca`** at that time.
 
 ## After the first deploy
 
