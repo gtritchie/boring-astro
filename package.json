@@ -12,7 +12,7 @@
     "preview": "wrangler dev",
     "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0",
     "pa11y": "node scripts/run-pa11y.mjs",
-    "lighthouse": "lhci autorun"
+    "lighthouse": "astro build && lhci autorun"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",
