@@ -36,17 +36,27 @@
   const INIT_FLAG = "__bbdThemeToggleReady";
 
   function read(): Choice {
-    const v = localStorage.getItem("theme");
-    return v === "light" || v === "dark" || v === "system" ? v : "system";
+    // localStorage can throw (SecurityError in strict privacy modes,
+    // sandboxed iframes, etc.) — fall back to "system" so the toggle
+    // still works without persistence.
+    try {
+      const v = localStorage.getItem("theme");
+      return v === "light" || v === "dark" || v === "system" ? v : "system";
+    } catch {
+      return "system";
+    }
   }
 
   function applyTheme(choice: Choice) {
     if (choice === "system") {
       document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("theme", "system");
     } else {
       document.documentElement.setAttribute("data-theme", choice);
+    }
+    try {
       localStorage.setItem("theme", choice);
+    } catch {
+      // Persistence unavailable — theme applies for this page load only.
     }
     syncLabels(choice);
   }
