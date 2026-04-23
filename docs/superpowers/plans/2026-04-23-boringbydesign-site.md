@@ -1300,7 +1300,7 @@ Expected: 0 errors. Astro generates the `astro:content` types from this schema o
 - [ ] **Step 3: Commit**
 
 ```bash
-git add src/content/config.ts
+git add src/content.config.ts
 git commit -m "Add Zod schemas for writing, projects, and interests collections"
 ```
 
