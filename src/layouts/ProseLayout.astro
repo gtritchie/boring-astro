@@ -12,19 +12,29 @@ interface Props {
 const { title, description, publishedAt, updatedAt } = Astro.props;
 
 const fmt = (d?: Date) =>
-  d ? new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "long", day: "numeric" }).format(d) : null;
+  d
+    ? new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "long", day: "numeric" }).format(d)
+    : null;
 ---
-<BaseLayout title={title} {...(description && { description })}>
+
+<BaseLayout title={title} {...description && { description }}>
   <main id="main" class="prose-main">
     <article>
       <header class="prose-header">
         <h1>{title}</h1>
-        {publishedAt && (
-          <p class="meta">
-            <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
-            {updatedAt && <> · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time></>}
-          </p>
-        )}
+        {
+          publishedAt && (
+            <p class="meta">
+              <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
+              {updatedAt && (
+                <>
+                  {" "}
+                  · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
+                </>
+              )}
+            </p>
+          )
+        }
       </header>
       <div class="prose-body">
         <slot />
@@ -34,15 +44,37 @@ const fmt = (d?: Date) =>
 </BaseLayout>
 
 <style>
-  .prose-main { max-width: var(--reading-width); }
-  .prose-header { margin-bottom: var(--sp-8); }
-  .meta { color: var(--fg-muted); font-size: 0.9rem; margin-top: var(--sp-2); font-family: var(--font-mono); }
-  .prose-body :global(h2) { margin-top: var(--sp-10); margin-bottom: var(--sp-3); }
-  .prose-body :global(h3) { margin-top: var(--sp-8); margin-bottom: var(--sp-2); }
-  .prose-body :global(p)  { margin: var(--sp-4) 0; }
+  .prose-main {
+    max-width: var(--reading-width);
+  }
+  .prose-header {
+    margin-bottom: var(--sp-8);
+  }
+  .meta {
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+    margin-top: var(--sp-2);
+    font-family: var(--font-mono);
+  }
+  .prose-body :global(h2) {
+    margin-top: var(--sp-10);
+    margin-bottom: var(--sp-3);
+  }
+  .prose-body :global(h3) {
+    margin-top: var(--sp-8);
+    margin-bottom: var(--sp-2);
+  }
+  .prose-body :global(p) {
+    margin: var(--sp-4) 0;
+  }
   .prose-body :global(ul),
-  .prose-body :global(ol) { margin: var(--sp-4) 0; padding-left: var(--sp-6); }
-  .prose-body :global(li) { margin: var(--sp-2) 0; }
+  .prose-body :global(ol) {
+    margin: var(--sp-4) 0;
+    padding-left: var(--sp-6);
+  }
+  .prose-body :global(li) {
+    margin: var(--sp-2) 0;
+  }
   .prose-body :global(pre) {
     background: var(--bg-raised);
     border: 1px solid var(--border);

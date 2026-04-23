@@ -13,20 +13,32 @@ interface Props {
 const { entries } = Astro.props;
 const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" });
 ---
+
 <ul class="entry-list">
-  {entries.map(e => (
-    <li class="entry">
-      <time class="date" datetime={e.date.toISOString()}>{fmt.format(e.date)}</time>
-      <div>
-        <a class="title" href={e.href}>{e.title}</a>
-        <p class="desc">{e.description}</p>
-      </div>
-    </li>
-  ))}
+  {
+    entries.map((e) => (
+      <li class="entry">
+        <time class="date" datetime={e.date.toISOString()}>
+          {fmt.format(e.date)}
+        </time>
+        <div>
+          <a class="title" href={e.href}>
+            {e.title}
+          </a>
+          <p class="desc">{e.description}</p>
+        </div>
+      </li>
+    ))
+  }
 </ul>
 
 <style>
-  .entry-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
+  .entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--border);
+  }
   .entry {
     display: grid;
     grid-template-columns: 6rem 1fr;
@@ -35,11 +47,29 @@ const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit"
     border-bottom: 1px solid var(--border);
     align-items: baseline;
   }
-  .date { font-family: var(--font-mono); font-size: 0.85rem; color: var(--fg-muted); letter-spacing: 0.02em; }
-  .title { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; font-size: 1.1rem; font-weight: 500; }
-  .desc { color: var(--fg-muted); font-size: 0.93rem; margin: var(--sp-1) 0 0; }
+  .date {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.02em;
+  }
+  .title {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  .desc {
+    color: var(--fg-muted);
+    font-size: 0.93rem;
+    margin: var(--sp-1) 0 0;
+  }
 
   @media (max-width: 640px) {
-    .entry { grid-template-columns: 1fr; gap: var(--sp-2); }
+    .entry {
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+    }
   }
 </style>

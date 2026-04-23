@@ -1,8 +1,14 @@
 /* src/styles/reset.css — minimal, opinionated reset */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
@@ -14,17 +20,39 @@ body {
   color: var(--fg);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   line-height: var(--lh-heading);
   font-weight: 600;
 }
 
-p, ul, ol, pre, blockquote, figure { margin: 0; }
+p,
+ul,
+ol,
+pre,
+blockquote,
+figure {
+  margin: 0;
+}
 
-a { color: inherit; text-decoration: none; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-img, picture, svg, video { display: block; max-width: 100%; height: auto; }
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 
 button {
   font: inherit;
@@ -41,7 +69,9 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

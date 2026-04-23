@@ -15,6 +15,7 @@ const { title, description, canonical } = Astro.props;
 const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -37,14 +38,16 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
       })();
     </script>
 
-    {import.meta.env['PUBLIC_CF_WA_TOKEN'] && (
-      <script
-        is:inline
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token": "${import.meta.env['PUBLIC_CF_WA_TOKEN']}"}`}
-      />
-    )}
+    {
+      import.meta.env["PUBLIC_CF_WA_TOKEN"] && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}"}`}
+        />
+      )
+    }
 
     <ClientRouter />
   </head>

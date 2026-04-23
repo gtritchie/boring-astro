@@ -1,6 +1,7 @@
 ---
 // src/components/SkipLink.astro — visually hidden until focused; jumps to #main
 ---
+
 <a class="skip-link" href="#main">Skip to content</a>
 
 <style>
@@ -16,5 +17,7 @@
     text-decoration: none;
     z-index: 100;
   }
-  .skip-link:focus { top: var(--sp-2); }
+  .skip-link:focus {
+    top: var(--sp-2);
+  }
 </style>

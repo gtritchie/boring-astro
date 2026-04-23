@@ -98,6 +98,7 @@ Goal: a one-page hello-world site that builds with Astro and serves locally via 
 ### Task A1: Create feature branch and lock down npm policy
 
 **Files:**
+
 - Create: `.npmrc`
 
 - [ ] **Step 1: Create the feature branch off `docs/site-spec`**
@@ -133,6 +134,7 @@ Expected: commit succeeds; `git log --oneline -1` shows the new commit.
 ### Task A2: Initialize package.json and install Astro + TypeScript
 
 **Files:**
+
 - Create: `package.json` (via `npm init`)
 - Create: `package-lock.json` (via `npm install`)
 - Create: `node_modules/` (gitignored)
@@ -196,6 +198,7 @@ git commit -m "Install Astro 6, Cloudflare adapter, and core integrations with e
 ### Task A3: Write Astro config, tsconfig, and Wrangler config
 
 **Files:**
+
 - Create: `astro.config.mjs`
 - Create: `tsconfig.json`
 - Create: `wrangler.jsonc`
@@ -204,19 +207,19 @@ git commit -m "Install Astro 6, Cloudflare adapter, and core integrations with e
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
+import { defineConfig } from "astro/config";
+import cloudflare from "@astrojs/cloudflare";
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
-  site: 'https://boringbydesign.ca',
-  output: 'static',
+  site: "https://boringbydesign.ca",
+  output: "static",
   adapter: cloudflare(),
   integrations: [mdx(), sitemap()],
-  trailingSlash: 'always',
+  trailingSlash: "always",
   build: {
-    format: 'directory',
+    format: "directory",
   },
 });
 ```
@@ -261,13 +264,14 @@ typecheck.
   "assets": {
     "directory": "./dist/client",
     "binding": "ASSETS",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
 }
 ```
 
 Notes:
+
 - No `main` field — `@astrojs/cloudflare` in static mode does not emit a worker entrypoint; static assets are served directly by Workers Assets. If SSR routes are added later, set `main` to `./dist/_worker.js/index.js`.
 - The adapter emits static output to `dist/client/`, which is why `assets.directory` points there rather than at `./dist`.
 - The Worker name `boringbydesign` should be unique to the Cloudflare account. If a name collision occurs at first deploy, rename to `boringbydesign-site`.
@@ -293,6 +297,7 @@ git commit -m "Add Astro, TypeScript, and Wrangler configs for static Workers de
 ### Task A4: Build hello-world index page and verify local build works
 
 **Files:**
+
 - Create: `src/pages/index.astro`
 - Create: `public/robots.txt`
 
@@ -302,6 +307,7 @@ git commit -m "Add Astro, TypeScript, and Wrangler configs for static Workers de
 ---
 // src/pages/index.astro
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -360,6 +366,7 @@ Goal: design tokens, layouts, and chrome components wired up so future pages com
 ### Task B1: Design tokens, reset, and global CSS
 
 **Files:**
+
 - Create: `src/styles/tokens.css`
 - Create: `src/styles/reset.css`
 - Create: `src/styles/global.css`
@@ -371,8 +378,8 @@ Goal: design tokens, layouts, and chrome components wired up so future pages com
 
 :root {
   /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-               "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Type scale (base 18px, ratio 1.2) */
@@ -406,29 +413,29 @@ Goal: design tokens, layouts, and chrome components wired up so future pages com
 /* Light theme (default) */
 :root,
 [data-theme="light"] {
-  --bg: #FAFAF7;
-  --bg-raised: #FFFFFF;
+  --bg: #fafaf7;
+  --bg-raised: #ffffff;
   --fg: #141414;
-  --fg-muted: #4A4A4A;
-  --border: #CFCCC1;
-  --border-ui: #7F7C70;
-  --btn-bg: #EFEDE6;
-  --accent: #7A331A;
-  --accent-bg: #F1E7E0;
-  --focus-ring: #7A331A;
+  --fg-muted: #4a4a4a;
+  --border: #cfccc1;
+  --border-ui: #7f7c70;
+  --btn-bg: #efede6;
+  --accent: #7a331a;
+  --accent-bg: #f1e7e0;
+  --focus-ring: #7a331a;
 }
 
 [data-theme="dark"] {
   --bg: #111111;
   --bg-raised: #181816;
-  --fg: #F2F0EA;
-  --fg-muted: #B8B4A9;
-  --border: #3A3A37;
-  --border-ui: #6B6B6B;
+  --fg: #f2f0ea;
+  --fg-muted: #b8b4a9;
+  --border: #3a3a37;
+  --border-ui: #6b6b6b;
   --btn-bg: #222220;
-  --accent: #E8A98C;
-  --accent-bg: #2A1F1A;
-  --focus-ring: #E8A98C;
+  --accent: #e8a98c;
+  --accent-bg: #2a1f1a;
+  --focus-ring: #e8a98c;
 }
 
 /* Respect system preference when no explicit choice */
@@ -436,14 +443,14 @@ Goal: design tokens, layouts, and chrome components wired up so future pages com
   :root:not([data-theme]) {
     --bg: #111111;
     --bg-raised: #181816;
-    --fg: #F2F0EA;
-    --fg-muted: #B8B4A9;
-    --border: #3A3A37;
-    --border-ui: #6B6B6B;
+    --fg: #f2f0ea;
+    --fg-muted: #b8b4a9;
+    --border: #3a3a37;
+    --border-ui: #6b6b6b;
     --btn-bg: #222220;
-    --accent: #E8A98C;
-    --accent-bg: #2A1F1A;
-    --focus-ring: #E8A98C;
+    --accent: #e8a98c;
+    --accent-bg: #2a1f1a;
+    --focus-ring: #e8a98c;
   }
 }
 ```
@@ -453,9 +460,15 @@ Goal: design tokens, layouts, and chrome components wired up so future pages com
 ```css
 /* src/styles/reset.css — minimal, opinionated reset */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
@@ -467,17 +480,39 @@ body {
   color: var(--fg);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   line-height: var(--lh-heading);
   font-weight: 600;
 }
 
-p, ul, ol, pre, blockquote, figure { margin: 0; }
+p,
+ul,
+ol,
+pre,
+blockquote,
+figure {
+  margin: 0;
+}
 
-a { color: inherit; text-decoration: none; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-img, picture, svg, video { display: block; max-width: 100%; height: auto; }
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 
 button {
   font: inherit;
@@ -494,7 +529,9 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -510,21 +547,37 @@ button {
 @import "./tokens.css";
 @import "./reset.css";
 
-body { font-size: 18px; }
+body {
+  font-size: 18px;
+}
 
-h1 { font-size: var(--fs-h1); letter-spacing: -0.02em; }
-h2 { font-size: var(--fs-h2); letter-spacing: -0.015em; }
-h3 { font-size: var(--fs-h3); }
-h4 { font-size: var(--fs-h4); }
+h1 {
+  font-size: var(--fs-h1);
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: var(--fs-h2);
+  letter-spacing: -0.015em;
+}
+h3 {
+  font-size: var(--fs-h3);
+}
+h4 {
+  font-size: var(--fs-h4);
+}
 
-p { max-width: var(--reading-width); }
+p {
+  max-width: var(--reading-width);
+}
 
 a {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-a:hover { text-decoration-thickness: 2px; }
+a:hover {
+  text-decoration-thickness: 2px;
+}
 
 code {
   font-family: var(--font-mono);
@@ -556,6 +609,7 @@ Nothing renders yet — the CSS files are just sitting there until BaseLayout im
 ### Task B2: Build `BaseLayout.astro` with inline theme-bootstrap script
 
 **Files:**
+
 - Create: `src/layouts/BaseLayout.astro`
 
 - [ ] **Step 1: Write the layout**
@@ -575,6 +629,7 @@ const { title, description, canonical } = Astro.props;
 const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -614,6 +669,7 @@ Replace the raw HTML with:
 // src/pages/index.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Boring by Design" description="Personal site of Gary Ritchie.">
   <main>
     <h1>Boring by Design</h1>
@@ -643,6 +699,7 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
 ### Task B3: Build `ThemeToggle.astro` and `SkipLink.astro`
 
 **Files:**
+
 - Create: `src/components/ThemeToggle.astro`
 - Create: `src/components/SkipLink.astro`
 
@@ -652,7 +709,13 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
 ---
 // src/components/ThemeToggle.astro — cycles Light → Dark → System; persists to localStorage
 ---
-<button class="theme-toggle" data-theme-toggle aria-label="Cycle theme: light, dark, system" type="button">
+
+<button
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Cycle theme: light, dark, system"
+  type="button"
+>
   <span data-theme-label>Theme</span>
 </button>
 
@@ -666,7 +729,9 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
     font-size: 0.82rem;
     letter-spacing: 0.02em;
   }
-  .theme-toggle:hover { background: var(--border); }
+  .theme-toggle:hover {
+    background: var(--border);
+  }
 </style>
 
 <script>
@@ -734,6 +799,7 @@ Astro scopes the `<style>` block to this component; hashed class names prevent c
 ---
 // src/components/SkipLink.astro — visually hidden until focused; jumps to #main
 ---
+
 <a class="skip-link" href="#main">Skip to content</a>
 
 <style>
@@ -749,7 +815,9 @@ Astro scopes the `<style>` block to this component; hashed class names prevent c
     text-decoration: none;
     z-index: 100;
   }
-  .skip-link:focus { top: var(--sp-2); }
+  .skip-link:focus {
+    top: var(--sp-2);
+  }
 </style>
 ```
 
@@ -765,6 +833,7 @@ git commit -m "Add ThemeToggle and SkipLink components"
 ### Task B4: Build `SiteHeader.astro` and `SiteFooter.astro`
 
 **Files:**
+
 - Create: `src/components/SiteHeader.astro`
 - Create: `src/components/SiteFooter.astro`
 
@@ -776,28 +845,30 @@ git commit -m "Add ThemeToggle and SkipLink components"
 import ThemeToggle from "./ThemeToggle.astro";
 
 const navItems = [
-  { href: "/projects/",  label: "Projects" },
+  { href: "/projects/", label: "Projects" },
   { href: "/interests/", label: "Interests" },
-  { href: "/writing/",   label: "Writing" },
-  { href: "/about/",     label: "About" },
+  { href: "/writing/", label: "Writing" },
+  { href: "/about/", label: "About" },
 ];
 
 const pathname = Astro.url.pathname;
 ---
+
 <header class="site-header">
   <div class="inner">
     <a class="wordmark" href="/" aria-label="Home">Boring by Design</a>
     <div class="right">
       <nav aria-label="Primary">
         <ul>
-          {navItems.map(item => (
-            <li>
-              <a
-                href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
-              >{item.label}</a>
-            </li>
-          ))}
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
       <ThemeToggle />
@@ -844,8 +915,14 @@ const pathname = Astro.url.pathname;
     color: var(--fg);
     text-decoration: none;
   }
-  nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+  nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  nav a[aria-current="page"] {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 </style>
 ```
 
@@ -856,6 +933,7 @@ const pathname = Astro.url.pathname;
 // src/components/SiteFooter.astro
 const year = new Date().getFullYear();
 ---
+
 <footer class="site-footer">
   <div class="inner">
     <span>© {year} Gary Ritchie · <a href="/rss.xml">RSS</a></span>
@@ -894,8 +972,14 @@ const year = new Date().getFullYear();
     display: flex;
     gap: var(--sp-4);
   }
-  .site-footer a { color: var(--fg-muted); text-decoration: underline; text-underline-offset: 3px; }
-  .site-footer a:hover { color: var(--fg); }
+  .site-footer a {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .site-footer a:hover {
+    color: var(--fg);
+  }
 </style>
 ```
 
@@ -913,6 +997,7 @@ git commit -m "Add SiteHeader (primary nav + theme toggle) and SiteFooter (secon
 ### Task B5: Wire `BaseLayout` to include `SkipLink`, `SiteHeader`, `SiteFooter`, plus Astro View Transitions
 
 **Files:**
+
 - Modify: `src/layouts/BaseLayout.astro`
 
 - [ ] **Step 1: Update `BaseLayout.astro`**
@@ -937,6 +1022,7 @@ const { title, description, canonical } = Astro.props;
 const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -976,10 +1062,14 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Boring by Design" description="Personal site of Gary Ritchie.">
   <main id="main">
     <h1>Calm work, quietly shipped.</h1>
-    <p>A personal archive of the software I build, the things I'm tinkering with, and the occasional note.</p>
+    <p>
+      A personal archive of the software I build, the things I'm tinkering with, and the occasional
+      note.
+    </p>
   </main>
 </BaseLayout>
 ```
@@ -1014,6 +1104,7 @@ git commit -m "Wire BaseLayout with site chrome, view transitions, and main wrap
 ### Task B6: Build `ProseLayout.astro`
 
 **Files:**
+
 - Create: `src/layouts/ProseLayout.astro`
 
 - [ ] **Step 1: Write the layout**
@@ -1033,19 +1124,29 @@ interface Props {
 const { title, description, publishedAt, updatedAt } = Astro.props;
 
 const fmt = (d?: Date) =>
-  d ? new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "long", day: "numeric" }).format(d) : null;
+  d
+    ? new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "long", day: "numeric" }).format(d)
+    : null;
 ---
-<BaseLayout title={title} {...(description && { description })}>
+
+<BaseLayout title={title} {...description && { description }}>
   <main id="main" class="prose-main">
     <article>
       <header class="prose-header">
         <h1>{title}</h1>
-        {publishedAt && (
-          <p class="meta">
-            <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
-            {updatedAt && <> · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time></>}
-          </p>
-        )}
+        {
+          publishedAt && (
+            <p class="meta">
+              <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
+              {updatedAt && (
+                <>
+                  {" "}
+                  · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
+                </>
+              )}
+            </p>
+          )
+        }
       </header>
       <div class="prose-body">
         <slot />
@@ -1055,15 +1156,37 @@ const fmt = (d?: Date) =>
 </BaseLayout>
 
 <style>
-  .prose-main { max-width: var(--reading-width); }
-  .prose-header { margin-bottom: var(--sp-8); }
-  .meta { color: var(--fg-muted); font-size: 0.9rem; margin-top: var(--sp-2); font-family: var(--font-mono); }
-  .prose-body :global(h2) { margin-top: var(--sp-10); margin-bottom: var(--sp-3); }
-  .prose-body :global(h3) { margin-top: var(--sp-8); margin-bottom: var(--sp-2); }
-  .prose-body :global(p)  { margin: var(--sp-4) 0; }
+  .prose-main {
+    max-width: var(--reading-width);
+  }
+  .prose-header {
+    margin-bottom: var(--sp-8);
+  }
+  .meta {
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+    margin-top: var(--sp-2);
+    font-family: var(--font-mono);
+  }
+  .prose-body :global(h2) {
+    margin-top: var(--sp-10);
+    margin-bottom: var(--sp-3);
+  }
+  .prose-body :global(h3) {
+    margin-top: var(--sp-8);
+    margin-bottom: var(--sp-2);
+  }
+  .prose-body :global(p) {
+    margin: var(--sp-4) 0;
+  }
   .prose-body :global(ul),
-  .prose-body :global(ol) { margin: var(--sp-4) 0; padding-left: var(--sp-6); }
-  .prose-body :global(li) { margin: var(--sp-2) 0; }
+  .prose-body :global(ol) {
+    margin: var(--sp-4) 0;
+    padding-left: var(--sp-6);
+  }
+  .prose-body :global(li) {
+    margin: var(--sp-2) 0;
+  }
   .prose-body :global(pre) {
     background: var(--bg-raised);
     border: 1px solid var(--border);
@@ -1100,6 +1223,7 @@ Goal: content collections, all pages wired to real data, seed content in place.
 ### Task C1: Content collection schemas
 
 **Files:**
+
 - Create: `src/content.config.ts`
 
 Astro 6 removed the legacy `type: "content"` collection API; collections
@@ -1185,6 +1309,7 @@ git commit -m "Add Zod schemas for writing, projects, and interests collections"
 ### Task C2: Seed content — two entries per collection
 
 **Files:**
+
 - Create: `src/content/writing/hello-world.md`
 - Create: `src/content/writing/why-boring.md`
 - Create: `src/content/projects/cal-gen.md`
@@ -1302,6 +1427,7 @@ git commit -m "Add seed content stubs for writing, projects, and interests"
 ### Task C3: Build `EntryList.astro` and `ProjectCard.astro`
 
 **Files:**
+
 - Create: `src/components/EntryList.astro`
 - Create: `src/components/ProjectCard.astro`
 
@@ -1323,20 +1449,32 @@ interface Props {
 const { entries } = Astro.props;
 const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" });
 ---
+
 <ul class="entry-list">
-  {entries.map(e => (
-    <li class="entry">
-      <time class="date" datetime={e.date.toISOString()}>{fmt.format(e.date)}</time>
-      <div>
-        <a class="title" href={e.href}>{e.title}</a>
-        <p class="desc">{e.description}</p>
-      </div>
-    </li>
-  ))}
+  {
+    entries.map((e) => (
+      <li class="entry">
+        <time class="date" datetime={e.date.toISOString()}>
+          {fmt.format(e.date)}
+        </time>
+        <div>
+          <a class="title" href={e.href}>
+            {e.title}
+          </a>
+          <p class="desc">{e.description}</p>
+        </div>
+      </li>
+    ))
+  }
 </ul>
 
 <style>
-  .entry-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
+  .entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--border);
+  }
   .entry {
     display: grid;
     grid-template-columns: 6rem 1fr;
@@ -1345,12 +1483,30 @@ const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit"
     border-bottom: 1px solid var(--border);
     align-items: baseline;
   }
-  .date { font-family: var(--font-mono); font-size: 0.85rem; color: var(--fg-muted); letter-spacing: 0.02em; }
-  .title { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; font-size: 1.1rem; font-weight: 500; }
-  .desc { color: var(--fg-muted); font-size: 0.93rem; margin: var(--sp-1) 0 0; }
+  .date {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.02em;
+  }
+  .title {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  .desc {
+    color: var(--fg-muted);
+    font-size: 0.93rem;
+    margin: var(--sp-1) 0 0;
+  }
 
   @media (max-width: 640px) {
-    .entry { grid-template-columns: 1fr; gap: var(--sp-2); }
+    .entry {
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+    }
   }
 </style>
 ```
@@ -1370,12 +1526,13 @@ interface Props {
 }
 const { href, title, summary, tech, displayYear, status } = Astro.props;
 ---
+
 <article class="card">
   <h3><a href={href}>{title}</a></h3>
   <p class="summary">{summary}</p>
   <div class="meta">
     <ul class="tags">
-      {tech.map(t => <li>{t}</li>)}
+      {tech.map((t) => <li>{t}</li>)}
       <li>{displayYear}</li>
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
@@ -1390,14 +1547,37 @@ const { href, title, summary, tech, displayYear, status } = Astro.props;
     padding: var(--sp-4) var(--sp-5);
     margin-bottom: var(--sp-3);
   }
-  .card h3 { font-size: 1.05rem; margin: 0 0 var(--sp-2); }
-  .card h3 a { color: var(--fg); text-decoration: none; }
-  .card h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  .summary { color: var(--fg-muted); font-size: 0.95rem; margin: 0 0 var(--sp-3); max-width: 60ch; }
-  .meta { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); }
+  .card h3 {
+    font-size: 1.05rem;
+    margin: 0 0 var(--sp-2);
+  }
+  .card h3 a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .card h3 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .summary {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin: 0 0 var(--sp-3);
+    max-width: 60ch;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-3);
+  }
   .tags {
-    list-style: none; padding: 0; margin: 0;
-    display: flex; flex-wrap: wrap; gap: var(--sp-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
   }
   .tags li {
     font-family: var(--font-mono);
@@ -1407,7 +1587,12 @@ const { href, title, summary, tech, displayYear, status } = Astro.props;
     border-radius: 3px;
     padding: 0.1rem 0.5rem;
   }
-  .status { font-size: 0.78rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .status {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
 </style>
 ```
 
@@ -1423,6 +1608,7 @@ git commit -m "Add EntryList and ProjectCard components"
 ### Task C4: Home page — featured projects + recent writing
 
 **Files:**
+
 - Modify: `src/pages/index.astro`
 
 - [ ] **Step 1: Rewrite `src/pages/index.astro`**
@@ -1434,37 +1620,46 @@ import ProjectCard from "../components/ProjectCard.astro";
 import EntryList from "../components/EntryList.astro";
 import { getCollection } from "astro:content";
 
-const projects = (await getCollection("projects", p => !p.data.draft && p.data.featured))
+const projects = (await getCollection("projects", (p) => !p.data.draft && p.data.featured))
   .sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime())
   .slice(0, 4);
 
-const writing = (await getCollection("writing", p => !p.data.draft))
+const writing = (await getCollection("writing", (p) => !p.data.draft))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
   .slice(0, 3);
 
-const writingEntries = writing.map(post => ({
+const writingEntries = writing.map((post) => ({
   href: `/writing/${post.id}/`,
   title: post.data.title,
   description: post.data.description,
   date: post.data.publishedAt,
 }));
 ---
-<BaseLayout title="Boring by Design" description="Personal site of Gary Ritchie — projects, writing, and tinkering.">
+
+<BaseLayout
+  title="Boring by Design"
+  description="Personal site of Gary Ritchie — projects, writing, and tinkering."
+>
   <main id="main">
     <h1>Calm work, quietly shipped.</h1>
-    <p class="intro">A personal archive of the software I build, the things I'm tinkering with, and the occasional note. Nothing flashy — just the stuff that stuck around long enough to be worth writing down.</p>
+    <p class="intro">
+      A personal archive of the software I build, the things I'm tinkering with, and the occasional
+      note. Nothing flashy — just the stuff that stuck around long enough to be worth writing down.
+    </p>
 
     <h2 class="section-label">Featured projects</h2>
-    {projects.map(p => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tech={p.data.tech}
-        displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
-        status={p.data.status}
-      />
-    ))}
+    {
+      projects.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tech={p.data.tech}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
 
     <h2 class="section-label">Recent writing</h2>
     <EntryList entries={writingEntries} />
@@ -1472,7 +1667,11 @@ const writingEntries = writing.map(post => ({
 </BaseLayout>
 
 <style>
-  .intro { font-size: 1.1rem; max-width: 42ch; margin-bottom: var(--sp-10); }
+  .intro {
+    font-size: 1.1rem;
+    max-width: 42ch;
+    margin-bottom: var(--sp-10);
+  }
   .section-label {
     font-size: 1rem;
     font-weight: 600;
@@ -1504,6 +1703,7 @@ git commit -m "Build home page with featured projects and recent writing"
 ### Task C5: Single pages — About, Uses, Reading, 404
 
 **Files:**
+
 - Create: `src/pages/about.astro`
 - Create: `src/pages/uses.astro`
 - Create: `src/pages/reading.astro`
@@ -1515,17 +1715,28 @@ git commit -m "Build home page with featured projects and recent writing"
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="About" description="About Gary Ritchie.">
   <main id="main" class="prose">
     <h1>About</h1>
-    <p>Hi — I'm Gary. Software engineer in Canada. This site is my personal archive and a running excuse to keep the craft fresh.</p>
-    <p>If you want to reach me, <a href="mailto:gary.t.ritchie@gmail.com">email works</a>. I'm also on <a href="https://github.com/" rel="me">GitHub</a>.</p>
+    <p>
+      Hi — I'm Gary. Software engineer in Canada. This site is my personal archive and a running
+      excuse to keep the craft fresh.
+    </p>
+    <p>
+      If you want to reach me, <a href="mailto:gary.t.ritchie@gmail.com">email works</a>. I'm also
+      on <a href="https://github.com/" rel="me">GitHub</a>.
+    </p>
   </main>
 </BaseLayout>
 
 <style>
-  .prose { max-width: var(--reading-width); }
-  .prose p { margin: var(--sp-4) 0; }
+  .prose {
+    max-width: var(--reading-width);
+  }
+  .prose p {
+    margin: var(--sp-4) 0;
+  }
 </style>
 ```
 
@@ -1535,16 +1746,23 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Uses" description="Hardware, software, and tools I use day-to-day.">
   <main id="main" class="prose">
     <h1>Uses</h1>
-    <p>Placeholder. Hardware, editor, terminal, CLIs — fill in when there's something worth listing.</p>
+    <p>
+      Placeholder. Hardware, editor, terminal, CLIs — fill in when there's something worth listing.
+    </p>
   </main>
 </BaseLayout>
 
 <style>
-  .prose { max-width: var(--reading-width); }
-  .prose p { margin: var(--sp-4) 0; }
+  .prose {
+    max-width: var(--reading-width);
+  }
+  .prose p {
+    margin: var(--sp-4) 0;
+  }
 </style>
 ```
 
@@ -1554,6 +1772,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Reading" description="Recently read, currently reading.">
   <main id="main" class="prose">
     <h1>Reading</h1>
@@ -1562,8 +1781,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-  .prose { max-width: var(--reading-width); }
-  .prose p { margin: var(--sp-4) 0; }
+  .prose {
+    max-width: var(--reading-width);
+  }
+  .prose p {
+    margin: var(--sp-4) 0;
+  }
 </style>
 ```
 
@@ -1573,6 +1796,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Not found" description="Page not found.">
   <main id="main" class="prose">
     <h1>Not found</h1>
@@ -1581,8 +1805,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-  .prose { max-width: var(--reading-width); }
-  .prose p { margin: var(--sp-4) 0; }
+  .prose {
+    max-width: var(--reading-width);
+  }
+  .prose p {
+    margin: var(--sp-4) 0;
+  }
 </style>
 ```
 
@@ -1606,6 +1834,7 @@ git commit -m "Add About, Uses, Reading, and 404 pages"
 ### Task C6: Projects — list and detail pages
 
 **Files:**
+
 - Create: `src/pages/projects/index.astro`
 - Create: `src/pages/projects/[...slug].astro`
 
@@ -1618,22 +1847,26 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectCard from "../../components/ProjectCard.astro";
 import { getCollection } from "astro:content";
 
-const projects = (await getCollection("projects", p => !p.data.draft))
-  .sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime());
+const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
+  (a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime(),
+);
 ---
+
 <BaseLayout title="Projects" description="Software projects — personal and professional.">
   <main id="main">
     <h1>Projects</h1>
-    {projects.map(p => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tech={p.data.tech}
-        displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
-        status={p.data.status}
-      />
-    ))}
+    {
+      projects.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tech={p.data.tech}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
   </main>
 </BaseLayout>
 ```
@@ -1647,32 +1880,70 @@ import ProseLayout from "../../layouts/ProseLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const projects = await getCollection("projects", p => !p.data.draft);
-  return projects.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+  const projects = await getCollection("projects", (p) => !p.data.draft);
+  return projects.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
 ---
+
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
   <p class="lede">{data.summary}</p>
   <dl class="facts">
     <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getFullYear()}</dd></div>
     <div><dt>Status</dt><dd>{data.status}</dd></div>
     <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
-    {data.links?.repo && <div><dt>Repo</dt><dd><a href={data.links.repo}>{data.links.repo}</a></dd></div>}
-    {data.links?.site && <div><dt>Site</dt><dd><a href={data.links.site}>{data.links.site}</a></dd></div>}
+    {
+      data.links?.repo && (
+        <div>
+          <>
+            <dt>Repo</dt>
+            <dd>
+              <a href={data.links.repo}>{data.links.repo}</a>
+            </dd>
+          </>
+        </div>
+      )
+    }
+    {
+      data.links?.site && (
+        <div>
+          <>
+            <dt>Site</dt>
+            <dd>
+              <a href={data.links.site}>{data.links.site}</a>
+            </dd>
+          </>
+        </div>
+      )
+    }
   </dl>
   <Content />
 </ProseLayout>
 
 <style>
-  .lede { font-size: 1.05rem; color: var(--fg-muted); }
-  .facts { display: grid; grid-template-columns: max-content 1fr; gap: var(--sp-2) var(--sp-5); margin: var(--sp-6) 0; }
-  .facts > div { display: contents; }
-  .facts dt { color: var(--fg-muted); font-size: 0.9rem; }
-  .facts dd { margin: 0; }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--sp-2) var(--sp-5);
+    margin: var(--sp-6) 0;
+  }
+  .facts > div {
+    display: contents;
+  }
+  .facts dt {
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+  .facts dd {
+    margin: 0;
+  }
 </style>
 ```
 
@@ -1696,6 +1967,7 @@ git commit -m "Add projects list and detail pages"
 ### Task C7: Interests — list and detail pages
 
 **Files:**
+
 - Create: `src/pages/interests/index.astro`
 - Create: `src/pages/interests/[...slug].astro`
 
@@ -1707,31 +1979,62 @@ git commit -m "Add projects list and detail pages"
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
-const interests = (await getCollection("interests", p => !p.data.draft))
-  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const interests = (await getCollection("interests", (p) => !p.data.draft)).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title),
+);
 ---
+
 <BaseLayout title="Interests" description="Non-software interests and projects.">
   <main id="main">
     <h1>Interests</h1>
     <ul class="list">
-      {interests.map(i => (
-        <li>
-          <h3><a href={`/interests/${i.id}/`}>{i.data.title}</a></h3>
-          <p>{i.data.summary}</p>
-          {i.data.kind && <small class="kind">{i.data.kind}</small>}
-        </li>
-      ))}
+      {
+        interests.map((i) => (
+          <li>
+            <h3>
+              <a href={`/interests/${i.id}/`}>{i.data.title}</a>
+            </h3>
+            <p>{i.data.summary}</p>
+            {i.data.kind && <small class="kind">{i.data.kind}</small>}
+          </li>
+        ))
+      }
     </ul>
   </main>
 </BaseLayout>
 
 <style>
-  .list { list-style: none; padding: 0; margin: 0; }
-  .list li { padding: var(--sp-5) 0; border-bottom: 1px solid var(--border); }
-  .list h3 { font-size: 1.1rem; margin: 0 0 var(--sp-1); }
-  .list h3 a { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
-  .list p { color: var(--fg-muted); margin: 0; }
-  .kind { display: inline-block; margin-top: var(--sp-2); font-family: var(--font-mono); color: var(--fg-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .list li {
+    padding: var(--sp-5) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .list h3 {
+    font-size: 1.1rem;
+    margin: 0 0 var(--sp-1);
+  }
+  .list h3 a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .list p {
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .kind {
+    display: inline-block;
+    margin-top: var(--sp-2);
+    font-family: var(--font-mono);
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
 </style>
 ```
 
@@ -1744,21 +2047,25 @@ import ProseLayout from "../../layouts/ProseLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const interests = await getCollection("interests", p => !p.data.draft);
-  return interests.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+  const interests = await getCollection("interests", (p) => !p.data.draft);
+  return interests.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
 ---
+
 <ProseLayout title={data.title} description={data.summary}>
   <p class="lede">{data.summary}</p>
   <Content />
 </ProseLayout>
 
 <style>
-  .lede { font-size: 1.05rem; color: var(--fg-muted); }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+  }
 </style>
 ```
 
@@ -1782,6 +2089,7 @@ git commit -m "Add interests list and detail pages"
 ### Task C8: Writing — list and detail pages
 
 **Files:**
+
 - Create: `src/pages/writing/index.astro`
 - Create: `src/pages/writing/[...slug].astro`
 
@@ -1794,16 +2102,18 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import EntryList from "../../components/EntryList.astro";
 import { getCollection } from "astro:content";
 
-const posts = (await getCollection("writing", p => !p.data.draft))
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+const posts = (await getCollection("writing", (p) => !p.data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
 
-const entries = posts.map(p => ({
+const entries = posts.map((p) => ({
   href: `/writing/${p.id}/`,
   title: p.data.title,
   description: p.data.description,
   date: p.data.publishedAt,
 }));
 ---
+
 <BaseLayout title="Writing" description="Posts, notes, and the occasional essay.">
   <main id="main">
     <h1>Writing</h1>
@@ -1821,14 +2131,15 @@ import ProseLayout from "../../layouts/ProseLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("writing", p => !p.data.draft);
-  return posts.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+  const posts = await getCollection("writing", (p) => !p.data.draft);
+  return posts.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
 ---
+
 <ProseLayout
   title={data.title}
   description={data.description}
@@ -1863,6 +2174,7 @@ git commit -m "Add writing list and detail pages"
 ### Task D1: RSS feed
 
 **Files:**
+
 - Create: `src/pages/rss.xml.ts`
 
 - [ ] **Step 1: Install `@astrojs/rss` if not already present**
@@ -1882,14 +2194,15 @@ import { getCollection } from "astro:content";
 import type { APIContext } from "astro";
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection("writing", p => !p.data.draft))
-    .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+  const posts = (await getCollection("writing", (p) => !p.data.draft)).sort(
+    (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+  );
 
   return rss({
     title: "Boring by Design",
     description: "Writing from Gary Ritchie.",
     site: context.site!.toString(),
-    items: posts.map(p => ({
+    items: posts.map((p) => ({
       title: p.data.title,
       description: p.data.description,
       pubDate: p.data.publishedAt,
@@ -1920,6 +2233,7 @@ git commit -m "Add RSS feed for the writing collection"
 ### Task D2: Sitemap and Cloudflare Web Analytics tag
 
 **Files:**
+
 - Modify: `src/layouts/BaseLayout.astro`
 - Modify: `astro.config.mjs` (already has sitemap — confirm)
 
@@ -1941,14 +2255,16 @@ Cloudflare gives you a site-specific token once you add Web Analytics in the Clo
 Edit `BaseLayout.astro`, after the `<ClientRouter />` element, add:
 
 ```astro
-{import.meta.env.PUBLIC_CF_WA_TOKEN && (
-  <script
-    is:inline
-    defer
-    src="https://static.cloudflareinsights.com/beacon.min.js"
-    data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_WA_TOKEN}"}`}
-  />
-)}
+{
+  import.meta.env.PUBLIC_CF_WA_TOKEN && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_WA_TOKEN}"}`}
+    />
+  )
+}
 ```
 
 - [ ] **Step 3: Document the env var**
@@ -1983,6 +2299,7 @@ git commit -m "Wire sitemap and gate Cloudflare Web Analytics behind PUBLIC_CF_W
 ### Task D3: Favicon
 
 **Files:**
+
 - Create: `public/favicon.svg`
 
 - [ ] **Step 1: Write a minimal text-based favicon**
@@ -2021,6 +2338,7 @@ git commit -m "Add placeholder favicon — white B on rust"
 ### Task E1: Prettier and ESLint config
 
 **Files:**
+
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 - Create: `eslint.config.js`
@@ -2042,9 +2360,7 @@ npm install --save-exact --save-dev prettier prettier-plugin-astro eslint eslint
   "semi": true,
   "trailingComma": "all",
   "plugins": ["prettier-plugin-astro"],
-  "overrides": [
-    { "files": "*.astro", "options": { "parser": "astro" } }
-  ]
+  "overrides": [{ "files": "*.astro", "options": { "parser": "astro" } }]
 }
 ```
 
@@ -2112,6 +2428,7 @@ git commit -m "Add Prettier + ESLint configs and format the repo"
 ### Task E2: Pre-commit hooks via prek
 
 **Files:**
+
 - Create: `.prek-config.yaml`
 
 - [ ] **Step 1: Confirm `prek` is available**
@@ -2173,11 +2490,12 @@ git commit -m "Add prek pre-commit config for prettier, eslint, and astro check"
 ### Task E3: pa11y-ci config (driven by sitemap index)
 
 **Files:**
+
 - Create: `.pa11yci.json`
 - Create: `scripts/run-pa11y.mjs`
 
 pa11y-ci's `--sitemap` flag handles a single `<urlset>` but does not follow
-a sitemap *index* that points to multiple shards. `@astrojs/sitemap` always
+a sitemap _index_ that points to multiple shards. `@astrojs/sitemap` always
 emits a `sitemap-index.xml` (and at least one `sitemap-N.xml` shard), so we
 use a small runner that walks the index, collects every `<loc>` across all
 shards, and feeds the flat URL list to pa11y-ci. This way every URL Astro
@@ -2258,7 +2576,9 @@ mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
 writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 
-console.log(`pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`);
+console.log(
+  `pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`,
+);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);
@@ -2305,6 +2625,7 @@ git commit -m "Add pa11y-ci AAA audit driven by sitemap index (covers all shards
 ### Task E4: Lighthouse CI config
 
 **Files:**
+
 - Create: `.lighthouserc.json`
 
 - [ ] **Step 1: Install `@lhci/cli`**
@@ -2334,10 +2655,10 @@ npm install --save-exact --save-dev @lhci/cli chrome-launcher
     },
     "assert": {
       "assertions": {
-        "categories:performance":    ["error", { "minScore": 0.98 }],
-        "categories:accessibility":  ["error", { "minScore": 1.00 }],
+        "categories:performance": ["error", { "minScore": 0.98 }],
+        "categories:accessibility": ["error", { "minScore": 1.0 }],
         "categories:best-practices": ["error", { "minScore": 0.95 }],
-        "categories:seo":            ["error", { "minScore": 0.95 }]
+        "categories:seo": ["error", { "minScore": 0.95 }]
       }
     },
     "upload": {
@@ -2368,6 +2689,7 @@ git commit -m "Add Lighthouse CI config with performance/a11y/BP/SEO budgets"
 ### Task E5: Lychee link checker config
 
 **Files:**
+
 - Create: `lychee.toml`
 
 - [ ] **Step 1: Ensure `lychee` binary is available**
@@ -2429,6 +2751,7 @@ git commit -m "Add lychee link-checker config"
 ### Task E6: GitHub Actions deploy workflow
 
 **Files:**
+
 - Create: `.github/workflows/deploy.yml`
 
 This task wires the full CI pipeline: build → checks → a11y → Lighthouse → deploy. For PRs, the pipeline runs checks only. For pushes to `main`, it also deploys to Cloudflare.
@@ -2588,6 +2911,7 @@ git commit -m "Add GitHub Actions workflow: check, build, lychee, pa11y-ci, Ligh
 ### Task F1: DNS migration runbook (Gary performs manually)
 
 **Files:**
+
 - Create: `docs/superpowers/runbooks/2026-04-23-dns-migration.md`
 
 This task creates a documented runbook. The actual DNS work is Gary's hands-on step.
@@ -2607,13 +2931,15 @@ This task creates a documented runbook. The actual DNS work is Gary's hands-on s
 2. **Copy the two nameservers** Cloudflare assigns (of the form `xxx.ns.cloudflare.com`).
 3. **Log in to GoDaddy → Domain Settings → Nameservers.** Choose "Custom" and replace the existing nameservers with the Cloudflare pair. Save.
 4. **Wait for propagation.** Usually under an hour. Verify with:
-   ```
-   dig boringbydesign.ca NS +short
-   ```
-   …returns the Cloudflare nameservers.
+```
+
+dig boringbydesign.ca NS +short
+
+```
+…returns the Cloudflare nameservers.
 5. **In Cloudflare → Workers & Pages → your worker → Custom Domains:**
-   - Add `boringbydesign.ca`
-   - Add `www.boringbydesign.ca` as a redirect-to-apex
+- Add `boringbydesign.ca`
+- Add `www.boringbydesign.ca` as a redirect-to-apex
 6. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and "Automatic HTTPS Rewrites".
 7. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard. Copy the token into the GitHub repo secret `PUBLIC_CF_WA_TOKEN`. Astro reads `PUBLIC_*` env vars at **build time** and bakes them into the static output — the workflow in `.github/workflows/deploy.yml` already exposes this secret to the `npm run build` step, so the beacon renders on every production build.
 
@@ -2707,6 +3033,7 @@ git push origin v0.1.0
 **Type consistency:** `ProjectCard` props, `EntryList.Entry`, and `getCollection` filter predicates all use the schema defined in C1. Dates are `Date` throughout (sourced from Zod `z.date()`). `displayYear` is `string | undefined`; when absent we fall back to `startedAt.getFullYear()` — consistent in both index.astro (Task C4) and projects/index.astro (Task C6).
 
 **Known gaps / deferred:**
+
 - OG images, /resume/, search — listed in spec §8 as deferred.
 - Real content beyond seed stubs — Gary's ongoing authoring, not an implementation task.
 

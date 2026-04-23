@@ -1,7 +1,13 @@
 ---
 // src/components/ThemeToggle.astro — cycles Light → Dark → System; persists to localStorage
 ---
-<button class="theme-toggle" data-theme-toggle aria-label="Cycle theme: light, dark, system" type="button">
+
+<button
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Cycle theme: light, dark, system"
+  type="button"
+>
   <span data-theme-label>Theme</span>
 </button>
 
@@ -15,7 +21,9 @@
     font-size: 0.82rem;
     letter-spacing: 0.02em;
   }
-  .theme-toggle:hover { background: var(--border); }
+  .theme-toggle:hover {
+    background: var(--border);
+  }
 </style>
 
 <script>

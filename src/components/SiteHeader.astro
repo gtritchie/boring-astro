@@ -3,28 +3,30 @@
 import ThemeToggle from "./ThemeToggle.astro";
 
 const navItems = [
-  { href: "/projects/",  label: "Projects" },
+  { href: "/projects/", label: "Projects" },
   { href: "/interests/", label: "Interests" },
-  { href: "/writing/",   label: "Writing" },
-  { href: "/about/",     label: "About" },
+  { href: "/writing/", label: "Writing" },
+  { href: "/about/", label: "About" },
 ];
 
 const pathname = Astro.url.pathname;
 ---
+
 <header class="site-header">
   <div class="inner">
     <a class="wordmark" href="/" aria-label="Home">Boring by Design</a>
     <div class="right">
       <nav aria-label="Primary">
         <ul>
-          {navItems.map(item => (
-            <li>
-              <a
-                href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
-              >{item.label}</a>
-            </li>
-          ))}
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
       <ThemeToggle />
@@ -71,6 +73,12 @@ const pathname = Astro.url.pathname;
     color: var(--fg);
     text-decoration: none;
   }
-  nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+  nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  nav a[aria-current="page"] {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 </style>

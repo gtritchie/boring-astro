@@ -4,37 +4,46 @@ import ProjectCard from "../components/ProjectCard.astro";
 import EntryList from "../components/EntryList.astro";
 import { getCollection } from "astro:content";
 
-const projects = (await getCollection("projects", p => !p.data.draft && p.data.featured))
+const projects = (await getCollection("projects", (p) => !p.data.draft && p.data.featured))
   .sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime())
   .slice(0, 4);
 
-const writing = (await getCollection("writing", p => !p.data.draft))
+const writing = (await getCollection("writing", (p) => !p.data.draft))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
   .slice(0, 3);
 
-const writingEntries = writing.map(post => ({
+const writingEntries = writing.map((post) => ({
   href: `/writing/${post.id}/`,
   title: post.data.title,
   description: post.data.description,
   date: post.data.publishedAt,
 }));
 ---
-<BaseLayout title="Boring by Design" description="Personal site of Gary Ritchie — projects, writing, and tinkering.">
+
+<BaseLayout
+  title="Boring by Design"
+  description="Personal site of Gary Ritchie — projects, writing, and tinkering."
+>
   <main id="main">
     <h1>Calm work, quietly shipped.</h1>
-    <p class="intro">A personal archive of the software I build, the things I'm tinkering with, and the occasional note. Nothing flashy — just the stuff that stuck around long enough to be worth writing down.</p>
+    <p class="intro">
+      A personal archive of the software I build, the things I'm tinkering with, and the occasional
+      note. Nothing flashy — just the stuff that stuck around long enough to be worth writing down.
+    </p>
 
     <h2 class="section-label">Featured projects</h2>
-    {projects.map(p => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tech={p.data.tech}
-        displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
-        status={p.data.status}
-      />
-    ))}
+    {
+      projects.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tech={p.data.tech}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
 
     <h2 class="section-label">Recent writing</h2>
     <EntryList entries={writingEntries} />
@@ -42,7 +51,11 @@ const writingEntries = writing.map(post => ({
 </BaseLayout>
 
 <style>
-  .intro { font-size: 1.1rem; max-width: 42ch; margin-bottom: var(--sp-10); }
+  .intro {
+    font-size: 1.1rem;
+    max-width: 42ch;
+    margin-bottom: var(--sp-10);
+  }
   .section-label {
     font-size: 1rem;
     font-weight: 600;

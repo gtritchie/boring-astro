@@ -2,6 +2,7 @@
 // src/components/SiteFooter.astro
 const year = new Date().getFullYear();
 ---
+
 <footer class="site-footer">
   <div class="inner">
     <span>© {year} Gary Ritchie · <a href="/rss.xml">RSS</a></span>
@@ -40,6 +41,12 @@ const year = new Date().getFullYear();
     display: flex;
     gap: var(--sp-4);
   }
-  .site-footer a { color: var(--fg-muted); text-decoration: underline; text-underline-offset: 3px; }
-  .site-footer a:hover { color: var(--fg); }
+  .site-footer a {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .site-footer a:hover {
+    color: var(--fg);
+  }
 </style>

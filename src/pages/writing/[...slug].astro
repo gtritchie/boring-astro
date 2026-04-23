@@ -4,19 +4,20 @@ import ProseLayout from "../../layouts/ProseLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("writing", p => !p.data.draft);
-  return posts.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
+  const posts = await getCollection("writing", (p) => !p.data.draft);
+  return posts.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
 ---
+
 <ProseLayout
   title={data.title}
   description={data.description}
   publishedAt={data.publishedAt}
-  {...(data.updatedAt && { updatedAt: data.updatedAt })}
+  {...data.updatedAt && { updatedAt: data.updatedAt }}
 >
   <Content />
 </ProseLayout>
