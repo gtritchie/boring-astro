@@ -2173,8 +2173,11 @@ The runner in the next step injects `urls` at runtime.
 
 ```js
 // scripts/run-pa11y.mjs
-// Reads sitemap-index.xml, expands every referenced shard into a flat URL
-// list, then invokes pa11y-ci against that list using .pa11yci.json defaults.
+// Reads sitemap-index.xml from the local preview, walks each shard (also
+// fetched from the preview, NOT from production), collects every <loc>, and
+// invokes pa11y-ci against that flat URL list. All URLs are rewritten to the
+// preview origin so the audit validates the build under test — never the
+// deployed site.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -2192,29 +2195,33 @@ function extractLocs(xml) {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 }
 
+// Astro emits absolute production URLs in sitemap-index.xml and each
+// sitemap-N.xml (anchored at astro.config.mjs's `site`). Rewrite every URL
+// to the preview origin so we audit what was just built, not production.
+function toLocal(absoluteUrl) {
+  const { pathname, search } = new URL(absoluteUrl);
+  return `${base}${pathname}${search}`;
+}
+
 const indexXml = await fetchText(`${base}/sitemap-index.xml`);
-const shardUrls = extractLocs(indexXml);
+const shardUrls = extractLocs(indexXml).map(toLocal);
 if (shardUrls.length === 0) throw new Error("sitemap-index.xml contained no shards");
 
 const pageUrls = [];
 for (const shard of shardUrls) {
   const shardXml = await fetchText(shard);
-  pageUrls.push(...extractLocs(shardXml));
+  pageUrls.push(...extractLocs(shardXml).map(toLocal));
 }
 if (pageUrls.length === 0) throw new Error("no page URLs found across sitemap shards");
 
-// Rewrite absolute prod URLs to the local preview origin.
-const prodOrigin = new URL(pageUrls[0]).origin;
-const rewritten = pageUrls.map((u) => u.replace(prodOrigin, base));
-
 const cfg = JSON.parse(readFileSync(".pa11yci.json", "utf8"));
-cfg.urls = rewritten;
+cfg.urls = pageUrls;
 
 mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
 writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 
-console.log(`pa11y-ci: auditing ${rewritten.length} URL(s) via ${shardUrls.length} sitemap shard(s)`);
+console.log(`pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);
