@@ -41,19 +41,19 @@
 Configure under Settings → Secrets and variables → Actions before the first
 push to `main` triggers the deploy workflow.
 
-### Required
+### Required (for a working deploy)
 
-| Secret                  | Used by                                                     | Scope                                                                                                                                                                                                    |
-| ----------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | `deploy` job (wrangler-action)                              | Minimum: **Workers Scripts: Edit** (for deploying to the existing Worker). No Workers Routes or Zone permissions — route/custom-domain setup is manual in this runbook. Do **not** use a global API key. |
-| `CLOUDFLARE_ACCOUNT_ID` | `deploy` job (wrangler-action)                              | Cloudflare dashboard → right sidebar (on any zone).                                                                                                                                                      |
-| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from step 8 above. Astro reads `PUBLIC_*` env vars at build time and inlines them — without this, the analytics beacon does not ship.                                                |
+| Secret                  | Used by                        | Scope                                                                                                                                                                                                    |
+| ----------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | `deploy` job (wrangler-action) | Minimum: **Workers Scripts: Edit** (for deploying to the existing Worker). No Workers Routes or Zone permissions — route/custom-domain setup is manual in this runbook. Do **not** use a global API key. |
+| `CLOUDFLARE_ACCOUNT_ID` | `deploy` job (wrangler-action) | Cloudflare dashboard → right sidebar (on any zone).                                                                                                                                                      |
 
 ### Optional
 
-| Secret                  | Used by                         | Scope                                                                                                                                                                                    |
-| ----------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LHCI_GITHUB_APP_TOKEN` | `build-and-check` job LHCI step | Install the Lighthouse CI GitHub App on the repo; the install flow emits this token. Enables LHCI to post per-PR status checks. Builds succeed without it; LHCI just won't annotate PRs. |
+| Secret                  | Used by                                                     | Scope                                                                                                                                                                                                                                                                                                                                                |
+| ----------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from step 8 above. When set, Astro inlines the Cloudflare Web Analytics beacon at build time. When unset, the build still succeeds and the beacon simply isn't rendered — set this only if you want traffic data flowing to the Cloudflare dashboard. Required for the first-deploy smoke test of "Web Analytics shows traffic". |
+| `LHCI_GITHUB_APP_TOKEN` | `build-and-check` job LHCI step                             | Install the Lighthouse CI GitHub App on the repo; the install flow emits this token. Enables LHCI to post per-PR status checks. Builds succeed without it; LHCI just won't annotate PRs.                                                                                                                                                             |
 
 If the deploy workflow ever starts managing Worker routes or DNS programmatically,
 widen `CLOUDFLARE_API_TOKEN` to include **Workers Routes: Edit** and **Zone: Edit
