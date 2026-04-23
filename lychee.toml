@@ -1,0 +1,27 @@
+# lychee.toml
+verbose = "info"
+no_progress = true
+retry_wait_time = 2
+max_retries = 2
+timeout = 20
+max_concurrency = 8
+skip_missing = false
+include_fragments = true
+root_dir = "dist/client"
+
+# Only check links *in* the built site; ignore link-farm kind of pages.
+include = [
+  "dist/client/**/*.html",
+]
+
+# Don't spam third parties that rate-limit or require auth.
+exclude = [
+  "^https?://(www\\.)?linkedin\\.com",
+  "^https?://(www\\.)?twitter\\.com",
+  "^https?://(www\\.)?x\\.com",
+  "mailto:.*",
+  "^https?://boringbydesign\\.ca",
+]
+
+# Honor robots.txt where hosts provide one
+user_agent = "lychee/boringbydesign.ca"
