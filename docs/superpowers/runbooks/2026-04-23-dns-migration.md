@@ -33,8 +33,11 @@
    - Add `www.boringbydesign.ca` as a redirect-to-apex
 7. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and
    "Automatic HTTPS Rewrites".
-8. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard
-   (Analytics & Logs → Web Analytics → Add a site). Copy the site token.
+8. **Web Analytics (optional).** Only if you want traffic stats: add
+   `boringbydesign.ca` in the Cloudflare dashboard
+   (Analytics & Logs → Web Analytics → Add a site), copy the site token,
+   and set it as `PUBLIC_CF_WA_TOKEN` in the GitHub repo secrets. The
+   deploy works fine without this — the beacon just isn't shipped.
 
 ## Secrets to set in the GitHub repo
 
@@ -64,7 +67,8 @@ for `boringbydesign.ca`** at that time.
 - `curl -I https://boringbydesign.ca/` → `HTTP/2 200`, `server: cloudflare`
 - `curl -I https://www.boringbydesign.ca/` → 301/308 redirect to the apex
 - `cf-cache-status: HIT` after a few page views (edge warming)
-- Cloudflare dashboard → Web Analytics → see traffic flowing
+- If `PUBLIC_CF_WA_TOKEN` was configured (step 8): Cloudflare dashboard →
+  Web Analytics → see traffic flowing. Skip this check otherwise.
 
 ## Rollback
 
