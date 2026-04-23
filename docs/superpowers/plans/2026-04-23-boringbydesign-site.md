@@ -332,7 +332,7 @@ Sitemap: https://boringbydesign.ca/sitemap-index.xml
 npm run build
 ```
 
-Expected: builds `dist/` with `index.html`, `_worker.js/`, and an `assets/` dir. No errors.
+Expected: builds into `dist/client/index.html` plus a generated `dist/client/sitemap-index.xml` and `dist/client/sitemap-0.xml`. No errors. Note: because `output` is `static`, no `_worker.js/` is emitted — Workers Assets serves the static files directly, which is why `wrangler.jsonc` points `assets.directory` at `./dist/client`.
 
 - [ ] **Step 4: Smoke-test locally via Wrangler**
 
