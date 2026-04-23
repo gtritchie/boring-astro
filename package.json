@@ -4,13 +4,14 @@
   "type": "module",
   "version": "0.0.0",
   "engines": {
-    "node": ">=22.12.0 <23"
+    "node": ">=22.0.0 <25"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
-    "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0"
+    "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0",
+    "pa11y": "node scripts/run-pa11y.mjs"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "eslint": "10.2.1",
     "eslint-plugin-astro": "1.7.0",
+    "pa11y-ci": "4.1.0",
     "prettier": "3.8.3",
     "prettier-plugin-astro": "0.14.1",
     "typescript": "5.9.3",
