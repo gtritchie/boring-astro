@@ -282,13 +282,13 @@ All sizing in `rem` so the user's browser font-size preference propagates.
 ### Images
 
 - `<Image />` component for all content images (auto WebP + AVIF, responsive `srcset`)
+- Astro 6 automatically optimizes relative image references in Markdown/MDX
+  (they route through the Image pipeline at build time)
 - No decorative images in site chrome
-- **Alt-text enforcement.** Astro 5+/6 automatically optimizes relative image
-  references in Markdown/MDX (they route through the Image pipeline). To
-  guarantee alt text is present on both `<Image />` usages and plain
-  `![]()` Markdown, a custom remark plugin walks image nodes at build time
-  and fails the build on missing or empty `alt`. The plugin lives at
-  `src/plugins/remark-require-alt.mjs` and is wired in `astro.config.mjs`.
+- **Alt text is an authoring responsibility.** pa11y-ci (section 7) audits
+  the rendered HTML in CI and flags missing or empty alt regardless of
+  source syntax (`<Image />`, `<img>`, or `![]()`). No source-level AST
+  validator — the rendered-HTML audit covers every case.
 
 ---
 
@@ -303,10 +303,10 @@ All sizing in `rem` so the user's browser font-size preference propagates.
   visible on focus, jumps to `<main>`
 - **Landmarks**: one `<header>`, one `<main>`, one `<footer>` per page;
   `<nav>` with `aria-label`
-- **Headings**: single `<h1>` per page, no level skips — enforced via
-  `remark-lint-no-multiple-toplevel-headings` and `remark-lint-heading-increment`
-  plugins wired into `astro.config.mjs`; build fails on violations so the
-  guarantee holds even for MDX-authored content
+- **Headings**: single `<h1>` per page, no level skips. Authoring convention;
+  verified by pa11y-ci against the rendered HTML in CI, which catches
+  violations regardless of whether they originated as Markdown, MDX JSX,
+  or raw HTML
 - **Motion**: `prefers-reduced-motion: reduce` disables view transitions and
   theme-toggle animation
 - **Color not sole signifier**: links always underlined; status markers use
@@ -367,8 +367,6 @@ boring-astro/
 │   ├── layouts/
 │   │   ├── BaseLayout.astro
 │   │   └── ProseLayout.astro
-│   ├── plugins/
-│   │   └── remark-require-alt.mjs    # custom build-time alt-text validator
 │   ├── pages/
 │   │   ├── index.astro
 │   │   ├── about.astro
@@ -442,13 +440,11 @@ prettier --check .
 ### CI (in addition to local checks)
 
 ```
-astro build                  # bad frontmatter fails here; the build also runs:
-                             #   - remark-require-alt (custom)   → fails on empty/missing alt
-                             #   - remark-lint-no-multiple-toplevel-headings
-                             #   - remark-lint-heading-increment
+astro build                  # bad frontmatter fails here
 lychee --no-progress         # internal link checker
-pa11y-ci                     # a11y scan on sampled built pages
-lhci autorun                 # Lighthouse CI
+pa11y-ci                     # a11y scan on sampled built pages — catches
+                             #   missing alt, heading-hierarchy issues, etc.
+lhci autorun                 # Lighthouse CI — accessibility must stay at 100
 ```
 
 ### Lighthouse CI budgets (PR fails if regressed)
@@ -525,6 +521,4 @@ These are not blocking decisions; they'll be resolved during build:
 Resolve these to exact latest-stable versions in the implementation plan:
 `astro`, `@astrojs/cloudflare`, `@astrojs/mdx`, `@astrojs/rss`,
 `@astrojs/sitemap`, `typescript`, `wrangler`, `prettier`, `eslint`,
-`eslint-plugin-astro`, `pa11y-ci`, `@lhci/cli`, `lychee` (binary),
-`unified`, `unist-util-visit` (for the custom alt-text validator),
-`remark-lint-no-multiple-toplevel-headings`, `remark-lint-heading-increment`.
+`eslint-plugin-astro`, `pa11y-ci`, `@lhci/cli`, `lychee` (binary).
