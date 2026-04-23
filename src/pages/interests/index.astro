@@ -1,0 +1,31 @@
+---
+// src/pages/interests/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const interests = (await getCollection("interests", p => !p.data.draft))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+<BaseLayout title="Interests" description="Non-software interests and projects.">
+  <main id="main">
+    <h1>Interests</h1>
+    <ul class="list">
+      {interests.map(i => (
+        <li>
+          <h3><a href={`/interests/${i.id}/`}>{i.data.title}</a></h3>
+          <p>{i.data.summary}</p>
+          {i.data.kind && <small class="kind">{i.data.kind}</small>}
+        </li>
+      ))}
+    </ul>
+  </main>
+</BaseLayout>
+
+<style>
+  .list { list-style: none; padding: 0; margin: 0; }
+  .list li { padding: var(--sp-5) 0; border-bottom: 1px solid var(--border); }
+  .list h3 { font-size: 1.1rem; margin: 0 0 var(--sp-1); }
+  .list h3 a { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+  .list p { color: var(--fg-muted); margin: 0; }
+  .kind { display: inline-block; margin-top: var(--sp-2); font-family: var(--font-mono); color: var(--fg-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+</style>
