@@ -2918,44 +2918,13 @@ This task creates a documented runbook. The actual DNS work is Gary's hands-on s
 
 - [ ] **Step 1: Write the runbook**
 
-```md
-# DNS migration — GoDaddy → Cloudflare (one-time)
+Create `docs/superpowers/runbooks/2026-04-23-dns-migration.md` covering:
+the nameserver swap from GoDaddy to Cloudflare, adding custom domains to
+the Worker, SSL/TLS settings, the four GitHub repo secrets required
+(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_CF_WA_TOKEN`,
+`LHCI_GITHUB_APP_TOKEN`), verification steps, and a rollback plan.
 
-**When:** Before the first Cloudflare Workers deploy of boringbydesign.ca.
-**Who:** Gary (manual, outside CI).
-**Estimated time:** 15 minutes of active work + up to 1 hour of propagation.
-
-## Steps
-
-1. **Log in to Cloudflare.** Add `boringbydesign.ca` as a site on the Free plan.
-2. **Copy the two nameservers** Cloudflare assigns (of the form `xxx.ns.cloudflare.com`).
-3. **Log in to GoDaddy → Domain Settings → Nameservers.** Choose "Custom" and replace the existing nameservers with the Cloudflare pair. Save.
-4. **Wait for propagation.** Usually under an hour. Verify with:
-```
-
-dig boringbydesign.ca NS +short
-
-```
-…returns the Cloudflare nameservers.
-5. **In Cloudflare → Workers & Pages → your worker → Custom Domains:**
-- Add `boringbydesign.ca`
-- Add `www.boringbydesign.ca` as a redirect-to-apex
-6. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and "Automatic HTTPS Rewrites".
-7. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard. Copy the token into the GitHub repo secret `PUBLIC_CF_WA_TOKEN`. Astro reads `PUBLIC_*` env vars at **build time** and bakes them into the static output — the workflow in `.github/workflows/deploy.yml` already exposes this secret to the `npm run build` step, so the beacon renders on every production build.
-
-## Secrets to set in the GitHub repo
-
-- `CLOUDFLARE_API_TOKEN` — scoped to just this Workers project (Workers Scripts: Edit; Workers Routes: Edit; Zone: Edit for boringbydesign.ca).
-- `CLOUDFLARE_ACCOUNT_ID` — from Cloudflare dashboard.
-- `LHCI_GITHUB_APP_TOKEN` — optional; enables Lighthouse CI status on PRs. Install the LHCI GitHub App to generate.
-- `PUBLIC_CF_WA_TOKEN` — Web Analytics token (from step 7 above). **Must be passed as an env var to the build step** (already wired in `deploy.yml`). Without it, the analytics beacon will not be included in the built site.
-
-## After the first deploy
-
-- Verify `https://boringbydesign.ca/` serves the site with a valid cert
-- `https://www.boringbydesign.ca/` redirects to the apex
-- `curl -I https://boringbydesign.ca/` returns `server: cloudflare` and `cf-cache-status: HIT` (after warmup)
-```
+See the landed file for the exact content.
 
 - [ ] **Step 2: Commit**
 
