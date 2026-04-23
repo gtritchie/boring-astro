@@ -1035,7 +1035,7 @@ const { title, description, publishedAt, updatedAt } = Astro.props;
 const fmt = (d?: Date) =>
   d ? new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "long", day: "numeric" }).format(d) : null;
 ---
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} {...(description && { description })}>
   <main id="main" class="prose-main">
     <article>
       <header class="prose-header">
