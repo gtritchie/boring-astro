@@ -307,11 +307,11 @@ All sizing in `rem` so the user's browser font-size preference propagates.
 ### Responsive breakpoints
 
 ```
-< 640 px    phone     single column; nav collapses to hamburger + toggle;
-                      entry date moves above title (no 6rem date column)
-640–900 px  tablet    single column; nav visible horizontally
-> 900 px    desktop   single column centered; max-width 72ch;
-                      date column re-appears at 6rem width
+< 640 px     phone     single column; nav collapses to hamburger + toggle;
+                       entry date moves above title (no 6rem date column)
+640–899 px   tablet    single column; nav visible horizontally
+≥ 900 px     desktop   single column centered; max-width 72ch;
+                       date column re-appears at 6rem width
 ```
 
 ### Hamburger menu behavior
@@ -382,8 +382,8 @@ boring-astro/
 
 ### Deployment pipeline
 
-1. Push to `main`
-2. GitHub Actions runs: `npm ci` → `astro check` → `astro build` → `wrangler deploy`
+1. Feature branch → open PR → merge into `main` (never push directly to `main`)
+2. GitHub Actions on merge runs: `npm ci` → `astro check` → `astro build` → `wrangler deploy`
 3. Wrangler uploads built assets + worker entrypoint
 4. Cloudflare serves from edge globally
 5. Preview deploys on PR branches (separate Workers environment)
