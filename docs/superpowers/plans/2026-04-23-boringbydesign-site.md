@@ -43,6 +43,8 @@ boring-astro/
 ├── tsconfig.json
 ├── package.json
 ├── package-lock.json
+├── scripts/
+│   └── run-pa11y.mjs
 ├── public/
 │   ├── favicon.svg
 │   └── robots.txt
@@ -698,17 +700,15 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
       const target = e.target as Element | null;
       if (target?.closest("[data-theme-toggle]")) cycle();
     });
-  }
-
-  function onPageReady() {
-    initOnce();
-    syncLabels(read());
+    // Per-page label sync after View Transitions. Registered exactly once
+    // because initOnce is guarded by INIT_FLAG — re-execution of this
+    // component script after a transition is a no-op.
+    document.addEventListener("astro:page-load", () => syncLabels(read()));
   }
 
   // First paint (inline theme bootstrap in <head> has already set data-theme).
-  onPageReady();
-  // After every client-side navigation performed by View Transitions.
-  document.addEventListener("astro:page-load", onPageReady);
+  initOnce();
+  syncLabels(read());
 </script>
 ```
 
@@ -2133,15 +2133,18 @@ git commit -m "Add prek pre-commit config for prettier, eslint, and astro check"
 
 ---
 
-### Task E3: pa11y-ci config (driven by sitemap)
+### Task E3: pa11y-ci config (driven by sitemap index)
 
 **Files:**
 - Create: `.pa11yci.json`
+- Create: `scripts/run-pa11y.mjs`
 
-pa11y-ci reads URLs directly from the sitemap at runtime via `--sitemap`, so
-there is no hand-maintained list. Every URL emitted by `@astrojs/sitemap`
-(i.e., every non-draft published page) is audited — adding a page
-automatically adds it to the a11y scan.
+pa11y-ci's `--sitemap` flag handles a single `<urlset>` but does not follow
+a sitemap *index* that points to multiple shards. `@astrojs/sitemap` always
+emits a `sitemap-index.xml` (and at least one `sitemap-N.xml` shard), so we
+use a small runner that walks the index, collects every `<loc>` across all
+shards, and feeds the flat URL list to pa11y-ci. This way every URL Astro
+publishes is audited, regardless of sharding.
 
 - [ ] **Step 1: Install pa11y-ci**
 
@@ -2164,8 +2167,70 @@ npm install --save-exact --save-dev pa11y-ci
 }
 ```
 
-The `urls` array is intentionally omitted — pa11y-ci is invoked with
-`--sitemap <url>` and pulls the full list at runtime.
+The runner in the next step injects `urls` at runtime.
+
+- [ ] **Step 3: Write `scripts/run-pa11y.mjs`**
+
+```js
+// scripts/run-pa11y.mjs
+// Reads sitemap-index.xml, expands every referenced shard into a flat URL
+// list, then invokes pa11y-ci against that list using .pa11yci.json defaults.
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const base = process.env.PA11Y_BASE_URL ?? "http://127.0.0.1:4321";
+
+async function fetchText(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch ${url} → HTTP ${res.status}`);
+  return res.text();
+}
+
+function extractLocs(xml) {
+  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+}
+
+const indexXml = await fetchText(`${base}/sitemap-index.xml`);
+const shardUrls = extractLocs(indexXml);
+if (shardUrls.length === 0) throw new Error("sitemap-index.xml contained no shards");
+
+const pageUrls = [];
+for (const shard of shardUrls) {
+  const shardXml = await fetchText(shard);
+  pageUrls.push(...extractLocs(shardXml));
+}
+if (pageUrls.length === 0) throw new Error("no page URLs found across sitemap shards");
+
+// Rewrite absolute prod URLs to the local preview origin.
+const prodOrigin = new URL(pageUrls[0]).origin;
+const rewritten = pageUrls.map((u) => u.replace(prodOrigin, base));
+
+const cfg = JSON.parse(readFileSync(".pa11yci.json", "utf8"));
+cfg.urls = rewritten;
+
+mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
+const outPath = join(tmpdir(), "bbd", "pa11yci.json");
+writeFileSync(outPath, JSON.stringify(cfg, null, 2));
+
+console.log(`pa11y-ci: auditing ${rewritten.length} URL(s) via ${shardUrls.length} sitemap shard(s)`);
+
+const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
+process.exit(result.status ?? 1);
+```
+
+- [ ] **Step 4: Add the `pa11y` npm script**
+
+Edit `package.json` to add:
+
+```json
+"scripts": {
+  "pa11y": "node scripts/run-pa11y.mjs"
+}
+```
+
+(Merge with existing `scripts` block from Task A2.)
 
 - [ ] **Step 3: Run pa11y-ci locally against the preview**
 
@@ -2179,16 +2244,16 @@ npx astro preview --host 127.0.0.1 --port 4321
 In another:
 
 ```bash
-npx pa11y-ci --sitemap http://127.0.0.1:4321/sitemap-0.xml
+npm run pa11y
 ```
 
-Expected: 0 errors across every URL in the sitemap. If failures appear (missing alt, contrast, heading order, etc.), fix them before moving on.
+Expected: "pa11y-ci: auditing N URL(s) via 1 sitemap shard(s)" followed by 0 errors across every URL. If failures appear (missing alt, contrast, heading order, etc.), fix them before moving on.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add .pa11yci.json package.json package-lock.json
-git commit -m "Add pa11y-ci WCAG AAA config; sitemap-driven URL list"
+git add .pa11yci.json scripts/run-pa11y.mjs package.json package-lock.json
+git commit -m "Add pa11y-ci AAA audit driven by sitemap index (covers all shards)"
 ```
 
 ---
@@ -2383,8 +2448,8 @@ jobs:
       - name: Wait for preview
         run: npx wait-on http://127.0.0.1:4321/ --timeout 60000
 
-      - name: pa11y-ci (AAA, full sitemap)
-        run: npx pa11y-ci --sitemap http://127.0.0.1:4321/sitemap-0.xml
+      - name: pa11y-ci (AAA, every URL in the sitemap index)
+        run: npm run pa11y
 
       - name: Lighthouse CI
         run: npx lhci autorun
