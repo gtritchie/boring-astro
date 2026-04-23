@@ -1,0 +1,51 @@
+---
+// src/components/ProjectCard.astro
+interface Props {
+  href: string;
+  title: string;
+  summary: string;
+  tech: string[];
+  displayYear: string;
+  status: "active" | "archived" | "experimental";
+}
+const { href, title, summary, tech, displayYear, status } = Astro.props;
+---
+<article class="card">
+  <h3><a href={href}>{title}</a></h3>
+  <p class="summary">{summary}</p>
+  <div class="meta">
+    <ul class="tags">
+      {tech.map(t => <li>{t}</li>)}
+      <li>{displayYear}</li>
+    </ul>
+    {status !== "active" && <span class="status">{status}</span>}
+  </div>
+</article>
+
+<style>
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: var(--sp-4) var(--sp-5);
+    margin-bottom: var(--sp-3);
+  }
+  .card h3 { font-size: 1.05rem; margin: 0 0 var(--sp-2); }
+  .card h3 a { color: var(--fg); text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .summary { color: var(--fg-muted); font-size: 0.95rem; margin: 0 0 var(--sp-3); max-width: 60ch; }
+  .meta { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); }
+  .tags {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  }
+  .tags li {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border-ui);
+    border-radius: 3px;
+    color: var(--fg-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .status { font-size: 0.78rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+</style>
