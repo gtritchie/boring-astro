@@ -25,7 +25,7 @@ transitions.
 | `npm run build`      | Produces `dist/client/` static output                                    |
 | `npm run preview`    | Runs `wrangler dev` — serves the built site via the real Workers runtime |
 | `npm run check`      | `astro check` + `tsc` + `prettier --check` + `eslint`                    |
-| `npm run pa11y`      | Builds, previews, then audits every sitemap URL for WCAG AAA             |
+| `npm run pa11y`      | Audits every sitemap URL for WCAG AAA (needs `npm run preview` running)  |
 | `npm run lighthouse` | Builds, then runs LHCI against the budgets in `.lighthouserc.json`       |
 | `npm run link-check` | Builds, then runs lychee across the built HTML                           |
 

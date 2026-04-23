@@ -43,6 +43,18 @@ const { data } = entry;
         </div>
       )
     }
+    {
+      data.links?.docs && (
+        <div>
+          <>
+            <dt>Docs</dt>
+            <dd>
+              <a href={data.links.docs}>{data.links.docs}</a>
+            </dd>
+          </>
+        </div>
+      )
+    }
   </dl>
   <Content />
 </ProseLayout>
