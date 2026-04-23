@@ -52,7 +52,18 @@ jobs:
       - name: Wait for preview
         run: npx wait-on http://127.0.0.1:4321/ --timeout 60000
 
+      # Puppeteer's postinstall browser download is suppressed by
+      # ignore-scripts=true in .npmrc, so provision Chrome explicitly and
+      # point pa11y-ci at it via PUPPETEER_EXECUTABLE_PATH.
+      - name: Install Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@4f8e94349a351df0f048634f25fec36c3c91eded # v2.1.1
+        with:
+          chrome-version: stable
+
       - name: pa11y-ci (AAA, every URL in the sitemap index)
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: npm run pa11y
 
       - name: Lighthouse CI
