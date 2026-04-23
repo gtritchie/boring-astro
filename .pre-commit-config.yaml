@@ -1,0 +1,19 @@
+# .pre-commit-config.yaml — runs on every git commit
+repos:
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        language: script
+        entry: .hooks/prettier-wrapper.sh
+        files: \.(ts|js|mjs|cjs|astro|md|mdx|json|css|yaml|yml)$
+      - id: eslint
+        name: eslint
+        language: script
+        entry: .hooks/eslint-wrapper.sh
+        files: \.(ts|js|mjs|cjs|astro)$
+      - id: astro-check
+        name: astro check
+        language: script
+        entry: .hooks/astro-wrapper.sh
+        pass_filenames: false
