@@ -11,7 +11,13 @@ interface Props {
 }
 
 const { entries } = Astro.props;
-const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" });
+// UTC so "2026-04-23" frontmatter always renders as 2026-04-23 regardless of host timezone.
+const fmt = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "UTC",
+});
 ---
 
 <ul class="entry-list">
