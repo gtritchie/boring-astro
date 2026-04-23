@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Launcher } from "chrome-launcher";
 
 const base = process.env.PA11Y_BASE_URL ?? "http://127.0.0.1:4321";
 
@@ -27,25 +28,34 @@ function toLocal(absoluteUrl) {
 }
 
 // Puppeteer's postinstall browser download is suppressed by
-// ignore-scripts=true in .npmrc. Respect PUPPETEER_EXECUTABLE_PATH if
-// the caller (CI) sets it; otherwise probe common system Chrome paths
-// so local runs work without extra config.
+// ignore-scripts=true in .npmrc, so a Chrome binary must be provided
+// another way:
+//
+//   1. PUPPETEER_EXECUTABLE_PATH — explicit override. If set, it MUST
+//      point at a real file; we fail fast on a bad path rather than
+//      silently falling back, which would mask typos and broken CI
+//      action outputs.
+//   2. chrome-launcher's Launcher.getInstallations() — cross-platform
+//      discovery (handles macOS app bundles including user-local,
+//      Linux incl. Snap/Flatpak, and Windows).
+//   3. Nothing found → fail with an actionable message.
 function resolveChromePath() {
   const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH;
-  if (fromEnv && existsSync(fromEnv)) return fromEnv;
-
-  const candidates = [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/usr/bin/google-chrome-stable",
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
-  ];
-  for (const path of candidates) {
-    if (existsSync(path)) return path;
+  if (fromEnv !== undefined && fromEnv !== "") {
+    if (!existsSync(fromEnv)) {
+      throw new Error(
+        `PUPPETEER_EXECUTABLE_PATH is set to "${fromEnv}" but no file exists there. ` +
+          `Fix the path or unset the variable to auto-detect.`,
+      );
+    }
+    return fromEnv;
   }
-  return null;
+  const found = Launcher.getInstallations();
+  if (found.length > 0) return found[0];
+  throw new Error(
+    "No Chrome installation found. Install Google Chrome/Chromium, " +
+      "or set PUPPETEER_EXECUTABLE_PATH to a valid binary.",
+  );
 }
 
 const indexXml = await fetchText(`${base}/sitemap-index.xml`);
@@ -63,11 +73,9 @@ const cfg = JSON.parse(readFileSync(".pa11yci.json", "utf8"));
 cfg.urls = pageUrls;
 
 const chromePath = resolveChromePath();
-if (chromePath) {
-  cfg.defaults = cfg.defaults ?? {};
-  cfg.defaults.chromeLaunchConfig = cfg.defaults.chromeLaunchConfig ?? {};
-  cfg.defaults.chromeLaunchConfig.executablePath = chromePath;
-}
+cfg.defaults = cfg.defaults ?? {};
+cfg.defaults.chromeLaunchConfig = cfg.defaults.chromeLaunchConfig ?? {};
+cfg.defaults.chromeLaunchConfig.executablePath = chromePath;
 
 mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
@@ -76,13 +84,7 @@ writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 console.log(
   `pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`,
 );
-if (chromePath) console.log(`pa11y-ci: using Chrome at ${chromePath}`);
-else {
-  console.warn(
-    "pa11y-ci: no system Chrome found and PUPPETEER_EXECUTABLE_PATH not set — " +
-      "falling back to puppeteer's bundled browser (only works if ~/.cache/puppeteer was populated before ignore-scripts took effect).",
-  );
-}
+console.log(`pa11y-ci: using Chrome at ${chromePath}`);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);
