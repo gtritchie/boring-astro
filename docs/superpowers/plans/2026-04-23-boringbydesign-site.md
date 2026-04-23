@@ -925,7 +925,7 @@ import "../styles/global.css";
 import SkipLink from "../components/SkipLink.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -959,7 +959,7 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
       })();
     </script>
 
-    <ViewTransitions />
+    <ClientRouter />
   </head>
   <body>
     <SkipLink />
@@ -1927,7 +1927,7 @@ Expected: `dist/sitemap-index.xml` and `dist/sitemap-0.xml` exist.
 
 Cloudflare gives you a site-specific token once you add Web Analytics in the Cloudflare dashboard. For now, use a placeholder env var and document the setup.
 
-Edit `BaseLayout.astro`, after the `<ViewTransitions />` element, add:
+Edit `BaseLayout.astro`, after the `<ClientRouter />` element, add:
 
 ```astro
 {import.meta.env.PUBLIC_CF_WA_TOKEN && (
