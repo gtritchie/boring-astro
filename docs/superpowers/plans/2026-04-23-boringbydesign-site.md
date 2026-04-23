@@ -152,16 +152,20 @@ Then edit `package.json` to add `"type": "module"` and `"private": true`, and se
   "type": "module",
   "version": "0.0.0",
   "engines": {
-    "node": ">=22 <23"
+    "node": ">=22.12.0 <23"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
-    "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0"
+    "check": "astro check && tsc --noEmit"
   }
 }
 ```
+
+Note: Astro 6 and its integrations declare `engines.node >= 22.12.0`, and `engine-strict=true` in `.npmrc` enforces it — the range has to match the real floor.
+
+The `check` script is intentionally narrow at this point. Task E1 extends it to include `prettier --check .` and `eslint . --max-warnings 0` once those tools are installed.
 
 - [ ] **Step 2: Install Astro, TypeScript, and the Cloudflare adapter (pinned latest)**
 
@@ -2050,7 +2054,18 @@ export default [
 ];
 ```
 
-- [ ] **Step 5: Run formatters/linters over the repo**
+- [ ] **Step 5: Extend the `check` npm script to include prettier + eslint**
+
+Task A2 left `check` as `astro check && tsc --noEmit`. Now that Prettier
+and ESLint are installed, extend it:
+
+```json
+"scripts": {
+  "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0"
+}
+```
+
+- [ ] **Step 6: Run formatters/linters over the repo**
 
 ```bash
 npx prettier --write .
@@ -2065,7 +2080,7 @@ npm run check
 
 Expected: 0 errors, 0 warnings.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add .prettierrc.json .prettierignore eslint.config.js package.json package-lock.json .
