@@ -1100,16 +1100,21 @@ Goal: content collections, all pages wired to real data, seed content in place.
 ### Task C1: Content collection schemas
 
 **Files:**
-- Create: `src/content/config.ts`
+- Create: `src/content.config.ts`
 
-- [ ] **Step 1: Write `src/content/config.ts`**
+Astro 6 removed the legacy `type: "content"` collection API; collections
+now use a `loader` (typically `glob(...)` from `astro/loaders`) and the
+config file moves to `src/content.config.ts` (outside `src/content/`).
+
+- [ ] **Step 1: Write `src/content.config.ts`**
 
 ```ts
-// src/content/config.ts
+// src/content.config.ts
 import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const writing = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/writing" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -1121,7 +1126,7 @@ const writing = defineCollection({
 });
 
 const projects = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
   schema: z.object({
     title: z.string(),
     summary: z.string(),
@@ -1142,7 +1147,7 @@ const projects = defineCollection({
 });
 
 const interests = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/interests" }),
   schema: z.object({
     title: z.string(),
     summary: z.string(),
@@ -1153,6 +1158,12 @@ const interests = defineCollection({
 
 export const collections = { writing, projects, interests };
 ```
+
+**Important downstream consequence:** loader-based collection entries
+expose `entry.id` instead of `entry.slug`. Every list/detail page that
+follows (C4, C6, C7, C8) uses `entry.id` when building paths like
+`/projects/${p.id}/`, and rendering uses `const { Content } =
+await render(entry)` (not `entry.render()`) — both are the Astro 6 APIs.
 
 - [ ] **Step 2: Verify typecheck passes**
 
@@ -1432,7 +1443,7 @@ const writing = (await getCollection("writing", p => !p.data.draft))
   .slice(0, 3);
 
 const writingEntries = writing.map(post => ({
-  href: `/writing/${post.slug}/`,
+  href: `/writing/${post.id}/`,
   title: post.data.title,
   description: post.data.description,
   date: post.data.publishedAt,
@@ -1446,7 +1457,7 @@ const writingEntries = writing.map(post => ({
     <h2 class="section-label">Featured projects</h2>
     {projects.map(p => (
       <ProjectCard
-        href={`/projects/${p.slug}/`}
+        href={`/projects/${p.id}/`}
         title={p.data.title}
         summary={p.data.summary}
         tech={p.data.tech}
@@ -1615,7 +1626,7 @@ const projects = (await getCollection("projects", p => !p.data.draft))
     <h1>Projects</h1>
     {projects.map(p => (
       <ProjectCard
-        href={`/projects/${p.slug}/`}
+        href={`/projects/${p.id}/`}
         title={p.data.title}
         summary={p.data.summary}
         tech={p.data.tech}
@@ -1633,15 +1644,15 @@ const projects = (await getCollection("projects", p => !p.data.draft))
 ---
 // src/pages/projects/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects", p => !p.data.draft);
-  return projects.map(p => ({ params: { slug: p.slug }, props: { entry: p } }));
+  return projects.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 const { data } = entry;
 ---
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
@@ -1705,7 +1716,7 @@ const interests = (await getCollection("interests", p => !p.data.draft))
     <ul class="list">
       {interests.map(i => (
         <li>
-          <h3><a href={`/interests/${i.slug}/`}>{i.data.title}</a></h3>
+          <h3><a href={`/interests/${i.id}/`}>{i.data.title}</a></h3>
           <p>{i.data.summary}</p>
           {i.data.kind && <small class="kind">{i.data.kind}</small>}
         </li>
@@ -1730,15 +1741,15 @@ const interests = (await getCollection("interests", p => !p.data.draft))
 ---
 // src/pages/interests/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
   const interests = await getCollection("interests", p => !p.data.draft);
-  return interests.map(p => ({ params: { slug: p.slug }, props: { entry: p } }));
+  return interests.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 const { data } = entry;
 ---
 <ProseLayout title={data.title} description={data.summary}>
@@ -1787,7 +1798,7 @@ const posts = (await getCollection("writing", p => !p.data.draft))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
 const entries = posts.map(p => ({
-  href: `/writing/${p.slug}/`,
+  href: `/writing/${p.id}/`,
   title: p.data.title,
   description: p.data.description,
   date: p.data.publishedAt,
@@ -1807,15 +1818,15 @@ const entries = posts.map(p => ({
 ---
 // src/pages/writing/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
   const posts = await getCollection("writing", p => !p.data.draft);
-  return posts.map(p => ({ params: { slug: p.slug }, props: { entry: p } }));
+  return posts.map(p => ({ params: { slug: p.id }, props: { entry: p } }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 const { data } = entry;
 ---
 <ProseLayout
@@ -1882,7 +1893,7 @@ export async function GET(context: APIContext) {
       title: p.data.title,
       description: p.data.description,
       pubDate: p.data.publishedAt,
-      link: `/writing/${p.slug}/`,
+      link: `/writing/${p.id}/`,
     })),
     customData: "<language>en-ca</language>",
   });
