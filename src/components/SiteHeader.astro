@@ -1,0 +1,76 @@
+---
+// src/components/SiteHeader.astro
+import ThemeToggle from "./ThemeToggle.astro";
+
+const navItems = [
+  { href: "/projects/",  label: "Projects" },
+  { href: "/interests/", label: "Interests" },
+  { href: "/writing/",   label: "Writing" },
+  { href: "/about/",     label: "About" },
+];
+
+const pathname = Astro.url.pathname;
+---
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/" aria-label="Home">Boring by Design</a>
+    <div class="right">
+      <nav aria-label="Primary">
+        <ul>
+          {navItems.map(item => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={pathname === item.href ? "page" : undefined}
+              >{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    padding: var(--sp-5) var(--sp-6);
+  }
+  .inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-4);
+    flex-wrap: wrap; /* nav wraps to second row on narrow screens */
+  }
+  .wordmark {
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .right {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-6);
+    flex-wrap: wrap;
+  }
+  nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: var(--sp-5);
+    font-size: 0.95rem;
+  }
+  nav a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+</style>
