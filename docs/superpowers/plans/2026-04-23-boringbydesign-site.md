@@ -244,11 +244,10 @@ Why `trailingSlash: 'always'` + `format: 'directory'`: produces `/about/index.ht
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "boringbydesign",
-  "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2026-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "directory": "./dist",
+    "directory": "./dist/client",
     "binding": "ASSETS",
     "not_found_handling": "404-page"
   },
@@ -256,7 +255,10 @@ Why `trailingSlash: 'always'` + `format: 'directory'`: produces `/about/index.ht
 }
 ```
 
-The Worker name `boringbydesign` should be unique to the Cloudflare account. If a name collision occurs at first deploy, rename to `boringbydesign-site`.
+Notes:
+- No `main` field — `@astrojs/cloudflare` in static mode does not emit a worker entrypoint; static assets are served directly by Workers Assets. If SSR routes are added later, set `main` to `./dist/_worker.js/index.js`.
+- The adapter emits static output to `dist/client/`, which is why `assets.directory` points there rather than at `./dist`.
+- The Worker name `boringbydesign` should be unique to the Cloudflare account. If a name collision occurs at first deploy, rename to `boringbydesign-site`.
 
 - [ ] **Step 4: Verify typecheck passes on empty src**
 
