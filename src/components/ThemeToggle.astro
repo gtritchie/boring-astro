@@ -1,0 +1,75 @@
+---
+// src/components/ThemeToggle.astro — cycles Light → Dark → System; persists to localStorage
+---
+<button class="theme-toggle" data-theme-toggle aria-label="Cycle theme: light, dark, system" type="button">
+  <span data-theme-label>Theme</span>
+</button>
+
+<style>
+  .theme-toggle {
+    background: var(--btn-bg);
+    border: 1px solid var(--border-ui);
+    color: var(--fg);
+    padding: 0.3rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+  }
+  .theme-toggle:hover { background: var(--border); }
+</style>
+
+<script>
+  // Survives Astro View Transitions: click handler is attached once to
+  // `document` via delegation, and label-update runs on both initial load
+  // and every `astro:page-load` event after navigation.
+  type Choice = "light" | "dark" | "system";
+  const ORDER: Choice[] = ["light", "dark", "system"];
+  const LABELS: Record<Choice, string> = { light: "Light ☀︎", dark: "Dark ☾", system: "System ⌘" };
+  const INIT_FLAG = "__bbdThemeToggleReady";
+
+  function read(): Choice {
+    const v = localStorage.getItem("theme");
+    return v === "light" || v === "dark" || v === "system" ? v : "system";
+  }
+
+  function applyTheme(choice: Choice) {
+    if (choice === "system") {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("theme", "system");
+    } else {
+      document.documentElement.setAttribute("data-theme", choice);
+      localStorage.setItem("theme", choice);
+    }
+    syncLabels(choice);
+  }
+
+  function syncLabels(choice: Choice) {
+    for (const el of document.querySelectorAll<HTMLElement>("[data-theme-label]")) {
+      el.textContent = LABELS[choice];
+    }
+  }
+
+  function cycle() {
+    const next = ORDER[(ORDER.indexOf(read()) + 1) % ORDER.length]!;
+    applyTheme(next);
+  }
+
+  function initOnce() {
+    const w = window as unknown as Record<string, unknown>;
+    if (w[INIT_FLAG]) return;
+    w[INIT_FLAG] = true;
+    // Delegated click — survives any DOM swap because it lives on document.
+    document.addEventListener("click", (e) => {
+      const target = e.target as Element | null;
+      if (target?.closest("[data-theme-toggle]")) cycle();
+    });
+    // Per-page label sync after View Transitions. Registered exactly once
+    // because initOnce is guarded by INIT_FLAG — re-execution of this
+    // component script after a transition is a no-op.
+    document.addEventListener("astro:page-load", () => syncLabels(read()));
+  }
+
+  // First paint (inline theme bootstrap in <head> has already set data-theme).
+  initOnce();
+  syncLabels(read());
+</script>
