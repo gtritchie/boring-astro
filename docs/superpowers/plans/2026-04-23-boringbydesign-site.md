@@ -941,7 +941,7 @@ const year = new Date().getFullYear();
       <ul>
         <li><a href="/uses/">Uses</a></li>
         <li><a href="/reading/">Reading</a></li>
-        <li><a href="https://github.com/" rel="me">GitHub</a></li>
+        <li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
         <li><a href="mailto:gary.t.ritchie@gmail.com">Email</a></li>
       </ul>
     </nav>
