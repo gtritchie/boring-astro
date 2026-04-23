@@ -1,6 +1,9 @@
 ---
-// src/layouts/BaseLayout.astro
 import "../styles/global.css";
+import SkipLink from "../components/SkipLink.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -21,8 +24,8 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonicalHref} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Boring by Design" href="/rss.xml" />
 
-    {/* Theme bootstrap — runs inline before first paint to avoid FOUC */}
     <script is:inline>
       (() => {
         try {
@@ -30,13 +33,16 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
           if (stored === "light" || stored === "dark") {
             document.documentElement.setAttribute("data-theme", stored);
           }
-          // If "system" or null, leave data-theme unset — CSS
-          // uses prefers-color-scheme as the fallback.
         } catch {}
       })();
     </script>
+
+    <ClientRouter />
   </head>
   <body>
+    <SkipLink />
+    <SiteHeader />
     <slot />
+    <SiteFooter />
   </body>
 </html>

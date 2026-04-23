@@ -33,3 +33,9 @@ hr {
   border-top: 1px solid var(--border);
   margin: var(--sp-6) 0;
 }
+
+main {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6);
+}
