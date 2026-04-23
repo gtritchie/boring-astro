@@ -44,7 +44,7 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
           is:inline
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}"}`}
+          data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}", "spa": true}`}
         />
       )
     }
