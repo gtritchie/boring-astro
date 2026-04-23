@@ -654,16 +654,20 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
 </style>
 
 <script>
+  // Survives Astro View Transitions: click handler is attached once to
+  // `document` via delegation, and label-update runs on both initial load
+  // and every `astro:page-load` event after navigation.
   type Choice = "light" | "dark" | "system";
   const ORDER: Choice[] = ["light", "dark", "system"];
   const LABELS: Record<Choice, string> = { light: "Light ☀︎", dark: "Dark ☾", system: "System ⌘" };
+  const INIT_FLAG = "__bbdThemeToggleReady";
 
   function read(): Choice {
     const v = localStorage.getItem("theme");
     return v === "light" || v === "dark" || v === "system" ? v : "system";
   }
 
-  function apply(choice: Choice) {
+  function applyTheme(choice: Choice) {
     if (choice === "system") {
       document.documentElement.removeAttribute("data-theme");
       localStorage.setItem("theme", "system");
@@ -671,6 +675,10 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
       document.documentElement.setAttribute("data-theme", choice);
       localStorage.setItem("theme", choice);
     }
+    syncLabels(choice);
+  }
+
+  function syncLabels(choice: Choice) {
     for (const el of document.querySelectorAll<HTMLElement>("[data-theme-label]")) {
       el.textContent = LABELS[choice];
     }
@@ -678,13 +686,29 @@ git commit -m "Add BaseLayout with inline theme bootstrap and wire home page to 
 
   function cycle() {
     const next = ORDER[(ORDER.indexOf(read()) + 1) % ORDER.length]!;
-    apply(next);
+    applyTheme(next);
   }
 
-  apply(read()); // label syncing on page load
-  for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")) {
-    btn.addEventListener("click", cycle);
+  function initOnce() {
+    const w = window as unknown as Record<string, unknown>;
+    if (w[INIT_FLAG]) return;
+    w[INIT_FLAG] = true;
+    // Delegated click — survives any DOM swap because it lives on document.
+    document.addEventListener("click", (e) => {
+      const target = e.target as Element | null;
+      if (target?.closest("[data-theme-toggle]")) cycle();
+    });
   }
+
+  function onPageReady() {
+    initOnce();
+    syncLabels(read());
+  }
+
+  // First paint (inline theme bootstrap in <head> has already set data-theme).
+  onPageReady();
+  // After every client-side navigation performed by View Transitions.
+  document.addEventListener("astro:page-load", onPageReady);
 </script>
 ```
 
@@ -2109,18 +2133,23 @@ git commit -m "Add prek pre-commit config for prettier, eslint, and astro check"
 
 ---
 
-### Task E3: pa11y-ci config (full sitemap)
+### Task E3: pa11y-ci config (driven by sitemap)
 
 **Files:**
 - Create: `.pa11yci.json`
 
-- [ ] **Step 1: Install pa11y-ci and a sitemap helper**
+pa11y-ci reads URLs directly from the sitemap at runtime via `--sitemap`, so
+there is no hand-maintained list. Every URL emitted by `@astrojs/sitemap`
+(i.e., every non-draft published page) is audited — adding a page
+automatically adds it to the a11y scan.
+
+- [ ] **Step 1: Install pa11y-ci**
 
 ```bash
 npm install --save-exact --save-dev pa11y-ci
 ```
 
-- [ ] **Step 2: Write `.pa11yci.json`**
+- [ ] **Step 2: Write `.pa11yci.json` (defaults only; no URL list)**
 
 ```json
 {
@@ -2131,26 +2160,12 @@ npm install --save-exact --save-dev pa11y-ci
     "chromeLaunchConfig": {
       "args": ["--no-sandbox"]
     }
-  },
-  "urls": [
-    "http://localhost:4321/",
-    "http://localhost:4321/about/",
-    "http://localhost:4321/uses/",
-    "http://localhost:4321/reading/",
-    "http://localhost:4321/projects/",
-    "http://localhost:4321/interests/",
-    "http://localhost:4321/writing/",
-    "http://localhost:4321/projects/cal-gen/",
-    "http://localhost:4321/projects/ledger-import/",
-    "http://localhost:4321/interests/notebook-keeping/",
-    "http://localhost:4321/interests/photography/",
-    "http://localhost:4321/writing/hello-world/",
-    "http://localhost:4321/writing/why-boring/"
-  ]
+  }
 }
 ```
 
-These URLs mirror the site routes. CI will use `astro preview` (not wrangler dev) on port 4321. The list is maintained by hand for now — acceptable because it's derived from the generated sitemap mechanically. Task E6 wires the CI step that generates a fresh URL list from `dist/sitemap-0.xml` so this file stays in sync automatically.
+The `urls` array is intentionally omitted — pa11y-ci is invoked with
+`--sitemap <url>` and pulls the full list at runtime.
 
 - [ ] **Step 3: Run pa11y-ci locally against the preview**
 
@@ -2164,16 +2179,16 @@ npx astro preview --host 127.0.0.1 --port 4321
 In another:
 
 ```bash
-npx pa11y-ci
+npx pa11y-ci --sitemap http://127.0.0.1:4321/sitemap-0.xml
 ```
 
-Expected: 0 errors across all URLs. If failures appear (missing alt, contrast, heading order, etc.), fix them before moving on.
+Expected: 0 errors across every URL in the sitemap. If failures appear (missing alt, contrast, heading order, etc.), fix them before moving on.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add .pa11yci.json package.json package-lock.json
-git commit -m "Add pa11y-ci WCAG AAA config covering all seeded routes"
+git commit -m "Add pa11y-ci WCAG AAA config; sitemap-driven URL list"
 ```
 
 ---
@@ -2348,6 +2363,11 @@ jobs:
         run: npm run check
 
       - name: Build
+        env:
+          # PUBLIC_* vars are baked into the static output at build time.
+          # Missing on PRs from forks — analytics just won't render in those
+          # preview builds, which is fine.
+          PUBLIC_CF_WA_TOKEN: ${{ secrets.PUBLIC_CF_WA_TOKEN }}
         run: npm run build
 
       - name: Install lychee
@@ -2363,8 +2383,8 @@ jobs:
       - name: Wait for preview
         run: npx wait-on http://127.0.0.1:4321/ --timeout 60000
 
-      - name: pa11y-ci (AAA)
-        run: npx pa11y-ci
+      - name: pa11y-ci (AAA, full sitemap)
+        run: npx pa11y-ci --sitemap http://127.0.0.1:4321/sitemap-0.xml
 
       - name: Lighthouse CI
         run: npx lhci autorun
@@ -2399,7 +2419,7 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci --only=production false
+      - run: npm ci
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
@@ -2486,14 +2506,14 @@ This task creates a documented runbook. The actual DNS work is Gary's hands-on s
    - Add `boringbydesign.ca`
    - Add `www.boringbydesign.ca` as a redirect-to-apex
 6. **SSL/TLS settings:** Full (strict). Enable "Always Use HTTPS" and "Automatic HTTPS Rewrites".
-7. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard. Copy the token into the GitHub repo secret `PUBLIC_CF_WA_TOKEN` (or a repo env var — it's not a secret strictly, but treat it the same).
+7. **Web Analytics:** Add `boringbydesign.ca` in the Cloudflare dashboard. Copy the token into the GitHub repo secret `PUBLIC_CF_WA_TOKEN`. Astro reads `PUBLIC_*` env vars at **build time** and bakes them into the static output — the workflow in `.github/workflows/deploy.yml` already exposes this secret to the `npm run build` step, so the beacon renders on every production build.
 
 ## Secrets to set in the GitHub repo
 
 - `CLOUDFLARE_API_TOKEN` — scoped to just this Workers project (Workers Scripts: Edit; Workers Routes: Edit; Zone: Edit for boringbydesign.ca).
 - `CLOUDFLARE_ACCOUNT_ID` — from Cloudflare dashboard.
 - `LHCI_GITHUB_APP_TOKEN` — optional; enables Lighthouse CI status on PRs. Install the LHCI GitHub App to generate.
-- `PUBLIC_CF_WA_TOKEN` — Web Analytics token (from step 7 above).
+- `PUBLIC_CF_WA_TOKEN` — Web Analytics token (from step 7 above). **Must be passed as an env var to the build step** (already wired in `deploy.yml`). Without it, the analytics beacon will not be included in the built site.
 
 ## After the first deploy
 
@@ -2578,7 +2598,6 @@ git push origin v0.1.0
 **Type consistency:** `ProjectCard` props, `EntryList.Entry`, and `getCollection` filter predicates all use the schema defined in C1. Dates are `Date` throughout (sourced from Zod `z.date()`). `displayYear` is `string | undefined`; when absent we fall back to `startedAt.getFullYear()` — consistent in both index.astro (Task C4) and projects/index.astro (Task C6).
 
 **Known gaps / deferred:**
-- Programmatic pa11y URL list from sitemap — currently hand-maintained in `.pa11yci.json`. Mechanical sync is a nice-to-have; not blocking launch.
 - OG images, /resume/, search — listed in spec §8 as deferred.
 - Real content beyond seed stubs — Gary's ongoing authoring, not an implementation task.
 
