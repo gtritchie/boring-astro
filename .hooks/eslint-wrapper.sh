@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
-export PATH="/Users/gary/.nvm/versions/node/v22.18.0/bin:$PATH"
+
+if ! command -v node >/dev/null 2>&1; then
+  if [[ -n "${NVM_DIR:-}" && -s "$NVM_DIR/nvm.sh" ]]; then
+    # shellcheck disable=SC1091
+    . "$NVM_DIR/nvm.sh"
+  fi
+fi
+
 exec npx eslint --fix --max-warnings 0 "$@"
