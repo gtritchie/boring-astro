@@ -98,7 +98,7 @@ pushing. The repo itself is the durable archive.
 
 ```
 /                       Home — intro, featured projects, recent writing
-/projects/              List of software projects (reverse chronological by year)
+/projects/              List of software projects (reverse chronological by startedAt)
 /projects/<slug>/       Individual project write-up
 /interests/             List of non-software interests
 /interests/<slug>/      Individual interest entry
@@ -156,7 +156,9 @@ Three collections. Everything else is a single Astro page with inline content.
   title: string
   summary: string             // 1–2 line subtitle on cards
   status: "active" | "archived" | "experimental"
-  year: number | string       // "2023–present" allowed
+  startedAt: Date              // required; sort key for listings
+  displayYear?: string         // optional display override, e.g. "2023–present"
+                               // falls back to startedAt.getFullYear() if omitted
   tech: string[]              // ["Rust", "CLI"] — shown as tag chips
   links?: {
     repo?: string
@@ -281,7 +283,12 @@ All sizing in `rem` so the user's browser font-size preference propagates.
 
 - `<Image />` component for all content images (auto WebP + AVIF, responsive `srcset`)
 - No decorative images in site chrome
-- `alt` attribute required — build fails if missing
+- **Alt-text enforcement.** Astro 5+/6 automatically optimizes relative image
+  references in Markdown/MDX (they route through the Image pipeline). To
+  guarantee alt text is present on both `<Image />` usages and plain
+  `![]()` Markdown, a custom remark plugin walks image nodes at build time
+  and fails the build on missing or empty `alt`. The plugin lives at
+  `src/plugins/remark-require-alt.mjs` and is wired in `astro.config.mjs`.
 
 ---
 
@@ -296,7 +303,10 @@ All sizing in `rem` so the user's browser font-size preference propagates.
   visible on focus, jumps to `<main>`
 - **Landmarks**: one `<header>`, one `<main>`, one `<footer>` per page;
   `<nav>` with `aria-label`
-- **Headings**: single `<h1>` per page, no level skips
+- **Headings**: single `<h1>` per page, no level skips — enforced via
+  `remark-lint-no-multiple-toplevel-headings` and `remark-lint-heading-increment`
+  plugins wired into `astro.config.mjs`; build fails on violations so the
+  guarantee holds even for MDX-authored content
 - **Motion**: `prefers-reduced-motion: reduce` disables view transitions and
   theme-toggle animation
 - **Color not sole signifier**: links always underlined; status markers use
@@ -307,17 +317,21 @@ All sizing in `rem` so the user's browser font-size preference propagates.
 ### Responsive breakpoints
 
 ```
-< 640 px     phone     single column; nav collapses to hamburger + toggle;
-                       entry date moves above title (no 6rem date column)
-640–899 px   tablet    single column; nav visible horizontally
+< 640 px     phone     single column; nav items wrap to a second row if
+                       needed; entry date moves above title (no 6rem
+                       date column)
+640–899 px   tablet    single column; nav visible in one row
 ≥ 900 px     desktop   single column centered; max-width 72ch;
                        date column re-appears at 6rem width
 ```
 
-### Hamburger menu behavior
+### No hamburger menu
 
-Plain text list of links, no animation, no full-screen overlay. Appears below
-the header when opened. Closes when a link is activated or Escape is pressed.
+The site has four primary nav links plus the theme toggle — few enough to
+stay visible on phone-width screens. On narrow viewports the nav items wrap
+onto a second row via `flex-wrap`; no disclosure control, no JS, no Escape
+handler. This keeps the client-JS budget at exactly two scripts
+(theme toggle + view transitions) as stated in section 1.
 
 ### Browser targets
 
@@ -353,6 +367,8 @@ boring-astro/
 │   ├── layouts/
 │   │   ├── BaseLayout.astro
 │   │   └── ProseLayout.astro
+│   ├── plugins/
+│   │   └── remark-require-alt.mjs    # custom build-time alt-text validator
 │   ├── pages/
 │   │   ├── index.astro
 │   │   ├── about.astro
@@ -426,7 +442,10 @@ prettier --check .
 ### CI (in addition to local checks)
 
 ```
-astro build                  # missing alt-text or bad frontmatter fails here
+astro build                  # bad frontmatter fails here; the build also runs:
+                             #   - remark-require-alt (custom)   → fails on empty/missing alt
+                             #   - remark-lint-no-multiple-toplevel-headings
+                             #   - remark-lint-heading-increment
 lychee --no-progress         # internal link checker
 pa11y-ci                     # a11y scan on sampled built pages
 lhci autorun                 # Lighthouse CI
@@ -506,4 +525,6 @@ These are not blocking decisions; they'll be resolved during build:
 Resolve these to exact latest-stable versions in the implementation plan:
 `astro`, `@astrojs/cloudflare`, `@astrojs/mdx`, `@astrojs/rss`,
 `@astrojs/sitemap`, `typescript`, `wrangler`, `prettier`, `eslint`,
-`eslint-plugin-astro`, `pa11y-ci`, `@lhci/cli`, `lychee` (binary).
+`eslint-plugin-astro`, `pa11y-ci`, `@lhci/cli`, `lychee` (binary),
+`unified`, `unist-util-visit` (for the custom alt-text validator),
+`remark-lint-no-multiple-toplevel-headings`, `remark-lint-heading-increment`.
