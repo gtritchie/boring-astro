@@ -12,6 +12,7 @@ const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
 <BaseLayout title="Projects" description="Software projects — personal and professional.">
   <main id="main">
     <h1>Projects</h1>
+    <h2 class="section-label">All projects</h2>
     {
       projects.map((p) => (
         <ProjectCard
@@ -26,3 +27,14 @@ const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
     }
   </main>
 </BaseLayout>
+
+<style>
+  .section-label {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin: var(--sp-6) 0 var(--sp-4);
+  }
+</style>

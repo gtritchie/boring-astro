@@ -11,6 +11,7 @@ const interests = (await getCollection("interests", (p) => !p.data.draft)).sort(
 <BaseLayout title="Interests" description="Non-software interests and projects.">
   <main id="main">
     <h1>Interests</h1>
+    <h2 class="section-label">All interests</h2>
     <ul class="list">
       {
         interests.map((i) => (
@@ -28,6 +29,14 @@ const interests = (await getCollection("interests", (p) => !p.data.draft)).sort(
 </BaseLayout>
 
 <style>
+  .section-label {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin: var(--sp-6) 0 var(--sp-4);
+  }
   .list {
     list-style: none;
     padding: 0;
