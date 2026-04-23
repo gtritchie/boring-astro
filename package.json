@@ -13,7 +13,7 @@
     "check": "astro check && tsc --noEmit && prettier --check . && eslint . --max-warnings 0",
     "pa11y": "node scripts/run-pa11y.mjs",
     "lighthouse": "astro build && lhci autorun",
-    "link-check": "astro build && bash scripts/run-link-check.sh"
+    "link-check": "bash scripts/run-link-check.sh"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",

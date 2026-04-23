@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# lychee is a Rust binary, not an npm package. Check for it up front so
-# "npm run link-check" fails with install guidance instead of a bare
-# "command not found" from the shell.
+# lychee is a Rust binary, not an npm package. Check for it FIRST — before
+# running astro build — so "npm run link-check" fails fast with install
+# guidance on a fresh checkout rather than wasting a build.
 if ! command -v lychee >/dev/null 2>&1; then
   cat >&2 <<'EOF'
 link-check: lychee is not on PATH.
@@ -17,4 +17,5 @@ EOF
   exit 1
 fi
 
+npx astro build
 exec lychee --config lychee.toml 'dist/client/**/*.html'
