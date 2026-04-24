@@ -263,7 +263,6 @@ typecheck.
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist/client",
-    "binding": "ASSETS",
     "not_found_handling": "404-page",
   },
   "observability": { "enabled": true },
@@ -272,7 +271,7 @@ typecheck.
 
 Notes:
 
-- No `main` field — `@astrojs/cloudflare` in static mode does not emit a worker entrypoint; static assets are served directly by Workers Assets. If SSR routes are added later, set `main` to `./dist/_worker.js/index.js`.
+- No `main` field and no `assets.binding` — this is an assets-only Worker, so static assets are served directly by Workers Assets. A `binding` is only valid when a Worker script exists to consume it. If SSR routes are added later, set `main` to `./dist/_worker.js/index.js` and reintroduce `"binding": "ASSETS"`.
 - The adapter emits static output to `dist/client/`, which is why `assets.directory` points there rather than at `./dist`.
 - The Worker name `boringbydesign` should be unique to the Cloudflare account. If a name collision occurs at first deploy, rename to `boringbydesign-site`.
 
