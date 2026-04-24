@@ -8,7 +8,7 @@ Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 6 site d
 
 ## Commands
 
-Node 22.12+ required (`.nvmrc` pins `22.18.0`).
+Node 24+ required (`.nvmrc` pins `24.15.0`).
 
 - `npm run dev` — Astro dev server on `:4321`
 - `npm run build` — outputs to `dist/client/` (not `dist/` — see below)
