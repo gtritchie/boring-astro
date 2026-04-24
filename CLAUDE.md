@@ -15,6 +15,7 @@ Node 24+ required (`.nvmrc` pins `24.15.0`).
 - `npm run preview` — `wrangler dev` on `:8787` (real Workers runtime against built output)
 - `npm run preview:astro` — builds, then `astro preview` on `127.0.0.1:4321` — pa11y expects this exact origin
 - `npm run check` — `astro check` + `prettier --check` + `eslint`
+- `npm run format` — `prettier --write .`
 - `npm run pa11y` — WCAG AAA audit of every sitemap URL; needs `preview:astro` running in another terminal
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
 - `npm run link-check` — builds, then lychee across built HTML (requires `lychee` installed — `brew install lychee`)
@@ -23,7 +24,7 @@ No unit test suite. Verification is linting, type-checking, pa11y, Lighthouse, a
 
 ## Architecture
 
-**Static Astro, no SSR.** `output: "static"` with the Cloudflare adapter. The adapter does *not* emit `_worker.js` in static mode, so build output lives at `dist/client/` and `wrangler.jsonc`'s `assets.directory` points there. Don't assume `dist/` like typical Astro projects.
+**Static Astro, no SSR.** `output: "static"` with the Cloudflare adapter. The adapter does _not_ emit `_worker.js` in static mode, so build output lives at `dist/client/` and `wrangler.jsonc`'s `assets.directory` points there. Don't assume `dist/` like typical Astro projects.
 
 **Content is the data model.** All user-visible content lives under `src/content/{writing,projects,interests}/` as Markdown/MDX, validated against Zod schemas in `src/content.config.ts`. Collections use Astro 6's content layer (`loader: glob(...)`). Entries expose `entry.id` (not `slug`); render with `render(entry)` imported from `astro:content`. Adding fields means updating both the schema and any consuming page/component.
 

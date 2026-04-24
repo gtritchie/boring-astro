@@ -23,7 +23,7 @@ so currently must be installed from GitHub, or using [BRAT](https://github.com/T
 The plugin's options let you define a checkbox property to serve as the selection mechanism, and
 choose which properties you want available for bulk-editing.
 
-![Bulk properties options dialog](./bulk-properties-options.png)
+![Bulk properties options dialog](bulk-properties-options.png)
 
 ### Bulk editing
 
@@ -32,7 +32,7 @@ command (or use the ribbon icon) to bring up the dialog. Select the property to 
 the new value. For multi-value properties (e.g. tags, lists) there is an option to add new values,
 replace all existing values, or delete the provided value.
 
-![Bulk edit selected notes dialog](./bulk-properties-edit.png)
+![Bulk edit selected notes dialog](bulk-properties-edit.png)
 
 ### Other features
 
