@@ -2,52 +2,47 @@
 
 **When:** Before the first Cloudflare Workers deploy of boringbydesign.ca.
 **Who:** Gary (manual, outside CI).
-**Estimated time:** 10 minutes.
+**Estimated time:** 5 minutes.
 
 DNS is already on Cloudflare (moved from GoDaddy during an earlier Svelte
-experiment). An old Worker from that experiment still exists in the account.
-The work here is swapping the custom domain from the old Worker to the new
-`boringbydesign` Worker that CI will deploy.
+experiment). A Worker named `boring-site` from that experiment still exists
+in the account, with `boringbydesign.ca` and `www.boringbydesign.ca` bound
+to it as custom domains.
 
-## Pre-flight audit
+`wrangler.jsonc` is set to `name: "boring-site"` so the first CI deploy
+overwrites that Worker in place. The custom-domain bindings stay as-is,
+no unbind/rebind dance needed.
 
-Do this before merging the first PR so you know what state the zone is in.
+## Pre-flight verification
 
-1. **Cloudflare → Workers & Pages.** Note the old Worker's name. Check its
-   Custom Domains / Triggers tab — is `boringbydesign.ca` or
-   `www.boringbydesign.ca` bound to it? Confirm Settings → Build shows no
-   connected GitHub repo (integration should already be disconnected).
-2. **Cloudflare → DNS.** Note any records at `@` and `www`. These may be
-   auto-created CNAMEs pointing at the old Worker.
-3. **Name collision check.** `wrangler.jsonc` sets `name: "boringbydesign"`.
-   If the old Worker has the same name, the first deploy overwrites it.
-   If it has a different name, the first deploy creates a second Worker
-   alongside it and the cutover steps below apply.
+Run these once before merging the first PR to confirm the world matches
+this runbook's assumptions.
 
-## Cutover steps
+1. **Worker name matches.** Cloudflare → Workers & Pages → confirm a
+   Worker named `boring-site` exists.
+2. **Custom domains still bound.** On that Worker, Custom Domains tab
+   should list both `boringbydesign.ca` and `www.boringbydesign.ca`.
+3. **GitHub integration disconnected.** Settings → Build → no connected
+   repo. (If anything is still connected, disconnect it so CI's
+   wrangler deploy is the only thing publishing.)
+4. **SSL/TLS settings.** Confirm Full (strict), Always Use HTTPS on,
+   Automatic HTTPS Rewrites on. These should already be set from the
+   Svelte run.
 
-Run these after the first deploy lands the new Worker on its
-`*.workers.dev` URL and you've confirmed it serves correctly.
+## After the first CI deploy
 
-1. **Unbind the old Worker.** Cloudflare → old Worker → Custom Domains →
-   remove `boringbydesign.ca` and `www.boringbydesign.ca` if present.
-2. **Bind the new Worker.** Cloudflare → `boringbydesign` Worker →
-   Custom Domains:
-   - Add `boringbydesign.ca`
-   - Add `www.boringbydesign.ca` as a redirect-to-apex
-
-   Cloudflare creates/updates the DNS records automatically. There's a
-   brief window (seconds) between unbind and rebind where the apex
-   resolves to nothing — don't do this while someone's reading the site.
-3. **Verify SSL/TLS settings** (should already be set from the Svelte run,
-   just confirm): Full (strict), Always Use HTTPS on, Automatic HTTPS
-   Rewrites on.
-4. **Delete the old Worker** once the new one is serving cleanly.
-5. **Web Analytics (optional).** Only if you want traffic stats: add
+1. **Smoke-test the live site:**
+   - `curl -I https://boringbydesign.ca/` → `HTTP/2 200`, `server: cloudflare`
+   - `curl -I https://www.boringbydesign.ca/` → 301/308 redirect to the apex
+   - `cf-cache-status: HIT` after a few page views (edge warming)
+2. **Web Analytics (optional).** Only if you want traffic stats: add
    `boringbydesign.ca` in the Cloudflare dashboard
    (Analytics & Logs → Web Analytics → Add a site), copy the site token,
    and set it as `PUBLIC_CF_WA_TOKEN` in the GitHub repo secrets. The
-   deploy works fine without this — the beacon just isn't shipped.
+   deploy works fine without this — the beacon just isn't shipped. If
+   you set it, trigger a redeploy so the beacon gets baked in, then
+   confirm traffic shows up in the Cloudflare dashboard after a few
+   page views.
 
 ## Secrets to set in the GitHub repo
 
@@ -65,20 +60,12 @@ push to `main` triggers the deploy workflow.
 
 | Secret                  | Used by                                                     | Scope                                                                                                                                                                                                                                                                                                                                                |
 | ----------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from step 5 above. When set, Astro inlines the Cloudflare Web Analytics beacon at build time. When unset, the build still succeeds and the beacon simply isn't rendered — set this only if you want traffic data flowing to the Cloudflare dashboard. Required for the first-deploy smoke test of "Web Analytics shows traffic". |
+| `PUBLIC_CF_WA_TOKEN`    | `build-and-check` job build step (baked into static output) | Web Analytics token from the optional step above. When set, Astro inlines the Cloudflare Web Analytics beacon at build time. When unset, the build still succeeds and the beacon simply isn't rendered — set this only if you want traffic data flowing to the Cloudflare dashboard.                                                                |
 | `LHCI_GITHUB_APP_TOKEN` | `build-and-check` job LHCI step                             | Install the Lighthouse CI GitHub App on the repo; the install flow emits this token. Enables LHCI to post per-PR status checks. Builds succeed without it; LHCI just won't annotate PRs.                                                                                                                                                             |
 
 If the deploy workflow ever starts managing Worker routes or DNS programmatically,
 widen `CLOUDFLARE_API_TOKEN` to include **Workers Routes: Edit** and **Zone: Edit
 for `boringbydesign.ca`** at that time.
-
-## After the first deploy
-
-- `curl -I https://boringbydesign.ca/` → `HTTP/2 200`, `server: cloudflare`
-- `curl -I https://www.boringbydesign.ca/` → 301/308 redirect to the apex
-- `cf-cache-status: HIT` after a few page views (edge warming)
-- If `PUBLIC_CF_WA_TOKEN` was configured (step 5): Cloudflare dashboard →
-  Web Analytics → see traffic flowing. Skip this check otherwise.
 
 ## Rollback
 
@@ -89,7 +76,8 @@ If the deploy breaks the site:
    within 24 hours).
 2. If the artifact is gone, check out the prior good commit locally and
    `npx wrangler deploy` from there.
-3. If Cloudflare routes need to be manually reverted: Cloudflare dashboard
-   → the Worker → Deployments → promote an earlier deployment.
+3. If you need to revert to an earlier Worker version directly:
+   Cloudflare dashboard → `boring-site` Worker → Deployments → promote
+   an earlier deployment.
 
 Cloudflare keeps the last 100 Workers deployments per project on the free tier.
