@@ -28,3 +28,7 @@ npm-debug.log*
 
 # Brainstorming sessions
 .superpowers/
+.lighthouseci/
+
+# Claude Code — keep the shared settings.json commit-able, ignore local overrides
+.claude/settings.local.json

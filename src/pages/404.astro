@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Not found" description="Page not found.">
+  <main id="main" class="prose">
+    <h1>Not found</h1>
+    <p>That page doesn't exist. <a href="/">Back to the home page.</a></p>
+  </main>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: var(--reading-width);
+  }
+  .prose p {
+    margin: var(--sp-4) 0;
+  }
+</style>

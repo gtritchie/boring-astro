@@ -1,0 +1,24 @@
+---
+// src/pages/writing/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import EntryList from "../../components/EntryList.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("writing", (p) => !p.data.draft)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+
+const entries = posts.map((p) => ({
+  href: `/writing/${p.id}/`,
+  title: p.data.title,
+  description: p.data.description,
+  date: p.data.publishedAt,
+}));
+---
+
+<BaseLayout title="Writing" description="Posts, notes, and the occasional essay.">
+  <main id="main">
+    <h1>Writing</h1>
+    <EntryList entries={entries} />
+  </main>
+</BaseLayout>

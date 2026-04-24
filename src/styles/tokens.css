@@ -1,0 +1,79 @@
+/* src/styles/tokens.css — values locked by the approved design spec */
+
+:root {
+  /* Typography */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale (base 18px, ratio 1.2) */
+  --fs-base: 1rem;
+  --fs-sm: 0.85rem;
+  --fs-h4: 1.2rem;
+  --fs-h3: 1.44rem;
+  --fs-h2: 1.73rem;
+  --fs-h1: 2.07rem;
+
+  --lh-body: 1.55;
+  --lh-heading: 1.15;
+
+  /* Spacing (4px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  /* Layout */
+  --reading-width: 68ch;
+  --page-width: 72ch;
+}
+
+/* Light theme (default) */
+:root,
+[data-theme="light"] {
+  --bg: #fafaf7;
+  --bg-raised: #ffffff;
+  --fg: #141414;
+  --fg-muted: #4a4a4a;
+  --border: #cfccc1;
+  --border-ui: #7f7c70;
+  --btn-bg: #efede6;
+  --accent: #7a331a;
+  --accent-bg: #f1e7e0;
+  --focus-ring: #7a331a;
+}
+
+[data-theme="dark"] {
+  --bg: #111111;
+  --bg-raised: #181816;
+  --fg: #f2f0ea;
+  --fg-muted: #b8b4a9;
+  --border: #3a3a37;
+  --border-ui: #6b6b6b;
+  --btn-bg: #222220;
+  --accent: #e8a98c;
+  --accent-bg: #2a1f1a;
+  --focus-ring: #e8a98c;
+}
+
+/* Respect system preference when no explicit choice */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #111111;
+    --bg-raised: #181816;
+    --fg: #f2f0ea;
+    --fg-muted: #b8b4a9;
+    --border: #3a3a37;
+    --border-ui: #6b6b6b;
+    --btn-bg: #222220;
+    --accent: #e8a98c;
+    --accent-bg: #2a1f1a;
+    --focus-ring: #e8a98c;
+  }
+}

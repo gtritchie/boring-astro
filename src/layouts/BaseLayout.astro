@@ -1,0 +1,60 @@
+---
+import "../styles/global.css";
+import SkipLink from "../components/SkipLink.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { ClientRouter } from "astro:transitions";
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+}
+
+const { title, description, canonical } = Astro.props;
+const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
+const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonicalHref} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Boring by Design" href="/rss.xml" />
+
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch {}
+      })();
+    </script>
+
+    {
+      import.meta.env["PUBLIC_CF_WA_TOKEN"] && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}", "spa": true}`}
+        />
+      )
+    }
+
+    <ClientRouter />
+  </head>
+  <body>
+    <SkipLink />
+    <SiteHeader />
+    <slot />
+    <SiteFooter />
+  </body>
+</html>

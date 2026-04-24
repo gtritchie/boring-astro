@@ -1,0 +1,52 @@
+---
+// src/components/SiteFooter.astro
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="inner">
+    <span>© {year} Gary Ritchie · <a href="/rss.xml">RSS</a></span>
+    <nav aria-label="Secondary">
+      <ul>
+        <li><a href="/uses/">Uses</a></li>
+        <li><a href="/reading/">Reading</a></li>
+        <li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
+        <li><a href="mailto:gary.t.ritchie@gmail.com">Email</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: var(--sp-5) var(--sp-6);
+    margin-top: var(--sp-12);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+  }
+  .inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sp-4);
+    flex-wrap: wrap;
+  }
+  nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: var(--sp-4);
+  }
+  .site-footer a {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .site-footer a:hover {
+    color: var(--fg);
+  }
+</style>

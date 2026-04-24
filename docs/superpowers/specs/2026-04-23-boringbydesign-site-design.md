@@ -207,18 +207,18 @@ via CSS custom properties. Exposed per-theme via `[data-theme="light"]` and
 
 #### Colors — warm-neutral palette, AAA throughout
 
-| Token          | Light        | Dark         | Purpose                              |
-|----------------|--------------|--------------|--------------------------------------|
-| `--bg`         | `#FAFAF7`    | `#111111`    | Page background                      |
-| `--bg-raised`  | `#FFFFFF`    | `#181816`    | Cards, inline code                   |
-| `--fg`         | `#141414`    | `#F2F0EA`    | Body text (≥15:1 on bg)              |
-| `--fg-muted`   | `#4A4A4A`    | `#B8B4A9`    | Secondary text (≥8.9:1 on bg)        |
-| `--border`     | `#CFCCC1`    | `#3A3A37`    | Decorative dividers                  |
-| `--border-ui`  | `#7F7C70`    | `#6B6B6B`    | Interactive element borders (≥3:1)   |
-| `--btn-bg`     | `#EFEDE6`    | `#222220`    | Subtle fill on buttons/inputs        |
-| `--accent`     | `#7A331A`    | `#E8A98C`    | Links, focus rings (AAA)             |
-| `--accent-bg`  | `#F1E7E0`    | `#2A1F1A`    | Inline code background               |
-| `--focus-ring` | `#7A331A`    | `#E8A98C`    | 3px solid, 2px offset                |
+| Token          | Light     | Dark      | Purpose                            |
+| -------------- | --------- | --------- | ---------------------------------- |
+| `--bg`         | `#FAFAF7` | `#111111` | Page background                    |
+| `--bg-raised`  | `#FFFFFF` | `#181816` | Cards, inline code                 |
+| `--fg`         | `#141414` | `#F2F0EA` | Body text (≥15:1 on bg)            |
+| `--fg-muted`   | `#4A4A4A` | `#B8B4A9` | Secondary text (≥8.9:1 on bg)      |
+| `--border`     | `#CFCCC1` | `#3A3A37` | Decorative dividers                |
+| `--border-ui`  | `#7F7C70` | `#6B6B6B` | Interactive element borders (≥3:1) |
+| `--btn-bg`     | `#EFEDE6` | `#222220` | Subtle fill on buttons/inputs      |
+| `--accent`     | `#7A331A` | `#E8A98C` | Links, focus rings (AAA)           |
+| `--accent-bg`  | `#F1E7E0` | `#2A1F1A` | Inline code background             |
+| `--focus-ring` | `#7A331A` | `#E8A98C` | 3px solid, 2px offset              |
 
 All body and muted text hits WCAG AAA (≥7:1). All interactive component
 boundaries hit WCAG AA (≥3:1). Rust accent chosen to meet AAA in both themes.
@@ -226,8 +226,8 @@ boundaries hit WCAG AA (≥3:1). Rust accent chosen to meet AAA in both themes.
 #### Typography — system stack only, no downloads
 
 ```css
---font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-             "Helvetica Neue", Arial, sans-serif;
+--font-sans:
+  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 ```
 
@@ -453,7 +453,7 @@ lhci autorun                 # Lighthouse CI — accessibility must stay at 100
 ### Lighthouse CI budgets (PR fails if regressed)
 
 | Metric         | Floor |
-|----------------|-------|
+| -------------- | ----- |
 | Performance    | 98    |
 | Accessibility  | 100   |
 | Best Practices | 95    |
