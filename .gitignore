@@ -28,3 +28,9 @@ npm-debug.log*
 
 # Brainstorming sessions
 .superpowers/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Lighthouse CI local output
+.lighthouseci/
