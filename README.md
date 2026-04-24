@@ -9,9 +9,9 @@ transitions.
 
 - **Node 22.12+** (`.nvmrc` pins `22.18.0` — `nvm use` picks it up)
 - **npm** (comes with Node)
-- **Chrome or Chromium** — required locally for `npm run pa11y` and
-  `npm run lighthouse`. `scripts/run-pa11y.mjs` auto-detects via
-  `chrome-launcher` on macOS/Linux/Windows.
+- **Chrome or Chromium** — required locally for `npm run lighthouse`.
+  `npm run pa11y` uses Puppeteer's bundled Chrome, installed automatically
+  by `npm install`.
 - **lychee** — only for `npm run link-check`. `brew install lychee` on macOS,
   `cargo install lychee` on Linux.
 
@@ -145,9 +145,10 @@ the GitHub repo settings once the remote is set up.
 - **UTC dates** — YAML frontmatter dates parse as UTC midnight. All rendering
   uses `timeZone: "UTC"` and `getUTCFullYear()` so a `2026-04-23` value always
   displays as April 23 regardless of the host or reader's timezone.
-- **pa11y needs Chrome** — `scripts/run-pa11y.mjs` uses `chrome-launcher` to
-  auto-detect a system Chrome on macOS/Linux/Windows. GitHub's `ubuntu-latest`
-  runner ships with Chrome preinstalled, so CI just works.
+- **pa11y uses Puppeteer's browser** — `npm install` downloads Chrome for
+  Testing to `~/.cache/puppeteer/`. `run-pa11y.mjs` leaves
+  `chromeLaunchConfig.executablePath` unset so pa11y picks it up
+  automatically, in CI and locally.
 - **Cloudflare adapter output** — `dist/client/` (not `dist/`) because in
   static mode the adapter doesn't emit a `_worker.js`. `wrangler.jsonc`
   points `assets.directory` at `./dist/client`.

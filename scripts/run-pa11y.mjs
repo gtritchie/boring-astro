@@ -4,11 +4,13 @@
 // invokes pa11y-ci against that flat URL list. All URLs are rewritten to the
 // preview origin so the audit validates the build under test — never the
 // deployed site.
-import { readFileSync, writeFileSync, mkdirSync, statSync, accessSync, constants } from "node:fs";
+//
+// Browser discovery: pa11y uses Puppeteer, which resolves its bundled
+// Chrome for Testing automatically when executablePath is unset.
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { tmpdir, platform } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { Launcher } from "chrome-launcher";
 
 const base = process.env.PA11Y_BASE_URL ?? "http://127.0.0.1:4321";
 
@@ -27,67 +29,6 @@ function toLocal(absoluteUrl) {
   return `${base}${pathname}${search}`;
 }
 
-// Chrome resolution order:
-//   1. PUPPETEER_EXECUTABLE_PATH — explicit override, validated up front
-//      so bad paths fail fast instead of silently falling back.
-//   2. chrome-launcher's Launcher.getInstallations() — cross-platform
-//      discovery (macOS app bundles, Linux incl. Snap/Flatpak, Windows).
-//   3. Nothing found → fail with an actionable message.
-function validateOverride(path) {
-  let st;
-  try {
-    st = statSync(path);
-  } catch {
-    throw new Error(
-      `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but no file exists there. ` +
-        `Fix the path or unset the variable to auto-detect.`,
-    );
-  }
-  if (!st.isFile()) {
-    throw new Error(
-      `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but that path is not a regular file. ` +
-        `Point it at the Chrome binary, not its app bundle or enclosing directory.`,
-    );
-  }
-  // X_OK check only meaningful on POSIX; Windows reports everything as executable.
-  if (platform() !== "win32") {
-    try {
-      accessSync(path, constants.X_OK);
-    } catch {
-      throw new Error(
-        `PUPPETEER_EXECUTABLE_PATH is set to "${path}" but that file is not executable. ` +
-          `chmod +x or choose a different binary.`,
-      );
-    }
-  }
-}
-
-function resolveChromePath() {
-  const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH;
-  if (fromEnv !== undefined && fromEnv !== "") {
-    validateOverride(fromEnv);
-    return fromEnv;
-  }
-  let found = [];
-  try {
-    found = Launcher.getInstallations();
-  } catch (err) {
-    // chrome-launcher throws (e.g. ERR_LAUNCHER_PATH_NOT_SET on Linux)
-    // instead of returning [] when nothing is installed. Translate to
-    // our own install-or-override message so the guidance is consistent.
-    throw new Error(
-      "Chrome auto-detection failed (chrome-launcher: " +
-        (err instanceof Error ? err.message : String(err)) +
-        "). Install Google Chrome/Chromium, or set PUPPETEER_EXECUTABLE_PATH to a valid binary.",
-    );
-  }
-  if (found.length > 0) return found[0];
-  throw new Error(
-    "No Chrome installation found. Install Google Chrome/Chromium, " +
-      "or set PUPPETEER_EXECUTABLE_PATH to a valid binary.",
-  );
-}
-
 const indexXml = await fetchText(`${base}/sitemap-index.xml`);
 const shardUrls = extractLocs(indexXml).map(toLocal);
 if (shardUrls.length === 0) throw new Error("sitemap-index.xml contained no shards");
@@ -102,11 +43,6 @@ if (pageUrls.length === 0) throw new Error("no page URLs found across sitemap sh
 const cfg = JSON.parse(readFileSync(".pa11yci.json", "utf8"));
 cfg.urls = pageUrls;
 
-const chromePath = resolveChromePath();
-cfg.defaults = cfg.defaults ?? {};
-cfg.defaults.chromeLaunchConfig = cfg.defaults.chromeLaunchConfig ?? {};
-cfg.defaults.chromeLaunchConfig.executablePath = chromePath;
-
 mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
 writeFileSync(outPath, JSON.stringify(cfg, null, 2));
@@ -114,7 +50,6 @@ writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 console.log(
   `pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`,
 );
-console.log(`pa11y-ci: using Chrome at ${chromePath}`);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);
