@@ -27,17 +27,11 @@ function toLocal(absoluteUrl) {
   return `${base}${pathname}${search}`;
 }
 
-// Puppeteer's postinstall browser download is suppressed by
-// ignore-scripts=true in .npmrc, so a Chrome binary must be provided
-// another way:
-//
-//   1. PUPPETEER_EXECUTABLE_PATH — explicit override. If set, it MUST
-//      resolve to an executable regular file; we fail fast on a bad
-//      path rather than silently falling back, which would mask typos
-//      and broken CI action outputs.
+// Chrome resolution order:
+//   1. PUPPETEER_EXECUTABLE_PATH — explicit override, validated up front
+//      so bad paths fail fast instead of silently falling back.
 //   2. chrome-launcher's Launcher.getInstallations() — cross-platform
-//      discovery (handles macOS app bundles including user-local,
-//      Linux incl. Snap/Flatpak, and Windows).
+//      discovery (macOS app bundles, Linux incl. Snap/Flatpak, Windows).
 //   3. Nothing found → fail with an actionable message.
 function validateOverride(path) {
   let st;

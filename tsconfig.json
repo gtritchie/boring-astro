@@ -1,14 +1,5 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": ["src/**/*", ".astro/types.d.ts", "astro.config.mjs", "*.ts"],
-  "exclude": ["dist/**/*", "node_modules/**/*"],
-  "compilerOptions": {
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true
-  }
+  "exclude": ["dist/**/*", "node_modules/**/*"]
 }

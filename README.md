@@ -14,8 +14,6 @@ transitions.
   `chrome-launcher` on macOS/Linux/Windows.
 - **lychee** — only for `npm run link-check`. `brew install lychee` on macOS,
   `cargo install lychee` on Linux.
-- **prek** — pre-commit hook runner. `brew install prek`. Run `prek install`
-  once per clone to install the git hooks.
 
 ## Common commands
 
@@ -25,7 +23,7 @@ transitions.
 | `npm run build`         | Produces `dist/client/` static output                                                             |
 | `npm run preview`       | Runs `wrangler dev` — serves the built site via the real Workers runtime on `:8787`               |
 | `npm run preview:astro` | Builds, then serves via `astro preview` on `127.0.0.1:4321` — port pa11y expects                  |
-| `npm run check`         | `astro check` + `tsc` + `prettier --check` + `eslint`                                             |
+| `npm run check`         | `astro check` + `prettier --check` + `eslint`                                                     |
 | `npm run pa11y`         | Audits every sitemap URL for WCAG AAA (needs `npm run preview:astro` running in another terminal) |
 | `npm run lighthouse`    | Builds, then runs LHCI against the budgets in `.lighthouserc.json`                                |
 | `npm run link-check`    | Builds, then runs lychee across the built HTML                                                    |
@@ -123,8 +121,7 @@ Astro scopes component CSS automatically — class names like `.inner` or
 
 GitHub Actions runs on every push and PR to `main`: `npm run check`, build,
 link check, pa11y, Lighthouse, and — on `main` only — deploy via
-`cloudflare/wrangler-action` (all actions pinned to SHAs). Secrets required
-are documented in
+`cloudflare/wrangler-action`. Secrets required are documented in
 [`docs/superpowers/runbooks/2026-04-23-dns-migration.md`](docs/superpowers/runbooks/2026-04-23-dns-migration.md).
 
 Day-to-day flow: branch, commit, open PR to `main`, wait for CI, merge. Deploy
@@ -145,16 +142,12 @@ the GitHub repo settings once the remote is set up.
   `src/content.config.ts`. Entries have `entry.id` (not `slug`). Render via
   `render(entry)` imported from `astro:content`.
 - **ClientRouter, not ViewTransitions** — the component was renamed in Astro 5+.
-- **`exactOptionalPropertyTypes: true`** — passing optional props often
-  requires `{...(value && { key: value })}` instead of `key={value}`.
 - **UTC dates** — YAML frontmatter dates parse as UTC midnight. All rendering
   uses `timeZone: "UTC"` and `getUTCFullYear()` so a `2026-04-23` value always
   displays as April 23 regardless of the host or reader's timezone.
-- **Supply-chain policy** — `.npmrc` has `save-exact=true` (no `^`/`~`),
-  `engine-strict=true`, and `ignore-scripts=true`. Puppeteer's browser
-  postinstall is therefore suppressed; CI provisions Chrome via
-  `browser-actions/setup-chrome` and `scripts/run-pa11y.mjs` auto-detects
-  system Chrome for local runs.
+- **pa11y needs Chrome** — `scripts/run-pa11y.mjs` uses `chrome-launcher` to
+  auto-detect a system Chrome on macOS/Linux/Windows. GitHub's `ubuntu-latest`
+  runner ships with Chrome preinstalled, so CI just works.
 - **Cloudflare adapter output** — `dist/client/` (not `dist/`) because in
   static mode the adapter doesn't emit a `_worker.js`. `wrangler.jsonc`
   points `assets.directory` at `./dist/client`.

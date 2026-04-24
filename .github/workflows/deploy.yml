@@ -20,11 +20,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -40,7 +38,7 @@ jobs:
         run: npm run build
 
       - name: Link check
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
+        uses: lycheeverse/lychee-action@v2
         with:
           args: --config lychee.toml 'dist/client/**/*.html'
           fail: true
@@ -51,18 +49,7 @@ jobs:
       - name: Wait for preview
         run: npx wait-on http://127.0.0.1:4321/ --timeout 60000
 
-      # Puppeteer's postinstall browser download is suppressed by
-      # ignore-scripts=true in .npmrc, so provision Chrome explicitly and
-      # point pa11y-ci at it via PUPPETEER_EXECUTABLE_PATH.
-      - name: Install Chrome
-        id: setup-chrome
-        uses: browser-actions/setup-chrome@4f8e94349a351df0f048634f25fec36c3c91eded # v2.1.1
-        with:
-          chrome-version: stable
-
       - name: pa11y-ci (AAA, every URL in the sitemap index)
-        env:
-          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: npm run pa11y
 
       - name: Lighthouse CI
@@ -72,7 +59,7 @@ jobs:
 
       - name: Upload dist
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -86,23 +73,21 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0 # zizmor: ignore[cache-poisoning] no cache: configured, setup-node v6 does not cache by default
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
       - run: npm ci
 
       - name: Deploy
-        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
