@@ -121,8 +121,20 @@ Astro scopes component CSS automatically — class names like `.inner` or
 
 GitHub Actions runs on every push and PR to `main`: `npm run check`, build,
 link check, pa11y, Lighthouse, and — on `main` only — deploy via
-`cloudflare/wrangler-action`. Secrets required are documented in
-[`docs/superpowers/runbooks/2026-04-23-dns-migration.md`](docs/superpowers/runbooks/2026-04-23-dns-migration.md).
+`cloudflare/wrangler-action` to the `boring-site` Worker.
+
+Required repo secrets (Settings → Secrets and variables → Actions):
+
+- `CLOUDFLARE_API_TOKEN` — scoped token with **Workers Scripts: Edit**.
+  Do NOT use a global API key.
+- `CLOUDFLARE_ACCOUNT_ID` — from the Cloudflare dashboard sidebar.
+
+Optional:
+
+- `PUBLIC_CF_WA_TOKEN` — Cloudflare Web Analytics site token. When set,
+  Astro bakes the beacon into the static output at build time.
+- `LHCI_GITHUB_APP_TOKEN` — emitted when you install the Lighthouse CI
+  GitHub App on the repo; enables per-PR LHCI status checks.
 
 Day-to-day flow: branch, commit, open PR to `main`, wait for CI, merge. Deploy
 is automatic on merge.
@@ -134,7 +146,6 @@ the GitHub repo settings once the remote is set up.
 
 - **Design spec** — `docs/superpowers/specs/2026-04-23-boringbydesign-site-design.md`
 - **Implementation plan** — `docs/superpowers/plans/2026-04-23-boringbydesign-site.md`
-- **DNS migration runbook** — `docs/superpowers/runbooks/2026-04-23-dns-migration.md`
 
 ## Stack notes worth remembering
 
