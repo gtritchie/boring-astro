@@ -35,15 +35,23 @@
   const LABELS: Record<Choice, string> = { light: "Light ☀︎", dark: "Dark ☾", system: "System ⌘" };
   const INIT_FLAG = "__bbdThemeToggleReady";
 
+  function currentFromDom(): Choice {
+    // The DOM is the source of truth when storage is unavailable: the
+    // inline bootstrap in <head> and applyTheme() both write data-theme,
+    // so reading it back gives the live state without persistence.
+    const v = document.documentElement.dataset["theme"];
+    return v === "light" || v === "dark" ? v : "system";
+  }
+
   function read(): Choice {
     // localStorage can throw (SecurityError in strict privacy modes,
-    // sandboxed iframes, etc.) — fall back to "system" so the toggle
-    // still works without persistence.
+    // sandboxed iframes, etc.) — fall back to the DOM so cycling and
+    // label sync keep tracking the actual applied theme.
     try {
       const v = localStorage.getItem("theme");
-      return v === "light" || v === "dark" || v === "system" ? v : "system";
+      return v === "light" || v === "dark" || v === "system" ? v : currentFromDom();
     } catch {
-      return "system";
+      return currentFromDom();
     }
   }
 

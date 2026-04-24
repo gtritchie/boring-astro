@@ -2429,7 +2429,8 @@ git commit -m "Add Prettier + ESLint configs and format the repo"
 
 **Files:**
 
-- Create: `.prek-config.yaml`
+- Create: `.pre-commit-config.yaml` (prek reads the standard pre-commit config filename)
+- Create: `.hooks/prettier-wrapper.sh`, `.hooks/eslint-wrapper.sh`, `.hooks/astro-wrapper.sh`
 
 - [ ] **Step 1: Confirm `prek` is available**
 
@@ -2439,29 +2440,34 @@ prek --version
 
 Gary has it installed per his CLAUDE.md. If not: `brew install prek` or see prek docs.
 
-- [ ] **Step 2: Write `.prek-config.yaml`**
+- [ ] **Step 2: Write `.pre-commit-config.yaml`**
 
 ```yaml
-# .prek-config.yaml — runs on every git commit
+# .pre-commit-config.yaml — runs on every git commit
 repos:
   - repo: local
     hooks:
       - id: prettier
         name: prettier
-        language: system
-        entry: npx prettier --write
+        language: script
+        entry: .hooks/prettier-wrapper.sh
         files: \.(ts|js|mjs|cjs|astro|md|mdx|json|css|yaml|yml)$
       - id: eslint
         name: eslint
-        language: system
-        entry: npx eslint --fix --max-warnings 0
+        language: script
+        entry: .hooks/eslint-wrapper.sh
         files: \.(ts|js|mjs|cjs|astro)$
       - id: astro-check
         name: astro check
-        language: system
-        entry: npx astro check
+        language: script
+        entry: .hooks/astro-wrapper.sh
         pass_filenames: false
 ```
+
+The wrapper scripts (`set -euo pipefail`, then `exec npx <tool> "$@"`) keep
+the `npx` invocation out of the YAML so prek's `language: script` runner can
+hand staged files to each tool predictably. See the checked-in `.hooks/`
+directory for the exact contents.
 
 - [ ] **Step 3: Install the hook**
 
@@ -2920,10 +2926,11 @@ This task creates a documented runbook. The actual DNS work is Gary's hands-on s
 
 Create `docs/superpowers/runbooks/2026-04-23-dns-migration.md` covering:
 the nameserver swap from GoDaddy to Cloudflare, adding custom domains to
-the Worker, SSL/TLS settings, the three required GitHub repo secrets
-(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_CF_WA_TOKEN`)
-plus the optional `LHCI_GITHUB_APP_TOKEN` for Lighthouse CI PR
-annotations, verification steps, and a rollback plan.
+the Worker, SSL/TLS settings, the two required GitHub repo secrets
+(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) plus the optional
+`PUBLIC_CF_WA_TOKEN` (Cloudflare Web Analytics beacon — the build
+succeeds without it) and `LHCI_GITHUB_APP_TOKEN` (Lighthouse CI PR
+annotations), verification steps, and a rollback plan.
 
 See the landed file for the exact content.
 
