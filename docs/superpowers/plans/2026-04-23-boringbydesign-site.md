@@ -941,7 +941,7 @@ const year = new Date().getFullYear();
         <li><a href="/uses/">Uses</a></li>
         <li><a href="/reading/">Reading</a></li>
         <li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
-        <li><a href="mailto:gary.t.ritchie@gmail.com">Email</a></li>
+        <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
       </ul>
     </nav>
   </div>
@@ -1723,7 +1723,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       excuse to keep the craft fresh.
     </p>
     <p>
-      If you want to reach me, <a href="mailto:gary.t.ritchie@gmail.com">email works</a>. I'm also
+      If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>. I'm also
       on <a href="https://github.com/gtritchie" rel="me">GitHub</a>.
     </p>
   </main>
