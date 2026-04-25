@@ -1,0 +1,55 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+import { buildTagIndex } from "../../lib/tag-slugs";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects", (p) => !p.data.draft);
+  const index = buildTagIndex(projects);
+  return Array.from(index.entries()).map(([slug, { displayTag, entries }]) => ({
+    params: { tag: slug },
+    props: {
+      displayTag,
+      entries: entries
+        .slice()
+        .sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime()),
+    },
+  }));
+}
+
+const { displayTag, entries } = Astro.props;
+const count = entries.length;
+const countLabel = `${count} ${count === 1 ? "project" : "projects"}`;
+---
+
+<BaseLayout title={`Projects tagged ${displayTag}`} description={`Projects tagged ${displayTag}.`}>
+  <main id="main">
+    <h1>Tagged: {displayTag}</h1>
+    <p class="meta">{countLabel}</p>
+    <p class="back"><a href="/projects/">← All projects</a></p>
+    {
+      entries.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tags={p.data.tags}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .meta {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin: 0 0 var(--sp-2);
+  }
+  .back {
+    margin: 0 0 var(--sp-6);
+  }
+</style>
