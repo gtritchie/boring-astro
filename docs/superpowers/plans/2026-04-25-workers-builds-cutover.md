@@ -84,9 +84,11 @@ git checkout main && git pull --ff-only && git checkout -b feat/workers-builds-c
 In the frontmatter, after the existing `const canonicalHref = …` line, add:
 
 ```ts
-const branch = process.env.WORKERS_CI_BRANCH;
+const branch = import.meta.env.WORKERS_CI_BRANCH;
 const isPreview = Boolean(branch) && branch !== "main";
 ```
+
+Use `import.meta.env`, not `process.env`. Vite strips `process.env.X` references during the SSR transform of `.astro` files, so `process.env.WORKERS_CI_BRANCH` reads as `undefined` even when the variable is set. `import.meta.env` exposes all build-time env vars to server-side code (it only filters non-`PUBLIC_`-prefixed vars from client bundles). This matches the existing `import.meta.env["PUBLIC_CF_WA_TOKEN"]` pattern further down in the same file.
 
 In the `<head>` block, immediately after the `<meta name="viewport" ... />` line, insert:
 
@@ -113,7 +115,7 @@ interface Props {
 const { title, description, canonical } = Astro.props;
 const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
-const branch = process.env.WORKERS_CI_BRANCH;
+const branch = import.meta.env.WORKERS_CI_BRANCH;
 const isPreview = Boolean(branch) && branch !== "main";
 ---
 ```
@@ -138,7 +140,7 @@ The full updated `<head>` opening (lines 21–28 in the original; the rest of th
 npm run check
 ```
 
-Expected: passes. The `process.env.WORKERS_CI_BRANCH` access is typed as `string | undefined` by Node's built-in types — no cast needed.
+Expected: passes. `import.meta.env.WORKERS_CI_BRANCH` is typed as `string | undefined` (or similar) by Astro's Vite shim — no cast needed.
 
 - [ ] **Step 4: Verify behavior locally — `noindex` should NOT appear in a normal build**
 

@@ -14,6 +14,8 @@ interface Props {
 const { title, description, canonical } = Astro.props;
 const fullTitle = title === "Boring by Design" ? title : `${title} — Boring by Design`;
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const branch = import.meta.env.WORKERS_CI_BRANCH;
+const isPreview = Boolean(branch) && branch !== "main";
 ---
 
 <!doctype html>
@@ -21,6 +23,7 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).toStr
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {isPreview && <meta name="robots" content="noindex, nofollow" />}
     <title>{fullTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonicalHref} />
