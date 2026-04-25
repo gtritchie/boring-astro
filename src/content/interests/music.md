@@ -12,4 +12,4 @@ I've dabbled with piano, drums, guitar, and bass, but currently own none of thos
 Mostly I listen to music, but have a particular interest in knowing the stories behind bands and
 artists, as much as the music itself.
 
-My favorite artists include [Sparks](https://allsparks.com) and [The Tragically Hip](http://thehip.com).
+My favourite artists include [Sparks](https://allsparks.com) and [The Tragically Hip](http://thehip.com).

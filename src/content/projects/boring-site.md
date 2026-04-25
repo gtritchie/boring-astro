@@ -24,3 +24,12 @@ I used Claude Code's superpowers to brainstorm, design, and implement this site 
 had already worked through some Astro tutorials so wasn't flying blind, but deploying to
 [Cloudflare Workers](https://workers.cloudflare.com/product/workers) was a new twist. If you are
 reading this, I must have figured it out!
+
+## First Tweak: external link affordance for Markdown and .astro
+
+I showed my wife the initial deployment, she said, "Yup, it's boring!" Mission accomplished?
+
+She clicked on a link to a different site and it navigated in place. I immediately thought, "Oh,
+that should load in a new tab, and it should have accessibility affordances (an icon and additional
+accessible text mentioning that it will open in a new tab)." So, another learning opportunity, where
+I found out about the [rehype](https://github.com/rehypejs/rehype) pipeline and how Astro uses it.
