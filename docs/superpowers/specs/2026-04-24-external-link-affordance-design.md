@@ -166,6 +166,16 @@ No unit tests (the project has no unit-test suite). Verification is:
 6. **Manual screen-reader spot-check** (VoiceOver) — confirm "(opens in a new tab)" is announced after the link text on at least one Markdown link and one Astro link.
 7. **Theme check** — toggle light/dark; glyph color tracks link color in both.
 
+## Authoring overrides
+
+Standard Markdown has no syntax for setting `target` or other arbitrary HTML attributes on links. The auto-by-domain rule covers the common case; for the rare exception, drop down to raw HTML in an `.mdx` file (plain `.md` does not support this).
+
+- **External link that should open in the same tab** — author as `<a href="https://example.com" target="_self">text</a>`. The rehype plugin respects existing `target` values and will not overwrite `_self`, so the link stays in the same tab. The visual glyph is also suppressed because the CSS fallback only matches `target="_blank"`. The screen-reader span is not added; this is correct, since there is no new-tab behavior to announce.
+
+- **Internal link that should open in a new tab** — rare (usually a long PDF or similar). Author as `<a href="/foo.pdf" target="_blank">text</a>`. The rehype plugin ignores it (host is internal), but the CSS fallback gives it the glyph automatically. Add `<span class="visually-hidden"> (opens in a new tab)</span>` as the link's last child for the screen-reader announcement, matching the `.astro` convention.
+
+These overrides are deliberately friction-ful — switching the file to `.mdx` and writing raw HTML — to keep the auto-by-domain rule the obvious default.
+
 ## Migration / backfill
 
 None. There is no existing external-link content using this pattern; the change is additive. After the plugin lands, all existing Markdown external links pick up the affordance on the next build. No content edits are required.
