@@ -54,14 +54,14 @@ export function buildTagIndex(
 
 Examples:
 
-| Source tag | Slug |
-| --- | --- |
-| `TypeScript` | `typescript` |
-| `HTML` | `html` |
-| `Vue.js` | `vue-js` |
-| `Objective-C` | `objective-c` |
-| `C++` (with alias `"C++": "cpp"`) | `cpp` |
-| `C#` (with alias `"C#": "csharp"`) | `csharp` |
+| Source tag                         | Slug          |
+| ---------------------------------- | ------------- |
+| `TypeScript`                       | `typescript`  |
+| `HTML`                             | `html`        |
+| `Vue.js`                           | `vue-js`      |
+| `Objective-C`                      | `objective-c` |
+| `C++` (with alias `"C++": "cpp"`)  | `cpp`         |
+| `C#` (with alias `"C#": "csharp"`) | `csharp`      |
 
 The alias map starts **empty** — no current tag needs an override. Entries are added only when a future tag would produce a poor or colliding slug.
 
@@ -88,9 +88,7 @@ export async function getStaticPaths() {
     params: { tag: slug },
     props: {
       displayTag,
-      entries: entries.sort(
-        (a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime(),
-      ),
+      entries: entries.sort((a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime()),
     },
   }));
 }
@@ -115,8 +113,14 @@ Page renders inside `BaseLayout`:
 - Component prop signature is unchanged (`tags: string[]`); slugging is internal.
 - Scoped CSS gains:
   ```css
-  .tags a { color: inherit; text-decoration: none; }
-  .tags a:hover { text-decoration: underline; text-underline-offset: 2px; }
+  .tags a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .tags a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   ```
   Focus styling is provided by the global `:focus-visible` rule in `src/styles/reset.css` (`outline: 3px solid var(--focus-ring)`) and applies automatically to the new anchors. No per-component focus rule needed.
 
@@ -135,9 +139,13 @@ becomes:
   <dt>Tags</dt>
   <dd>
     <ul class="tags">
-      {data.tags.map((t) => (
-        <li><a href={`/tags/${tagToSlug(t)}/`}>{t}</a></li>
-      ))}
+      {
+        data.tags.map((t) => (
+          <li>
+            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+          </li>
+        ))
+      }
     </ul>
   </dd>
 </div>
@@ -157,15 +165,15 @@ Scoped CSS for `.tags` on this page mirrors the card pill rules (small font, mon
 
 ## Verification
 
-| Concern | Mechanism |
-| --- | --- |
-| Slug collisions | `buildTagIndex` throws at build time with both source tags named |
-| Type safety | `astro check` (part of `npm run check`) covers the new `.ts` module and `.astro` page |
-| Lint/format | `eslint` + `prettier --check` (part of `npm run check`) |
-| Internal link health | `npm run link-check` walks built HTML, including tag pages |
-| Sitemap inclusion | Astro sitemap integration auto-discovers built routes; verify `/tags/*` URLs appear in `dist/client/sitemap-*.xml` |
-| AAA contrast on tag links | `npm run pa11y` against `preview:astro` |
-| Manual sanity | `npm run preview` (wrangler) — click a tag from each surface, confirm correct page renders |
+| Concern                   | Mechanism                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Slug collisions           | `buildTagIndex` throws at build time with both source tags named                                                   |
+| Type safety               | `astro check` (part of `npm run check`) covers the new `.ts` module and `.astro` page                              |
+| Lint/format               | `eslint` + `prettier --check` (part of `npm run check`)                                                            |
+| Internal link health      | `npm run link-check` walks built HTML, including tag pages                                                         |
+| Sitemap inclusion         | Astro sitemap integration auto-discovers built routes; verify `/tags/*` URLs appear in `dist/client/sitemap-*.xml` |
+| AAA contrast on tag links | `npm run pa11y` against `preview:astro`                                                                            |
+| Manual sanity             | `npm run preview` (wrangler) — click a tag from each surface, confirm correct page renders                         |
 
 No unit tests are added. The repo has no unit-test suite; CI verification is lint, types, link-check, and pa11y.
 

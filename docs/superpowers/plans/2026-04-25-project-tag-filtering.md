@@ -71,9 +71,7 @@ export interface TagIndexEntry {
   entries: CollectionEntry<"projects">[];
 }
 
-export function buildTagIndex(
-  projects: CollectionEntry<"projects">[],
-): Map<string, TagIndexEntry> {
+export function buildTagIndex(projects: CollectionEntry<"projects">[]): Map<string, TagIndexEntry> {
   const index = new Map<string, TagIndexEntry>();
   // Tracks the source tag string each slug was first seen with, so that
   // collisions can be reported with both source tags named.
@@ -171,10 +169,7 @@ const count = entries.length;
 const countLabel = `${count} ${count === 1 ? "project" : "projects"}`;
 ---
 
-<BaseLayout
-  title={`Projects tagged ${displayTag}`}
-  description={`Projects tagged ${displayTag}.`}
->
+<BaseLayout title={`Projects tagged ${displayTag}`} description={`Projects tagged ${displayTag}.`}>
   <main id="main">
     <h1>Tagged: {displayTag}</h1>
     <p class="meta">{countLabel}</p>
@@ -296,34 +291,38 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
 Replace the tags `<ul>` (currently `{tags.map((t) => <li>{t}</li>)}`) so each tag is wrapped in an anchor and the year `<li>` carries a `year` class:
 
 ```astro
-    <ul class="tags">
-      {tags.map((t) => (
-        <li><a href={`/tags/${tagToSlug(t)}/`}>{t}</a></li>
-      ))}
-      <li class="year">{displayYear}</li>
-    </ul>
+<ul class="tags">
+  {
+    tags.map((t) => (
+      <li>
+        <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+      </li>
+    ))
+  }
+  <li class="year">{displayYear}</li>
+</ul>
 ```
 
 In the `<style>` block, **replace** the existing `.tags li { ... }` rule with the rules below. The pill chrome (border, padding, font, color) moves from the `<li>` to the anchor (and the `year` class for the non-clickable year item) so the entire visible pill is the click target:
 
 ```css
-  .tags a,
-  .tags .year {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
-    border: 1px solid var(--border-ui);
-    border-radius: 3px;
-    color: var(--fg-muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  .tags a {
-    text-decoration: none;
-  }
-  .tags a:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
+.tags a,
+.tags .year {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border-ui);
+  border-radius: 3px;
+  color: var(--fg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.tags a {
+  text-decoration: none;
+}
+.tags a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 ```
 
 (Focus styling comes from the global `:focus-visible` rule in `src/styles/reset.css` and applies automatically — and now lights up the entire pill since the focus target is the anchor, which is the pill.)
@@ -386,6 +385,7 @@ import ExternalLink from "../../components/ExternalLink.astro";
 import { isExternalHttp } from "../../lib/site.mjs";
 import { tagToSlug } from "../../lib/tag-slugs";
 import { getCollection, render } from "astro:content";
+---
 ```
 
 (The rest of the frontmatter is unchanged.)
@@ -393,49 +393,53 @@ import { getCollection, render } from "astro:content";
 Replace the Tags row in the `<dl>`. The current line:
 
 ```astro
-    <div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
+<div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
 ```
 
 becomes:
 
 ```astro
-    <div>
-      <dt>Tags</dt>
-      <dd>
-        <ul class="tags">
-          {data.tags.map((t) => (
-            <li><a href={`/tags/${tagToSlug(t)}/`}>{t}</a></li>
-          ))}
-        </ul>
-      </dd>
-    </div>
+<div>
+  <dt>Tags</dt>
+  <dd>
+    <ul class="tags">
+      {
+        data.tags.map((t) => (
+          <li>
+            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </dd>
+</div>
 ```
 
 In the `<style>` block, add these rules after the existing `.facts dd` rule. The pill chrome lives on the anchor so the entire visible pill is the click target (matching the card treatment from Task 3):
 
 ```css
-  .tags {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-  }
-  .tags a {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
-    border: 1px solid var(--border-ui);
-    border-radius: 3px;
-    color: var(--fg-muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    text-decoration: none;
-  }
-  .tags a:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
+.tags {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.tags a {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border-ui);
+  border-radius: 3px;
+  color: var(--fg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-decoration: none;
+}
+.tags a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 ```
 
 (These rules mirror the card pill styling. Astro's scoped CSS keeps them isolated to this page; the rules are short enough that duplication is preferable to a shared partial.)
@@ -540,36 +544,36 @@ If and only if pa11y flagged `.tags a` contrast in Step 3:
 In `src/components/ProjectCard.astro`, the chrome rule from Task 3 reads:
 
 ```css
-  .tags a,
-  .tags .year {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
-    border: 1px solid var(--border-ui);
-    border-radius: 3px;
-    color: var(--fg-muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
+.tags a,
+.tags .year {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border-ui);
+  border-radius: 3px;
+  color: var(--fg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
 ```
 
 Split it so the anchor uses `var(--fg)` while the static year stays `var(--fg-muted)`:
 
 ```css
-  .tags a,
-  .tags .year {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
-    border: 1px solid var(--border-ui);
-    border-radius: 3px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  .tags a {
-    color: var(--fg);
-  }
-  .tags .year {
-    color: var(--fg-muted);
-  }
+.tags a,
+.tags .year {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border-ui);
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.tags a {
+  color: var(--fg);
+}
+.tags .year {
+  color: var(--fg-muted);
+}
 ```
 
 In `src/pages/projects/[...slug].astro`, change the chrome rule's `color: var(--fg-muted)` line to `color: var(--fg)` (no shared selector to split there since the detail page has only anchors).
@@ -645,23 +649,23 @@ EOF
 
 Mapping each spec section to the task that implements it:
 
-| Spec section | Implemented by |
-| --- | --- |
-| `/tags/[tag]/` top-level route | Task 2 |
-| Slug rule (lowercase, non-alphanumeric → dash) | Task 1 |
-| `tagSlugAliases` map (initially empty) | Task 1 |
-| `tagToSlug(tag)` | Task 1 |
-| `buildTagIndex(projects)` with collision detection | Task 1 |
-| `displayTag` from first source tag in iteration order | Task 1 |
-| Page heading "Tagged: ${displayTag}", count, "← All projects" | Task 2 |
-| Sorted by `startedAt` desc | Task 2 |
-| `ProjectCard` tag pills become anchors; styling preserved | Task 3 |
-| Project detail page tags become pill row | Task 4 |
-| Home and projects index pass through unchanged | Confirmed (Task 3 — no edits to those pages) |
-| Sitemap includes tag pages | Task 5 step 1 |
-| Link-check covers tag pages | Task 5 step 2 |
-| pa11y / AAA contrast on tag-link anchors | Task 5 steps 3–4 |
-| Build-time collision error message | Task 5 step 5 |
-| Empty-slug protection (e.g. tag `"+"` → empty) | Task 1 (extra guard, not in spec but matches the fail-loud principle) |
-| Dedup tags within a single project's frontmatter | Task 1 (extra resilience, not in spec — prevents duplicate tag entries from rendering the same project twice on a tag page) |
-| Pill chrome on `<a>` not `<li>` so the entire visible pill is the click/focus target | Tasks 3 and 4 |
+| Spec section                                                                         | Implemented by                                                                                                              |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `/tags/[tag]/` top-level route                                                       | Task 2                                                                                                                      |
+| Slug rule (lowercase, non-alphanumeric → dash)                                       | Task 1                                                                                                                      |
+| `tagSlugAliases` map (initially empty)                                               | Task 1                                                                                                                      |
+| `tagToSlug(tag)`                                                                     | Task 1                                                                                                                      |
+| `buildTagIndex(projects)` with collision detection                                   | Task 1                                                                                                                      |
+| `displayTag` from first source tag in iteration order                                | Task 1                                                                                                                      |
+| Page heading "Tagged: ${displayTag}", count, "← All projects"                        | Task 2                                                                                                                      |
+| Sorted by `startedAt` desc                                                           | Task 2                                                                                                                      |
+| `ProjectCard` tag pills become anchors; styling preserved                            | Task 3                                                                                                                      |
+| Project detail page tags become pill row                                             | Task 4                                                                                                                      |
+| Home and projects index pass through unchanged                                       | Confirmed (Task 3 — no edits to those pages)                                                                                |
+| Sitemap includes tag pages                                                           | Task 5 step 1                                                                                                               |
+| Link-check covers tag pages                                                          | Task 5 step 2                                                                                                               |
+| pa11y / AAA contrast on tag-link anchors                                             | Task 5 steps 3–4                                                                                                            |
+| Build-time collision error message                                                   | Task 5 step 5                                                                                                               |
+| Empty-slug protection (e.g. tag `"+"` → empty)                                       | Task 1 (extra guard, not in spec but matches the fail-loud principle)                                                       |
+| Dedup tags within a single project's frontmatter                                     | Task 1 (extra resilience, not in spec — prevents duplicate tag entries from rendering the same project twice on a tag page) |
+| Pill chrome on `<a>` not `<li>` so the entire visible pill is the click/focus target | Tasks 3 and 4                                                                                                               |
