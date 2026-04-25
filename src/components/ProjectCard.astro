@@ -6,10 +6,9 @@ interface Props {
   title: string;
   summary: string;
   tags: string[];
-  displayYear: string;
   status: "active" | "archived" | "experimental";
 }
-const { href, title, summary, tags, displayYear, status } = Astro.props;
+const { href, title, summary, tags, status } = Astro.props;
 ---
 
 <article class="card">
@@ -24,7 +23,6 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
           </li>
         ))
       }
-      <li><span class="year">{displayYear}</span></li>
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
   </div>
@@ -70,8 +68,7 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
     flex-wrap: wrap;
     gap: var(--sp-2);
   }
-  .tags a,
-  .tags .year {
+  .tags a {
     display: inline-block;
     font-size: 0.75rem;
     padding: 0.1rem 0.5rem;
@@ -79,8 +76,6 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
     border-radius: 3px;
     color: var(--fg-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  .tags a {
     text-decoration: none;
   }
   .tags a:hover {
