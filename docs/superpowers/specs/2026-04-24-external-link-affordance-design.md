@@ -13,7 +13,8 @@ External links on boringbydesign.ca should signal that they leave the site and o
 ## Goals
 
 - Authors writing Markdown can write `[text](https://example.com)` and get the full treatment automatically — no special syntax or HTML required.
-- Hand-written `<a target="_blank">` in `.astro` components gets the same visual glyph automatically; the screen-reader text is added by the author following a documented one-line convention.
+- Authors writing `.astro` components have a single component (`<ExternalLink>`) that produces the same HTML shape the Markdown pipeline produces, so the two paths render identically.
+- The affordance signals "this opens in a new tab on a different site" specifically — it must not appear on same-site, `mailto:`, `tel:`, fragment, or root-relative links, even when those happen to use `target="_blank"`.
 - Glyph inherits link color via `currentColor`, themes correctly, and is sharp at any zoom level.
 - Screen-reader text is real DOM text (not CSS-generated), for maximum assistive-tech compatibility.
 - AAA contrast preserved; pa11y continues to pass.
@@ -22,7 +23,7 @@ External links on boringbydesign.ca should signal that they leave the site and o
 
 - No icon for `mailto:`/`tel:`/fragment/relative links — those don't open new tabs.
 - No "you are leaving this site" interstitial.
-- No per-link opt-out mechanism in v1. If a same-tab external link is ever needed, we'll add a `data-no-external-glyph` attribute then.
+- No per-link opt-out or override mechanism in v1. The auto-by-domain rule applies uniformly. Same-tab external links and internal new-tab links are not supported authoring features in v1; if either need arises, it becomes a deliberate scope change in a future spec.
 - No author-facing config knobs (URL allowlists, custom glyphs, etc.).
 
 ## Definition of "external"
@@ -38,26 +39,34 @@ All other hrefs (root-relative paths, fragments, `mailto:`, `tel:`, protocol-rel
 
 ## Architecture
 
-Two cooperating mechanisms, one for each authoring surface:
+Two cooperating mechanisms, one for each authoring surface. Both produce the same HTML shape.
 
 ### 1. Markdown/MDX → custom rehype plugin
 
-A small rehype plugin runs over the rendered HTML AST (HAST) for every `.md` and `.mdx` file. For each `<a>` whose `href` is external it:
+A small rehype plugin runs over the rendered HTML AST (HAST) for every `.md` and `.mdx` file. For each `<a>` whose `href` is external (per the definition above) it:
 
-1. Sets `target="_blank"` and `rel="noopener noreferrer"` (does not override values the author already set).
-2. Adds a class hook `has-external-glyph` to the anchor.
-3. Appends an inline SVG glyph as the link's last visible child, marked `aria-hidden="true"`.
-4. Appends `<span class="visually-hidden"> (opens in a new tab)</span>` as the very last child, so screen readers announce the new-tab behavior after the link text.
+1. If the author has explicitly set `target` to anything other than `_blank` (e.g. raw HTML in `.mdx` with `target="_self"`), the plugin treats this as an opt-out and leaves the link entirely alone — no `target` mutation, no `rel` mutation, no glyph, no SR span. This is defensive plugin behavior, not a documented authoring feature.
+2. Otherwise, sets `target="_blank"`.
+3. Merges `noopener` and `noreferrer` into the link's `rel` token list (additive: existing tokens like `me` or `nofollow` are preserved).
+4. Adds the class `has-external-glyph` to the anchor (additive to any existing classes).
+5. Appends an inline SVG glyph as the link's last visible child, marked `aria-hidden="true"` and classed `external-glyph`.
+6. Appends `<span class="visually-hidden"> (opens in a new tab)</span>` as the very last child.
 
-The plugin is custom (not the npm `rehype-external-links` package) because the transform is small (~30–40 lines), produces a very specific HTML shape, and avoids adding a dependency for a one-off site-specific convention.
+Steps 4–6 (glyph and SR span injection) only run when the link will end up with `target="_blank"`. This guarantees the affordance never lies about the link's actual behavior.
 
-### 2. `.astro` components → CSS-only fallback
+The plugin is custom (not the npm `rehype-external-links` package) because the transform is small (~40–60 lines), produces a very specific HTML shape, and avoids adding a dependency for a one-off site-specific convention.
 
-A site-wide CSS rule on `a[target="_blank"]:not(.has-external-glyph)::after` injects the same glyph as a base64-encoded SVG `content:` value. This catches any hand-written `<a target="_blank">` in `.astro` components (e.g. footer "View source on GitHub") without requiring those authors to think about the glyph.
+### 2. `.astro` components → `<ExternalLink>` component
 
-The `:not(.has-external-glyph)` selector ensures the rule does not double-render the glyph on Markdown-derived links (which already have the inline SVG injected by the rehype plugin).
+A small Astro component, `src/components/ExternalLink.astro`, emits the same HTML shape the rehype plugin produces. Authors hand-writing external links in `.astro` files use this component instead of writing `<a>` directly:
 
-For screen-reader text in `.astro` files, authors include `<span class="visually-hidden"> (opens in a new tab)</span>` manually. This is documented as a one-line convention next to the existing footer-link patterns. CSS-generated content (`::after { content: " (opens in a new tab)" }`) is **not** used for SR text because announcement support is historically inconsistent across browser/AT combinations.
+```astro
+<ExternalLink href="https://github.com/garyritchie/boring-astro">View source</ExternalLink>
+```
+
+The component sets `target="_blank"`, the merged `rel`, the `has-external-glyph` class, and emits the inline SVG and visually-hidden span. The component does its own external-host check on the `href` and throws a build-time error if called with a non-external URL — this prevents misuse (false affordances on same-site or `mailto:` links) at the source rather than relying on author discipline.
+
+There is no CSS-only fallback for raw `<a target="_blank">` in `.astro` files. Authors are expected to use the component. CSS attribute selectors on `target="_blank"` were rejected because they cannot inspect the URL host, so they cannot distinguish "external new-tab" from "internal new-tab" or "mailto in new tab," producing false affordances. CSS-generated `content: url(svg)` was also rejected because SVGs loaded as image content do not inherit `currentColor` from their parent element, breaking theme support.
 
 ---
 
@@ -65,26 +74,35 @@ For screen-reader text in `.astro` files, authors include `<span class="visually
 
 ### `src/lib/rehype-external-links.mjs` — new file
 
-A unified plugin in plain ESM, with no runtime dependencies beyond `unist-util-visit` (already transitively present via Astro's Markdown stack; will be added as a direct devDependency for clarity).
+A unified plugin in plain ESM. Uses `unist-util-visit` to walk the HAST tree (added as a direct devDependency for clarity, even though it is transitively present via Astro's Markdown stack).
 
 Responsibilities:
 
 - Visit every `element` node where `tagName === "a"`.
-- Skip if `href` is missing, doesn't start with `http://` or `https://`, or matches the site host.
-- Mutate `properties.target`, `properties.rel`, `properties.className` (preserving any existing classes).
-- Append two new HAST element nodes as children: the SVG and the visually-hidden span.
+- Skip if `href` is missing, doesn't start with `http://` or `https://`, or its host matches the site host.
+- If `properties.target` is set to anything other than `_blank`, leave the node entirely alone (author opt-out).
+- Otherwise: set `properties.target = "_blank"`, merge `noopener` and `noreferrer` into `properties.rel` (additive token-list merge that preserves existing tokens), add `has-external-glyph` to `properties.className` (additive), and append two new HAST element nodes as the link's last children: the inline SVG and the visually-hidden span.
 
 The plugin is pure (no I/O, no async). It is exported as a default function that returns a `(tree) => void` transformer, the standard unified shape.
+
+### `src/components/ExternalLink.astro` — new file
+
+A small wrapper component for hand-written external links in `.astro` files.
+
+Responsibilities:
+
+- Accepts `href` (required) and any other `<a>` props as a rest spread.
+- Validates at build time that `href` is external (starts with `http://` or `https://` and the host is not `boringbydesign.ca`); throws a clear error otherwise. This prevents the component from being misused on same-site, `mailto:`, or `tel:` links.
+- Emits an `<a>` with `target="_blank"`, `rel="noopener noreferrer"` (merged with any author-provided `rel`), the `has-external-glyph` class (merged with any author-provided `class`), the inline SVG glyph, and the visually-hidden span — matching the rehype plugin's output exactly.
 
 ### `src/styles/global.css` — modified
 
 Adds:
 
 - `.visually-hidden` utility class using the standard clip-path pattern.
-- `.external-glyph` rule controlling size, vertical alignment, and left margin for the inline SVG injected by the rehype plugin.
-- `a[target="_blank"]:not(.has-external-glyph)::after` rule for the CSS-only fallback, using a `content: url("data:image/svg+xml;utf8,…")` value.
+- `.external-glyph` rule controlling size, vertical alignment, and left margin for the inline SVG.
 
-The two glyph paths must produce visually identical output so a Markdown link and an Astro-component link sit next to each other indistinguishably.
+No CSS attribute selector targeting `a[target="_blank"]` is added. Glyph rendering is purely DOM-driven (the plugin and the component both inject a real `<svg>` element), so `currentColor` resolves correctly against the link color in both themes.
 
 ### `astro.config.mjs` — modified
 
@@ -104,7 +122,7 @@ export default defineConfig({
 
 ### `README.md` — modified
 
-A short note in the content-authoring section: "External links in Markdown/MDX automatically get a new-tab indicator and screen-reader text. In `.astro` components, hand-written `<a target=\"_blank\">` gets the visual glyph automatically; include `<span class=\"visually-hidden\"> (opens in a new tab)</span>` as the link's last child for the screen-reader announcement."
+A short note in the content-authoring section: "External links in Markdown/MDX automatically get a new-tab indicator and screen-reader text. In `.astro` components, use the `<ExternalLink href=\"…\">…</ExternalLink>` component for external links — do not write raw `<a target=\"_blank\">` for external destinations."
 
 ---
 
@@ -123,25 +141,30 @@ Inherits link color in both themes via `currentColor`.
 ## Data flow
 
 ```
-Markdown content                       .astro component
-  │                                       │
-  ▼                                       ▼
- unified pipeline                     direct HTML emission
-  │                                       │
-  ▼                                       │
- rehype plugin adds:                      │
-   target/rel                             │
-   class="has-external-glyph"             │
-   <svg aria-hidden>                      │
-   <span class="visually-hidden">         │
-  │                                       │
-  └─────────► HTML output ◄────────────────┘
-                  │
-                  ▼
-        Browser CSS applies:
-          a[target=_blank]:not(.has-external-glyph)::after { content: SVG }
-          a[target=_blank] .external-glyph { size, alignment }
-          .visually-hidden { clipped off-screen }
+Markdown / MDX content              .astro component
+  │                                    │
+  ▼                                    ▼
+ unified pipeline                  <ExternalLink href="...">
+  │                                    │
+  ▼                                    ▼
+ rehype plugin emits:              component emits:
+   <a target=_blank                  <a target=_blank
+      rel="... noopener noreferrer"    rel="... noopener noreferrer"
+      class="... has-external-glyph">  class="... has-external-glyph">
+     {link text}                        {link text}
+     <svg class="external-glyph"        <svg class="external-glyph"
+          aria-hidden="true">…</svg>      aria-hidden="true">…</svg>
+     <span class="visually-hidden">     <span class="visually-hidden">
+       (opens in a new tab)               (opens in a new tab)
+     </span>                            </span>
+   </a>                              </a>
+  │                                    │
+  └────────────► identical HTML ◄──────┘
+                       │
+                       ▼
+             Browser CSS applies:
+               .external-glyph { size, alignment }
+               .visually-hidden { clipped off-screen }
 ```
 
 ## Error handling
@@ -160,21 +183,14 @@ No unit tests (the project has no unit-test suite). Verification is:
 
 1. **`npm run check`** — `astro check` + Prettier + ESLint pass.
 2. **`npm run build`** — produces `dist/client/` with no errors.
-3. **HTML inspection** — for a content page containing both a Markdown external link and an internal link, confirm the external one has `target`, `rel`, the inline SVG, and the visually-hidden span; the internal one is untouched.
-4. **`.astro` component check** — add (or use existing) `<a target="_blank">` in `SiteFooter.astro` for a "View source" link; build and confirm the CSS-injected glyph appears, and that adding the `visually-hidden` span produces identical SR output to a Markdown link.
-5. **`npm run pa11y`** — passes, no new violations. Specifically verify no contrast regressions (the glyph inherits `currentColor`, so it should match link contrast).
-6. **Manual screen-reader spot-check** (VoiceOver) — confirm "(opens in a new tab)" is announced after the link text on at least one Markdown link and one Astro link.
-7. **Theme check** — toggle light/dark; glyph color tracks link color in both.
-
-## Authoring overrides
-
-Standard Markdown has no syntax for setting `target` or other arbitrary HTML attributes on links. The auto-by-domain rule covers the common case; for the rare exception, drop down to raw HTML in an `.mdx` file (plain `.md` does not support this).
-
-- **External link that should open in the same tab** — author as `<a href="https://example.com" target="_self">text</a>`. The rehype plugin respects existing `target` values and will not overwrite `_self`, so the link stays in the same tab. The visual glyph is also suppressed because the CSS fallback only matches `target="_blank"`. The screen-reader span is not added; this is correct, since there is no new-tab behavior to announce.
-
-- **Internal link that should open in a new tab** — rare (usually a long PDF or similar). Author as `<a href="/foo.pdf" target="_blank">text</a>`. The rehype plugin ignores it (host is internal), but the CSS fallback gives it the glyph automatically. Add `<span class="visually-hidden"> (opens in a new tab)</span>` as the link's last child for the screen-reader announcement, matching the `.astro` convention.
-
-These overrides are deliberately friction-ful — switching the file to `.mdx` and writing raw HTML — to keep the auto-by-domain rule the obvious default.
+3. **Markdown HTML inspection** — for a content page containing both a Markdown external link and an internal link, confirm the external one has `target="_blank"`, `rel` containing `noopener` and `noreferrer`, the `has-external-glyph` class, the inline SVG, and the visually-hidden span; the internal one is untouched.
+4. **`<ExternalLink>` HTML inspection** — use the component once (e.g. a "View source on GitHub" link in `SiteFooter.astro`); confirm the rendered HTML is byte-identical in shape to a Markdown external link.
+5. **`<ExternalLink>` misuse check** — temporarily call the component with an internal `href` (e.g. `href="/about/"`) and confirm the build fails with a clear error message; revert.
+6. **`rel` merging check** — author a Markdown link with raw HTML in MDX: `<a href="https://example.com" rel="me">…</a>`. Confirm the built HTML has `rel="me noopener noreferrer"` (or equivalent token-set), not `rel="me"` alone and not `rel="noopener noreferrer"` alone.
+7. **Author opt-out check** — author raw HTML in MDX: `<a href="https://example.com" target="_self">…</a>`. Confirm the built HTML preserves `target="_self"` and contains no glyph and no visually-hidden span.
+8. **`npm run pa11y`** — passes, no new violations. Specifically verify no contrast regressions.
+9. **Manual screen-reader spot-check** (VoiceOver) — confirm "(opens in a new tab)" is announced after the link text on both a Markdown link and an `<ExternalLink>`.
+10. **Theme check** — toggle light/dark; glyph color tracks link color in both, on both link types.
 
 ## Migration / backfill
 
