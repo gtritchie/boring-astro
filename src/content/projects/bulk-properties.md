@@ -3,7 +3,7 @@ title: Bulk Properties Obsidian Plugin
 summary: Obsidian plugin for selecting notes in a base and bulk editing a property
 status: active
 startedAt: 2026-03-24
-tech: [TypeScript, Obsidian, Personal]
+tags: [TypeScript, Obsidian, Personal]
 featured: true
 links:
   repo: https://github.com/gtritchie/bulk-properties

@@ -35,7 +35,7 @@ const writingEntries = writing.map((post) => ({
           href={`/projects/${p.id}/`}
           title={p.data.title}
           summary={p.data.summary}
-          tech={p.data.tech}
+          tags={p.data.tags}
           displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
           status={p.data.status}
         />

@@ -1,6 +1,7 @@
 // src/content.config.ts
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 const writing = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/writing" }),
@@ -22,12 +23,12 @@ const projects = defineCollection({
     status: z.enum(["active", "archived", "experimental"]),
     startedAt: z.date(),
     displayYear: z.string().optional(),
-    tech: z.array(z.string()),
+    tags: z.array(z.string()),
     links: z
       .object({
-        repo: z.string().url().optional(),
-        site: z.string().url().optional(),
-        docs: z.string().url().optional(),
+        repo: z.url().optional(),
+        site: z.url().optional(),
+        docs: z.url().optional(),
       })
       .optional(),
     featured: z.boolean().default(false),

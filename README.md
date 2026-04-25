@@ -63,7 +63,7 @@ summary: One-line pitch.
 status: active # or "archived" or "experimental"
 startedAt: 2026-01-15 # Date; used for sorting
 displayYear: "2026" # optional override; e.g. "2023–present"
-tech: [Rust, CLI]
+tags: [Rust, CLI]
 featured: true # optional; shows on home page if true
 links: # optional
   repo: https://github.com/gtritchie/foo
