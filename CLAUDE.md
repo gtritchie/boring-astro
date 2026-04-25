@@ -44,7 +44,15 @@ No unit test suite. Verification in CI is linting, type-checking, link-check, an
 
 ## CI / deploy
 
-`.github/workflows/deploy.yml` runs on push/PR to `main`: check → build → link-check → pa11y → (on `main` only) deploy via `cloudflare/wrangler-action` to the `boring-site` Worker. Required secrets: `CLOUDFLARE_API_TOKEN` (scoped, Workers Scripts: Edit — not the global key), `CLOUDFLARE_ACCOUNT_ID`. Optional: `PUBLIC_CF_WA_TOKEN` (Web Analytics). Lighthouse is not run in CI — run `npm run lighthouse` locally as needed.
+`.github/workflows/ci.yml` runs on push/PR to `main`: `check` → `build` → `link-check` → `pa11y`. CI is the quality gate; it does not deploy.
+
+**Deploy is Cloudflare Workers Builds.** The `boring-site` Worker is connected to this repo via the Cloudflare dashboard (Settings → Build). On push to `main`, Cloudflare runs `npm run build` then `npx wrangler deploy` against the production Worker. On push to any other branch, Cloudflare runs `npm run build` then `npx wrangler versions upload`, which produces a unique preview URL per build. Node 24 is auto-detected from `.nvmrc`.
+
+**Preview URLs are `noindex`'d.** `BaseLayout.astro` reads `import.meta.env.WORKERS_CI_BRANCH` (auto-set by Workers Builds) at build time and emits `<meta name="robots" content="noindex, nofollow">` whenever the branch isn't `main`. ProseLayout extends BaseLayout, so this covers every page.
+
+**Build env vars** live in Cloudflare → Worker → Settings → Environment variables → Build variables. `PUBLIC_CF_WA_TOKEN` (Cloudflare Web Analytics) goes here if you want analytics on production. There are no longer any deploy-related GitHub Actions secrets.
+
+Lighthouse is not run in CI — run `npm run lighthouse` locally as needed.
 
 Branch protection on `main` — always work on a feature branch and open a PR.
 
