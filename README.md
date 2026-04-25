@@ -137,8 +137,9 @@ Astro scopes component CSS automatically — class names like `.inner` or
 ## Deploy
 
 GitHub Actions runs on every push and PR to `main`: `npm run check`, build,
-link check, pa11y, Lighthouse, and — on `main` only — deploy via
-`cloudflare/wrangler-action` to the `boring-site` Worker.
+link check, pa11y, and — on `main` only — deploy via
+`cloudflare/wrangler-action` to the `boring-site` Worker. Lighthouse is not
+run in CI; run `npm run lighthouse` locally when you want a perf audit.
 
 Required repo secrets (Settings → Secrets and variables → Actions):
 
@@ -150,8 +151,6 @@ Optional:
 
 - `PUBLIC_CF_WA_TOKEN` — Cloudflare Web Analytics site token. When set,
   Astro bakes the beacon into the static output at build time.
-- `LHCI_GITHUB_APP_TOKEN` — emitted when you install the Lighthouse CI
-  GitHub App on the repo; enables per-PR LHCI status checks.
 
 Day-to-day flow: branch, commit, open PR to `main`, wait for CI, merge. Deploy
 is automatic on merge.
