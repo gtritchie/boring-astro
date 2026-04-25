@@ -1,5 +1,6 @@
 ---
 // src/components/SiteFooter.astro
+import ExternalLink from "./ExternalLink.astro";
 const year = new Date().getFullYear();
 ---
 
@@ -10,7 +11,7 @@ const year = new Date().getFullYear();
       <ul>
         <li><a href="/uses/">Uses</a></li>
         <li><a href="/reading/">Reading</a></li>
-        <li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
+        <li><ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink></li>
         <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
       </ul>
     </nav>

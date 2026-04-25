@@ -103,6 +103,23 @@ Drop images next to the Markdown file and reference them with relative paths.
 Astro 6 auto-routes them through the Image pipeline (WebP/AVIF output,
 responsive srcset). Always include `alt` text.
 
+### External links
+
+External links in Markdown/MDX get a "leaves the site" glyph and a
+screen-reader "(opens in a new tab)" announcement automatically — write
+them as plain Markdown: `[text](https://example.com)`. The build pipeline
+adds `target="_blank"`, merges `noopener noreferrer` into `rel`, and
+appends the glyph and SR text.
+
+In `.astro` components, use `<ExternalLink href="…">…</ExternalLink>`
+(from `src/components/ExternalLink.astro`) for external links. Do not
+write raw `<a target="_blank">` for external destinations — `ExternalLink`
+validates the URL and produces the same HTML shape as the Markdown path.
+
+Same-site links (including `https://www.boringbydesign.ca/…`), `mailto:`,
+`tel:`, fragment, and root-relative links are treated as internal and get
+no affordance.
+
 ## Editing design
 
 - **Colors / spacing / typography** — `src/styles/tokens.css`. Every visible
