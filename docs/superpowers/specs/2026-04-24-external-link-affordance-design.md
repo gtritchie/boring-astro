@@ -31,9 +31,11 @@ External links on boringbydesign.ca should signal that they leave the site and o
 A link is external when:
 
 - `href` matches `^https?://`, AND
-- the URL's host is **not** `boringbydesign.ca`
+- the URL's host is **not in the internal-host set**
 
-All other hrefs (root-relative paths, fragments, `mailto:`, `tel:`, protocol-relative URLs) are treated as internal and untouched. Same-origin absolute URLs (e.g. `https://boringbydesign.ca/writing/foo/`) are treated as internal.
+The internal-host set is derived from the configured site origin in `astro.config.mjs` (`site: "https://boringbydesign.ca"`): the apex host plus its `www.` variant. Concretely, for this site: `{"boringbydesign.ca", "www.boringbydesign.ca"}`. The set is computed once and passed as an option to the rehype plugin and the `<ExternalLink>` component, so neither hard-codes hostnames. If the site origin in config ever changes, both code paths pick up the new internal-host set without further edits.
+
+All other hrefs (root-relative paths, fragments, `mailto:`, `tel:`, protocol-relative URLs) are treated as internal and untouched.
 
 ---
 
@@ -78,8 +80,9 @@ A unified plugin in plain ESM. Uses `unist-util-visit` to walk the HAST tree (ad
 
 Responsibilities:
 
+- Accept a single options argument: `{ internalHosts: string[] }`. Caller passes the set computed from the site config; the plugin does not read config itself.
 - Visit every `element` node where `tagName === "a"`.
-- Skip if `href` is missing, doesn't start with `http://` or `https://`, or its host matches the site host.
+- Skip if `href` is missing, doesn't start with `http://` or `https://`, or its host is in `internalHosts`.
 - If `properties.target` is set to anything other than `_blank`, leave the node entirely alone (author opt-out).
 - Otherwise: set `properties.target = "_blank"`, merge `noopener` and `noreferrer` into `properties.rel` (additive token-list merge that preserves existing tokens), add `has-external-glyph` to `properties.className` (additive), and append two new HAST element nodes as the link's last children: the inline SVG and the visually-hidden span.
 
@@ -91,8 +94,11 @@ A small wrapper component for hand-written external links in `.astro` files.
 
 Responsibilities:
 
-- Accepts `href` (required) and any other `<a>` props as a rest spread.
-- Validates at build time that `href` is external (starts with `http://` or `https://` and the host is not `boringbydesign.ca`); throws a clear error otherwise. This prevents the component from being misused on same-site, `mailto:`, or `tel:` links.
+- Accepts `href` (required, string).
+- Accepts a small explicit allowlist of additional props: `class` (string, merged additively), `rel` (string, merged additively), `id`, `title`, `aria-label`, `aria-describedby`, and any `data-*` attribute. These are forwarded to the underlying `<a>`.
+- **Rejects `target` entirely.** If an author passes `target`, the component throws a build-time error: "ExternalLink owns target behavior; do not pass target as a prop." This removes any ambiguity about whether the prop overrides the component's `target="_blank"` invariant.
+- **Rejects any other prop not in the allowlist** — including `href` lookalikes, event handlers, etc. — with an error naming the offending prop. This keeps the component's contract narrow and prevents future drift.
+- Validates at build time that `href` is external (starts with `http://` or `https://` and the host is not in the internal-host set); throws a clear error otherwise. This prevents misuse on same-site, `mailto:`, or `tel:` links.
 - Emits an `<a>` with `target="_blank"`, `rel="noopener noreferrer"` (merged with any author-provided `rel`), the `has-external-glyph` class (merged with any author-provided `class`), the inline SVG glyph, and the visually-hidden span — matching the rehype plugin's output exactly.
 
 ### `src/styles/global.css` — modified
@@ -106,19 +112,27 @@ No CSS attribute selector targeting `a[target="_blank"]` is added. Glyph renderi
 
 ### `astro.config.mjs` — modified
 
-Wires the plugin into both pipelines:
+Computes the internal-host set from the `site` config and wires the plugin (configured) into both pipelines:
 
 ```js
 import rehypeExternalLinks from "./src/lib/rehype-external-links.mjs";
 
+const SITE = "https://boringbydesign.ca";
+const siteHost = new URL(SITE).host;
+const internalHosts = [siteHost, `www.${siteHost}`];
+const rehypeOpts = [rehypeExternalLinks, { internalHosts }];
+
 export default defineConfig({
+  site: SITE,
   // ...
   markdown: {
-    rehypePlugins: [rehypeExternalLinks],
+    rehypePlugins: [rehypeOpts],
   },
-  integrations: [mdx({ rehypePlugins: [rehypeExternalLinks] }), sitemap()],
+  integrations: [mdx({ rehypePlugins: [rehypeOpts] }), sitemap()],
 });
 ```
+
+The same `internalHosts` array is also exported for `<ExternalLink>` to import (e.g. via a small `src/lib/internal-hosts.mjs` shared module), keeping plugin and component in lockstep.
 
 ### `README.md` — modified
 
@@ -183,18 +197,31 @@ No unit tests (the project has no unit-test suite). Verification is:
 
 1. **`npm run check`** — `astro check` + Prettier + ESLint pass.
 2. **`npm run build`** — produces `dist/client/` with no errors.
-3. **Markdown HTML inspection** — for a content page containing both a Markdown external link and an internal link, confirm the external one has `target="_blank"`, `rel` containing `noopener` and `noreferrer`, the `has-external-glyph` class, the inline SVG, and the visually-hidden span; the internal one is untouched.
-4. **`<ExternalLink>` HTML inspection** — use the component once (e.g. a "View source on GitHub" link in `SiteFooter.astro`); confirm the rendered HTML is byte-identical in shape to a Markdown external link.
-5. **`<ExternalLink>` misuse check** — temporarily call the component with an internal `href` (e.g. `href="/about/"`) and confirm the build fails with a clear error message; revert.
-6. **`rel` merging check** — author a Markdown link with raw HTML in MDX: `<a href="https://example.com" rel="me">…</a>`. Confirm the built HTML has `rel="me noopener noreferrer"` (or equivalent token-set), not `rel="me"` alone and not `rel="noopener noreferrer"` alone.
-7. **Author opt-out check** — author raw HTML in MDX: `<a href="https://example.com" target="_self">…</a>`. Confirm the built HTML preserves `target="_self"` and contains no glyph and no visually-hidden span.
-8. **`npm run pa11y`** — passes, no new violations. Specifically verify no contrast regressions.
-9. **Manual screen-reader spot-check** (VoiceOver) — confirm "(opens in a new tab)" is announced after the link text on both a Markdown link and an `<ExternalLink>`.
-10. **Theme check** — toggle light/dark; glyph color tracks link color in both, on both link types.
+3. **Migration completion check** — `git grep -E '<a [^>]*href="https?://' src/` returns no `.astro` matches. The two existing matches in `SiteFooter.astro` and `about.astro` are converted to `<ExternalLink>` as part of this work.
+4. **Markdown HTML inspection** — for a content page containing both a Markdown external link and an internal link, confirm the external one has `target="_blank"`, `rel` containing `noopener` and `noreferrer`, the `has-external-glyph` class, the inline SVG, and the visually-hidden span; the internal one is untouched.
+5. **`<ExternalLink>` HTML inspection** — confirm the converted footer/about GitHub links render HTML byte-identical in shape to a Markdown external link, including the merged `rel="me noopener noreferrer"`.
+6. **Internal-host check** — author a Markdown link to `https://www.boringbydesign.ca/about/` and confirm it is treated as internal (no glyph, no `target`, no `rel` mutation). Same for `https://boringbydesign.ca/about/`.
+7. **`<ExternalLink>` misuse checks** — temporarily exercise each rejection path and confirm the build fails with a clear, prop-naming error message, then revert: (a) internal `href` like `href="/about/"`; (b) `https://www.boringbydesign.ca/...` `href` (must be rejected as internal, not slipped through as external); (c) explicit `target="_self"` prop; (d) any prop not in the allowlist (e.g. `onclick`).
+8. **`rel` merging check (Markdown path)** — author a Markdown link with raw HTML in MDX: `<a href="https://example.com" rel="me">…</a>`. Confirm the built HTML has `rel="me noopener noreferrer"` (or equivalent token-set), not `rel="me"` alone and not `rel="noopener noreferrer"` alone.
+9. **Author opt-out check** — author raw HTML in MDX: `<a href="https://example.com" target="_self">…</a>`. Confirm the built HTML preserves `target="_self"` and contains no glyph and no visually-hidden span.
+10. **`npm run pa11y`** — passes, no new violations. Specifically verify no contrast regressions.
+11. **Manual screen-reader spot-check** (VoiceOver) — confirm "(opens in a new tab)" is announced after the link text on both a Markdown link and an `<ExternalLink>`.
+12. **Theme check** — toggle light/dark; glyph color tracks link color in both, on both link types.
 
 ## Migration / backfill
 
-None. There is no existing external-link content using this pattern; the change is additive. After the plugin lands, all existing Markdown external links pick up the affordance on the next build. No content edits are required.
+Markdown/MDX content needs no edits — the rehype plugin transforms existing external links automatically on the next build.
+
+`.astro` files **do** need edits. The repo currently has two raw external `<a>` tags that must be converted to `<ExternalLink>` for the site chrome to follow the new rule:
+
+- `src/components/SiteFooter.astro:13` — `<a href="https://github.com/gtritchie" rel="me">GitHub</a>` → `<ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink>`
+- `src/pages/about.astro:21` — same conversion for the same GitHub link
+
+Both happen to use `rel="me"`, which exercises the additive `rel`-merging behavior — the rendered HTML should end up with `rel` containing `me`, `noopener`, and `noreferrer`.
+
+The footer and about page also contain `mailto:` and same-site links; those are not external and require no change.
+
+Future-proofing this rule (e.g. a lint check that flags raw external `<a>` in `.astro`) is out of scope for v1. With only two `.astro` files needing migration today, manual diligence plus the verification steps below are sufficient.
 
 ## Open questions
 
