@@ -108,7 +108,7 @@ const { data } = entry;
   .facts dd {
     margin: 0;
   }
-  .tags {
+  .facts .tags {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -116,7 +116,10 @@ const { data } = entry;
     flex-wrap: wrap;
     gap: var(--sp-2);
   }
-  .tags a {
+  .facts .tags li {
+    margin: 0;
+  }
+  .facts .tags a {
     display: inline-block;
     font-size: 0.75rem;
     padding: 0.1rem 0.5rem;
@@ -126,7 +129,7 @@ const { data } = entry;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     text-decoration: none;
   }
-  .tags a:hover {
+  .facts .tags a:hover {
     text-decoration: underline;
     text-underline-offset: 2px;
   }
