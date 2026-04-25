@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 6 site deployed to Cloudflare Workers (Workers Assets). No client JS beyond the theme toggle and Astro's `ClientRouter` view transitions. See `README.md` for content-authoring, design-token locations, and deploy secrets.
+Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 6 site deployed to Cloudflare Workers (Workers Assets) via Cloudflare Workers Builds. No client JS beyond the theme toggle and Astro's `ClientRouter` view transitions. See `README.md` for content-authoring and design-token locations.
 
 ## Commands
 
@@ -60,4 +60,4 @@ Branch protection on `main` — always work on a feature branch and open a PR.
 
 - Design spec: `docs/superpowers/specs/2026-04-23-boringbydesign-site-design.md`
 - Implementation plan: `docs/superpowers/plans/2026-04-23-boringbydesign-site.md`
-- Content-authoring details, frontmatter schemas, deploy secrets: `README.md`
+- Content-authoring details and frontmatter schemas: `README.md`
