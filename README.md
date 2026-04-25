@@ -7,7 +7,7 @@ transitions.
 
 ## Prereqs
 
-- **Node 22.12+** (`.nvmrc` pins `22.18.0` — `nvm use` picks it up)
+- **Node 24+** (`.nvmrc` pins `24.15.0` — `nvm use` picks it up)
 - **npm** (included with Node)
 - **Chrome or Chromium** — required locally for `npm run lighthouse`.
   `npm run pa11y` uses Puppeteer's bundled Chrome, installed automatically
