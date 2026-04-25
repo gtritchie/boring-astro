@@ -1,6 +1,8 @@
 ---
 // src/pages/projects/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
+import ExternalLink from "../../components/ExternalLink.astro";
+import { isExternalHttp } from "../../lib/site.mjs";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -25,7 +27,11 @@ const { data } = entry;
           <>
             <dt>Repo</dt>
             <dd>
-              <a href={data.links.repo}>{data.links.repo}</a>
+              {isExternalHttp(data.links.repo) ? (
+                <ExternalLink href={data.links.repo}>{data.links.repo}</ExternalLink>
+              ) : (
+                <a href={data.links.repo}>{data.links.repo}</a>
+              )}
             </dd>
           </>
         </div>
@@ -37,7 +43,11 @@ const { data } = entry;
           <>
             <dt>Site</dt>
             <dd>
-              <a href={data.links.site}>{data.links.site}</a>
+              {isExternalHttp(data.links.site) ? (
+                <ExternalLink href={data.links.site}>{data.links.site}</ExternalLink>
+              ) : (
+                <a href={data.links.site}>{data.links.site}</a>
+              )}
             </dd>
           </>
         </div>
@@ -49,7 +59,11 @@ const { data } = entry;
           <>
             <dt>Docs</dt>
             <dd>
-              <a href={data.links.docs}>{data.links.docs}</a>
+              {isExternalHttp(data.links.docs) ? (
+                <ExternalLink href={data.links.docs}>{data.links.docs}</ExternalLink>
+              ) : (
+                <a href={data.links.docs}>{data.links.docs}</a>
+              )}
             </dd>
           </>
         </div>
