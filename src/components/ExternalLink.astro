@@ -1,0 +1,81 @@
+---
+// ExternalLink: wraps an <a> for confirmed-external links written in .astro
+// files. Owns target/rel behavior; throws at build time if misused.
+//
+// Allowed props: href (required), class, rel, id, title, plus any
+// aria-* and data-* attribute. Anything else (including target) is
+// rejected with a clear error naming the offending prop.
+
+import { internalHosts } from "../lib/site.mjs";
+
+const ALLOWED_NAMED = new Set(["href", "class", "rel", "id", "title"]);
+
+const props = Astro.props as Record<string, unknown>;
+const href = props.href;
+const className = typeof props.class === "string" ? props.class : undefined;
+const rel = typeof props.rel === "string" ? props.rel : undefined;
+
+if (typeof href !== "string") {
+  throw new Error("ExternalLink: 'href' is required and must be a string");
+}
+if ("target" in props) {
+  throw new Error('ExternalLink: do not pass "target" — the component sets target="_blank"');
+}
+for (const key of Object.keys(props)) {
+  if (ALLOWED_NAMED.has(key)) continue;
+  if (key.startsWith("aria-") || key.startsWith("data-")) continue;
+  throw new Error(`ExternalLink: prop '${key}' is not allowed`);
+}
+
+let parsed: URL;
+try {
+  parsed = new URL(href);
+} catch {
+  throw new Error(`ExternalLink: 'href' is not a valid URL: ${href}`);
+}
+if (!/^https?:$/.test(parsed.protocol)) {
+  throw new Error(`ExternalLink: 'href' must use http(s); got '${parsed.protocol}' in ${href}`);
+}
+if (internalHosts.includes(parsed.host)) {
+  throw new Error(`ExternalLink: host '${parsed.host}' is internal; use a regular <a> instead`);
+}
+
+const relTokens = new Set(typeof rel === "string" ? rel.split(/\s+/).filter(Boolean) : []);
+relTokens.add("noopener");
+relTokens.add("noreferrer");
+const relValue = [...relTokens].join(" ");
+
+const classTokens = typeof className === "string" ? className.split(/\s+/).filter(Boolean) : [];
+if (!classTokens.includes("has-external-glyph")) {
+  classTokens.push("has-external-glyph");
+}
+const classValue = classTokens.join(" ");
+
+const passthrough: Record<string, unknown> = {};
+for (const key of Object.keys(props)) {
+  if (key === "id" || key === "title" || key.startsWith("aria-") || key.startsWith("data-")) {
+    passthrough[key] = props[key];
+  }
+}
+---
+
+<a href={href} target="_blank" rel={relValue} class={classValue} {...passthrough}>
+  <slot />
+  <svg class="external-glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+    <path
+      d="M4.5 2.5h-2A1 1 0 0 0 1.5 3.5v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+    <path
+      d="M7 1.5h3.5V5M10.5 1.5 5.5 6.5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+  <span class="visually-hidden"> (opens in a new tab)</span>
+</a>
