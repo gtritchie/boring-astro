@@ -16,9 +16,11 @@ export default defineConfig({
   // endpoint, which 404s on this Workers Assets-only deploy (no _worker.js).
   adapter: cloudflare({ imageService: "compile" }),
   markdown: {
+    // mdx() extends this config by default, so the plugin runs for both
+    // .md and .mdx without listing it twice.
     rehypePlugins: [rehypeOpts],
   },
-  integrations: [mdx({ rehypePlugins: [rehypeOpts] }), sitemap()],
+  integrations: [mdx(), sitemap()],
   trailingSlash: "always",
   build: {
     format: "directory",
