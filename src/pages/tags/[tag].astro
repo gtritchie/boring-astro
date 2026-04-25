@@ -26,8 +26,8 @@ const countLabel = `${count} ${count === 1 ? "project" : "projects"}`;
 <BaseLayout title={`Projects tagged ${displayTag}`} description={`Projects tagged ${displayTag}.`}>
   <main id="main">
     <h1>Tagged: {displayTag}</h1>
-    <p class="meta">{countLabel}</p>
     <p class="back"><a href="/projects/">← All projects</a></p>
+    <h2 class="section-label">{countLabel}</h2>
     {
       entries.map((p) => (
         <ProjectCard
@@ -44,12 +44,15 @@ const countLabel = `${count} ${count === 1 ? "project" : "projects"}`;
 </BaseLayout>
 
 <style>
-  .meta {
-    color: var(--fg-muted);
-    font-size: 0.95rem;
+  .back {
     margin: 0 0 var(--sp-2);
   }
-  .back {
-    margin: 0 0 var(--sp-6);
+  .section-label {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin: var(--sp-6) 0 var(--sp-4);
   }
 </style>
