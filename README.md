@@ -136,27 +136,37 @@ Astro scopes component CSS automatically — class names like `.inner` or
 
 ## Deploy
 
-GitHub Actions runs on every push and PR to `main`: `npm run check`, build,
-link check, pa11y, and — on `main` only — deploy via
-`cloudflare/wrangler-action` to the `boring-site` Worker. Lighthouse is not
-run in CI; run `npm run lighthouse` locally when you want a perf audit.
+GitHub Actions runs CI on every push and PR to `main`: `npm run check`, build,
+link check, and pa11y. CI is the quality gate; it does not deploy.
 
-Required repo secrets (Settings → Secrets and variables → Actions):
+Deploys are handled by **Cloudflare Workers Builds**. The `boring-site` Worker
+is connected to this repo via the Cloudflare dashboard. On push to `main`,
+Cloudflare runs `npm run build` then `npx wrangler deploy`. On push to any
+other branch, Cloudflare runs `npm run build` then `npx wrangler versions
+upload`, producing a unique preview URL — so every PR gets a working preview
+deploy. Node 24 is auto-detected from `.nvmrc` (the Cloudflare default would
+otherwise be 22).
 
-- `CLOUDFLARE_API_TOKEN` — scoped token with **Workers Scripts: Edit**.
-  Do NOT use a global API key.
-- `CLOUDFLARE_ACCOUNT_ID` — from the Cloudflare dashboard sidebar.
+Preview URLs are not indexed: `BaseLayout.astro` reads
+`import.meta.env.WORKERS_CI_BRANCH` at build time and emits
+`<meta name="robots" content="noindex, nofollow">` whenever the branch isn't
+`main`.
 
-Optional:
+**Build env vars** live in Cloudflare → Worker → Settings → Environment
+variables → Build variables, not in GitHub secrets:
 
-- `PUBLIC_CF_WA_TOKEN` — Cloudflare Web Analytics site token. When set,
-  Astro bakes the beacon into the static output at build time.
+- `PUBLIC_CF_WA_TOKEN` — Cloudflare Web Analytics site token. When set, Astro
+  bakes the beacon into the static output at build time. Optional.
 
-Day-to-day flow: branch, commit, open PR to `main`, wait for CI, merge. Deploy
-is automatic on merge.
+Lighthouse is not run in CI; run `npm run lighthouse` locally when you want a
+perf audit.
+
+Day-to-day flow: branch, commit, open PR to `main`, wait for CI, click the
+Cloudflare preview URL on the PR, merge. Production deploy is automatic on
+merge.
 
 **Never push directly to `main`.** Branch protection should enforce this in
-the GitHub repo settings once the remote is set up.
+the GitHub repo settings.
 
 ## Reference
 
