@@ -80,7 +80,9 @@ export function buildTagIndex(
   const slugToSource = new Map<string, string>();
 
   for (const project of projects) {
-    for (const tag of project.data.tags) {
+    // Deduplicate within a project so a stray duplicate tag in
+    // frontmatter doesn't push the same project onto a tag page twice.
+    for (const tag of new Set(project.data.tags)) {
       const slug = tagToSlug(tag);
       if (slug === "") {
         throw new Error(
@@ -291,24 +293,31 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
 ---
 ```
 
-Replace the tags `<ul>` (currently `{tags.map((t) => <li>{t}</li>)}`) so each tag is wrapped in an anchor:
+Replace the tags `<ul>` (currently `{tags.map((t) => <li>{t}</li>)}`) so each tag is wrapped in an anchor and the year `<li>` carries a `year` class:
 
 ```astro
     <ul class="tags">
       {tags.map((t) => (
         <li><a href={`/tags/${tagToSlug(t)}/`}>{t}</a></li>
       ))}
-      <li>{displayYear}</li>
+      <li class="year">{displayYear}</li>
     </ul>
 ```
 
-(The `displayYear` `<li>` stays as plain text.)
-
-In the `<style>` block, add these rules immediately after the existing `.tags li { ... }` block:
+In the `<style>` block, **replace** the existing `.tags li { ... }` rule with the rules below. The pill chrome (border, padding, font, color) moves from the `<li>` to the anchor (and the `year` class for the non-clickable year item) so the entire visible pill is the click target:
 
 ```css
+  .tags a,
+  .tags .year {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border-ui);
+    border-radius: 3px;
+    color: var(--fg-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
   .tags a {
-    color: inherit;
     text-decoration: none;
   }
   .tags a:hover {
@@ -317,7 +326,7 @@ In the `<style>` block, add these rules immediately after the existing `.tags li
   }
 ```
 
-(Focus styling comes from the global `:focus-visible` rule in `src/styles/reset.css` and applies automatically.)
+(Focus styling comes from the global `:focus-visible` rule in `src/styles/reset.css` and applies automatically — and now lights up the entire pill since the focus target is the anchor, which is the pill.)
 
 - [ ] **Step 2: Verify it type-checks, lints, and formats**
 
@@ -341,8 +350,10 @@ In a browser:
 
 - Visit `http://localhost:4321/`. Click each tag pill on the featured project cards. Each click should navigate to the corresponding `/tags/<slug>/` page.
 - Visit `http://localhost:4321/projects/`. Repeat: every tag pill on every card should link to the right tag page.
-- Hover any tag pill: cursor changes to pointer, text gets an underline.
-- Tab to a tag pill: visible focus ring appears (3px solid, theme color).
+- Hover any tag pill: cursor changes to pointer over the entire pill (including the padding/border area, not just the text), and the text gets an underline.
+- Click on the padding/border edge of a pill (not the text): navigation should still happen — the whole pill is the click target.
+- Tab to a tag pill: the focus ring should outline the entire pill, not just the text.
+- The `displayYear` pill (e.g. `2026`) is not interactive — no hover state, no focus ring, no cursor change.
 
 Stop the dev server.
 
@@ -400,7 +411,7 @@ becomes:
     </div>
 ```
 
-In the `<style>` block, add these rules after the existing `.facts dd` rule:
+In the `<style>` block, add these rules after the existing `.facts dd` rule. The pill chrome lives on the anchor so the entire visible pill is the click target (matching the card treatment from Task 3):
 
 ```css
   .tags {
@@ -411,16 +422,14 @@ In the `<style>` block, add these rules after the existing `.facts dd` rule:
     flex-wrap: wrap;
     gap: var(--sp-2);
   }
-  .tags li {
+  .tags a {
+    display: inline-block;
     font-size: 0.75rem;
     padding: 0.1rem 0.5rem;
     border: 1px solid var(--border-ui);
     border-radius: 3px;
     color: var(--fg-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  .tags a {
-    color: inherit;
     text-decoration: none;
   }
   .tags a:hover {
@@ -429,7 +438,7 @@ In the `<style>` block, add these rules after the existing `.facts dd` rule:
   }
 ```
 
-(These rules duplicate the card pill styling. Astro's scoped CSS keeps them isolated to this page; the rules are short enough that duplication is preferable to a shared partial.)
+(These rules mirror the card pill styling. Astro's scoped CSS keeps them isolated to this page; the rules are short enough that duplication is preferable to a shared partial.)
 
 - [ ] **Step 2: Verify it type-checks, lints, and formats**
 
@@ -453,7 +462,9 @@ In a browser:
 
 - Visit `http://localhost:4321/projects/boring-site/`. The Tags row in the facts list should now show pill-styled anchors instead of comma-joined text.
 - Click any pill — it should navigate to the corresponding tag page.
-- Visit `http://localhost:4321/projects/bulk-properties/`. Same expectation.
+- Click on the padding/border edge of a pill (not the text): navigation should still happen — the whole pill is the click target.
+- Tab to a pill: the focus ring should outline the entire pill.
+- Visit `http://localhost:4321/projects/bulk-properties/`. Same expectations.
 
 Stop the dev server.
 
@@ -522,29 +533,46 @@ If pa11y reports a contrast failure on `.tags a` (i.e. the tag-pill anchors fall
 
 Stop the `preview:astro` server.
 
-- [ ] **Step 4 (contingent): Fix contrast by switching pill link color to `--fg`**
+- [ ] **Step 4 (contingent): Fix contrast by switching tag link color to `--fg`**
 
 If and only if pa11y flagged `.tags a` contrast in Step 3:
 
-In `src/components/ProjectCard.astro`, change the new rule:
+In `src/components/ProjectCard.astro`, the chrome rule from Task 3 reads:
 
 ```css
-  .tags a {
-    color: inherit;
-    text-decoration: none;
+  .tags a,
+  .tags .year {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border-ui);
+    border-radius: 3px;
+    color: var(--fg-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 ```
 
-to:
+Split it so the anchor uses `var(--fg)` while the static year stays `var(--fg-muted)`:
 
 ```css
+  .tags a,
+  .tags .year {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border-ui);
+    border-radius: 3px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
   .tags a {
     color: var(--fg);
-    text-decoration: none;
+  }
+  .tags .year {
+    color: var(--fg-muted);
   }
 ```
 
-Apply the same change to the equivalent rule in `src/pages/projects/[...slug].astro`.
+In `src/pages/projects/[...slug].astro`, change the chrome rule's `color: var(--fg-muted)` line to `color: var(--fg)` (no shared selector to split there since the detail page has only anchors).
 
 Re-run pa11y (Step 3) until it passes.
 
@@ -635,3 +663,5 @@ Mapping each spec section to the task that implements it:
 | pa11y / AAA contrast on tag-link anchors | Task 5 steps 3–4 |
 | Build-time collision error message | Task 5 step 5 |
 | Empty-slug protection (e.g. tag `"+"` → empty) | Task 1 (extra guard, not in spec but matches the fail-loud principle) |
+| Dedup tags within a single project's frontmatter | Task 1 (extra resilience, not in spec — prevents duplicate tag entries from rendering the same project twice on a tag page) |
+| Pill chrome on `<a>` not `<li>` so the entire visible pill is the click/focus target | Tasks 3 and 4 |
