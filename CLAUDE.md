@@ -20,7 +20,7 @@ Node 24+ required (`.nvmrc` pins `24.15.0`).
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
 - `npm run link-check` — builds, then lychee across built HTML (requires `lychee` installed — `brew install lychee`)
 
-No unit test suite. Verification is linting, type-checking, pa11y, Lighthouse, and link-check.
+No unit test suite. Verification in CI is linting, type-checking, link-check, and pa11y. Lighthouse is local-only (`npm run lighthouse`).
 
 ## Architecture
 
@@ -44,7 +44,7 @@ No unit test suite. Verification is linting, type-checking, pa11y, Lighthouse, a
 
 ## CI / deploy
 
-`.github/workflows/deploy.yml` runs on push/PR to `main`: check → build → link-check → pa11y → Lighthouse → (on `main` only) deploy via `cloudflare/wrangler-action` to the `boring-site` Worker. Required secrets: `CLOUDFLARE_API_TOKEN` (scoped, Workers Scripts: Edit — not the global key), `CLOUDFLARE_ACCOUNT_ID`. Optional: `PUBLIC_CF_WA_TOKEN` (Web Analytics), `LHCI_GITHUB_APP_TOKEN`.
+`.github/workflows/deploy.yml` runs on push/PR to `main`: check → build → link-check → pa11y → (on `main` only) deploy via `cloudflare/wrangler-action` to the `boring-site` Worker. Required secrets: `CLOUDFLARE_API_TOKEN` (scoped, Workers Scripts: Edit — not the global key), `CLOUDFLARE_ACCOUNT_ID`. Optional: `PUBLIC_CF_WA_TOKEN` (Web Analytics). Lighthouse is not run in CI — run `npm run lighthouse` locally as needed.
 
 Branch protection on `main` — always work on a feature branch and open a PR.
 
