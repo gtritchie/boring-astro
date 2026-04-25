@@ -3,6 +3,7 @@
 import ProseLayout from "../../layouts/ProseLayout.astro";
 import ExternalLink from "../../components/ExternalLink.astro";
 import { isExternalHttp } from "../../lib/site.mjs";
+import { tagToSlug } from "../../lib/tag-slugs";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -20,7 +21,20 @@ const { data } = entry;
   <dl class="facts">
     <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
     <div><dt>Status</dt><dd>{data.status}</dd></div>
-    <div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
+    <div>
+      <dt>Tags</dt>
+      <dd>
+        <ul class="tags">
+          {
+            data.tags.map((t) => (
+              <li>
+                <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </dd>
+    </div>
     {
       data.links?.repo && (
         <div>
@@ -93,5 +107,27 @@ const { data } = entry;
   }
   .facts dd {
     margin: 0;
+  }
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .tags a {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--border-ui);
+    border-radius: 3px;
+    color: var(--fg-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-decoration: none;
+  }
+  .tags a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 </style>

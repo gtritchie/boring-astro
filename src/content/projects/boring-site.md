@@ -25,7 +25,11 @@ had already worked through some Astro tutorials so wasn't flying blind, but depl
 [Cloudflare Workers](https://workers.cloudflare.com/product/workers) was a new twist. If you are
 reading this, I must have figured it out!
 
-## First Tweak: external link affordance for Markdown and .astro
+## Ongoing Work
+
+Improvements to the initial site are tracked here.
+
+### 2026-04-24 - external link affordance for Markdown and .astro
 
 I showed my wife the initial deployment, she said, "Yup, it's boring!" Mission accomplished?
 
@@ -33,3 +37,8 @@ She clicked on a link to a different site and it navigated in place. I immediate
 that should load in a new tab, and it should have accessibility affordances (an icon and additional
 accessible text mentioning that it will open in a new tab)." So, another learning opportunity, where
 I found out about the [rehype](https://github.com/rehypejs/rehype) pipeline and how Astro uses it.
+
+### 2026-04-25 - clickable project tags
+
+Implemented clicking on project tags to show a list of all projects with that tag. Discovered that
+we show the "year" as a tag, but it isn't, so it's currently not clickable. Future improvement.

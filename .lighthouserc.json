@@ -6,6 +6,8 @@
         "http://localhost/",
         "http://localhost/about/",
         "http://localhost/projects/",
+        "http://localhost/projects/boring-site/",
+        "http://localhost/tags/typescript/",
         "http://localhost/writing/",
         "http://localhost/writing/hello-world/"
       ],
