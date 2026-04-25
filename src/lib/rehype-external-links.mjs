@@ -106,7 +106,7 @@ export default function rehypeExternalLinks({ internalHosts = [] } = {}) {
       if (typeof href !== "string" || !HTTP_RE.test(href)) return;
       const host = getHostSafe(href);
       if (!host || internal.has(host)) return;
-      if (props.target && props.target !== "_blank") return;
+      if ("target" in props && props.target !== "_blank") return;
 
       props.target = "_blank";
       mergeRel(props, "noopener", "noreferrer");
