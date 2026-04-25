@@ -20,7 +20,7 @@ const { data } = entry;
   <dl class="facts">
     <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
     <div><dt>Status</dt><dd>{data.status}</dd></div>
-    <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
+    <div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
     {
       data.links?.repo && (
         <div>

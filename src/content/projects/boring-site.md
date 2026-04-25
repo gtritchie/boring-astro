@@ -3,7 +3,7 @@ title: Boring-By-Design Website
 summary: My personal website, built with Astro
 status: active
 startedAt: 2026-04-23
-tech: [Astro, TypeScript, HTML, CSS, Markdown, Personal]
+tags: [Astro, TypeScript, HTML, CSS, Markdown, Personal]
 featured: true
 ---
 

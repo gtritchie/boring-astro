@@ -4,11 +4,11 @@ interface Props {
   href: string;
   title: string;
   summary: string;
-  tech: string[];
+  tags: string[];
   displayYear: string;
   status: "active" | "archived" | "experimental";
 }
-const { href, title, summary, tech, displayYear, status } = Astro.props;
+const { href, title, summary, tags, displayYear, status } = Astro.props;
 ---
 
 <article class="card">
@@ -16,7 +16,7 @@ const { href, title, summary, tech, displayYear, status } = Astro.props;
   <p class="summary">{summary}</p>
   <div class="meta">
     <ul class="tags">
-      {tech.map((t) => <li>{t}</li>)}
+      {tags.map((t) => <li>{t}</li>)}
       <li>{displayYear}</li>
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
