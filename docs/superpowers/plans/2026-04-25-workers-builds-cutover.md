@@ -65,12 +65,18 @@ Cleanup (Task 7) happens after a full production deploy has been verified.
 
 This task is a no-op against the current deploy setup — `WORKERS_CI_BRANCH` is undefined in GHA and locally, so `isPreview` is always `false` and no meta tag is emitted. The change becomes load-bearing only after Cloudflare is connected in Task 5.
 
-- [ ] **Step 1: Create the feature branch**
+- [ ] **Step 1: Confirm you are on the feature branch**
+
+The branch was created when the plan itself was committed. Make sure you're on it:
 
 ```bash
-git checkout main
-git pull --ff-only
-git checkout -b feat/workers-builds-cutover
+git checkout feat/workers-builds-cutover
+```
+
+If for some reason the branch doesn't exist yet (e.g. fresh clone, or you're starting from `main` after the plan was merged), create it from `main` instead:
+
+```bash
+git checkout main && git pull --ff-only && git checkout -b feat/workers-builds-cutover
 ```
 
 - [ ] **Step 2: Edit `src/layouts/BaseLayout.astro`**
@@ -112,9 +118,9 @@ const isPreview = Boolean(branch) && branch !== "main";
 ---
 ```
 
-The full updated `<head>` opening (lines 21–28 in the original) becomes:
+The full updated `<head>` opening (lines 21–28 in the original; the rest of the `<head>` — script, transition router, etc. — is unchanged) becomes:
 
-```astro
+```text
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -381,7 +387,14 @@ npm run check
 
 Expected: passes.
 
-- [ ] **Step 3: Push the branch and open the PR**
+- [ ] **Step 3: Commit the README change**
+
+```bash
+git add README.md
+git commit -m "Update README Deploy section for Workers Builds cutover"
+```
+
+- [ ] **Step 4: Push the branch and open the PR**
 
 ```bash
 git push -u origin feat/workers-builds-cutover
@@ -402,16 +415,6 @@ The Cloudflare-side connection happens out of band (via dashboard) once this PR 
 EOF
 )"
 ```
-
-- [ ] **Step 4: Commit (only if `gh pr create` opened the PR; the README edit must be in the PR before pushing)**
-
-```bash
-git add README.md
-git commit -m "Update README Deploy section for Workers Builds cutover"
-git push
-```
-
-(If you ran `git push -u` and `gh pr create` before committing the README edit, push the README commit as a follow-up — same PR.)
 
 ---
 
