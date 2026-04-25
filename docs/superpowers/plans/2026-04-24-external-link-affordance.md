@@ -18,7 +18,7 @@
 
 **Create:**
 
-- `src/lib/internal-hosts.mjs` — single source of truth for the internal-host set (apex + `www`). Imported by both `astro.config.mjs` and `ExternalLink.astro`.
+- `src/lib/site.mjs` — single source of truth for the site origin and the derived internal-host set (apex + `www`). Exports both `site` (the canonical origin string) and `internalHosts` (the array used by the plugin and the component). Imported by `astro.config.mjs` (for both the `site` config value and the plugin options) and by `ExternalLink.astro` (for host validation).
 - `src/lib/rehype-external-links.mjs` — the unified plugin. Pure ESM, no I/O. Default-exports a configurable plugin function.
 - `src/components/ExternalLink.astro` — wrapper component for hand-written external links in `.astro` files. Owns `target`/`rel` behavior; rejects misuse with build-time errors.
 
@@ -76,10 +76,12 @@ git commit -m "Add unist-util-visit devDependency for rehype plugin"
 
 ---
 
-### Task 2: Create `src/lib/internal-hosts.mjs`
+### Task 2: Create `src/lib/site.mjs`
 
 **Files:**
-- Create: `src/lib/internal-hosts.mjs`
+- Create: `src/lib/site.mjs`
+
+This module is the single source of truth for the site's canonical origin. `astro.config.mjs` imports `site` from here for its top-level `site` config, and the plugin and component both consume `internalHosts` derived from the same value — so the three cannot drift.
 
 - [ ] **Step 1: Create the directory if needed**
 
@@ -90,16 +92,17 @@ ls src/lib 2>/dev/null || mkdir src/lib
 
 - [ ] **Step 2: Write the file**
 
-Contents of `src/lib/internal-hosts.mjs`:
+Contents of `src/lib/site.mjs`:
 
 ```js
-// Single source of truth for which hosts count as "internal" for the
-// external-link affordance. Imported by astro.config.mjs (to configure the
-// rehype plugin) and by ExternalLink.astro (to validate authored hrefs).
+// Single source of truth for the site's canonical origin and the derived
+// internal-host set. Imported by astro.config.mjs (for both the `site`
+// config value and the rehype plugin options) and by ExternalLink.astro
+// (to validate authored hrefs).
 
-const SITE = "https://boringbydesign.ca";
-const siteHost = new URL(SITE).host;
+export const site = "https://boringbydesign.ca";
 
+const siteHost = new URL(site).host;
 export const internalHosts = [siteHost, `www.${siteHost}`];
 ```
 
@@ -107,9 +110,9 @@ export const internalHosts = [siteHost, `www.${siteHost}`];
 
 Run:
 ```bash
-node -e 'import("./src/lib/internal-hosts.mjs").then(m => console.log(m.internalHosts))'
+node -e 'import("./src/lib/site.mjs").then(m => console.log(m.site, m.internalHosts))'
 ```
-Expected output: `[ 'boringbydesign.ca', 'www.boringbydesign.ca' ]`
+Expected output: `https://boringbydesign.ca [ 'boringbydesign.ca', 'www.boringbydesign.ca' ]`
 
 - [ ] **Step 4: Run the project check**
 
@@ -122,8 +125,8 @@ Expected: passes.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/lib/internal-hosts.mjs
-git commit -m "Add internal-hosts module shared by plugin and component"
+git add src/lib/site.mjs
+git commit -m "Add site module exporting canonical origin and internal hosts"
 ```
 
 ---
@@ -361,7 +364,7 @@ This is the activation commit. After this lands, every external link in `src/con
 
 - [ ] **Step 1: Replace the contents of `astro.config.mjs`**
 
-The full new file:
+The full new file. Note: `site` is now imported from `src/lib/site.mjs` rather than written as a literal — this keeps the canonical origin in one place, so the `site` config and the plugin's `internalHosts` cannot drift.
 
 ```js
 // astro.config.mjs
@@ -370,12 +373,12 @@ import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import rehypeExternalLinks from "./src/lib/rehype-external-links.mjs";
-import { internalHosts } from "./src/lib/internal-hosts.mjs";
+import { site, internalHosts } from "./src/lib/site.mjs";
 
 const rehypeOpts = [rehypeExternalLinks, { internalHosts }];
 
 export default defineConfig({
-  site: "https://boringbydesign.ca",
+  site,
   output: "static",
   // imageService: "compile" optimizes images at build time and emits direct
   // /_astro/*.webp URLs. The adapter's default routes through a runtime /_image
@@ -447,12 +450,24 @@ Contents of `src/components/ExternalLink.astro`:
 // aria-* and data-* attribute. Anything else (including target) is
 // rejected with a clear error naming the offending prop.
 
-import { internalHosts } from "../lib/internal-hosts.mjs";
+import { internalHosts } from "../lib/site.mjs";
+
+interface Props {
+  href: string;
+  class?: string;
+  rel?: string;
+  id?: string;
+  title?: string;
+  [key: `aria-${string}`]: string | undefined;
+  [key: `data-${string}`]: string | undefined;
+}
 
 const ALLOWED_NAMED = new Set(["href", "class", "rel", "id", "title"]);
 
-const props = Astro.props;
-const { href, class: className, rel } = props;
+const props = Astro.props as Record<string, unknown>;
+const href = props.href;
+const className = typeof props.class === "string" ? props.class : undefined;
+const rel = typeof props.rel === "string" ? props.rel : undefined;
 
 if (typeof href !== "string") {
   throw new Error("ExternalLink: 'href' is required and must be a string");
@@ -468,7 +483,7 @@ for (const key of Object.keys(props)) {
   throw new Error(`ExternalLink: prop '${key}' is not allowed`);
 }
 
-let parsed;
+let parsed: URL;
 try {
   parsed = new URL(href);
 } catch {
@@ -499,7 +514,7 @@ if (!classTokens.includes("has-external-glyph")) {
 }
 const classValue = classTokens.join(" ");
 
-const passthrough = {};
+const passthrough: Record<string, unknown> = {};
 for (const key of Object.keys(props)) {
   if (
     key === "id" ||
