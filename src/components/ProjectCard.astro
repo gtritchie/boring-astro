@@ -1,5 +1,6 @@
 ---
 // src/components/ProjectCard.astro
+import { tagToSlug } from "../lib/tag-slugs";
 interface Props {
   href: string;
   title: string;
@@ -16,8 +17,14 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
   <p class="summary">{summary}</p>
   <div class="meta">
     <ul class="tags">
-      {tags.map((t) => <li>{t}</li>)}
-      <li>{displayYear}</li>
+      {
+        tags.map((t) => (
+          <li>
+            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+          </li>
+        ))
+      }
+      <li class="year">{displayYear}</li>
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
   </div>
@@ -63,13 +70,22 @@ const { href, title, summary, tags, displayYear, status } = Astro.props;
     flex-wrap: wrap;
     gap: var(--sp-2);
   }
-  .tags li {
+  .tags a,
+  .tags .year {
+    display: inline-block;
     font-size: 0.75rem;
     padding: 0.1rem 0.5rem;
     border: 1px solid var(--border-ui);
     border-radius: 3px;
     color: var(--fg-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .tags a {
+    text-decoration: none;
+  }
+  .tags a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
   .status {
     font-size: 0.78rem;
