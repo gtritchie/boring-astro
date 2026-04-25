@@ -57,4 +57,4 @@ No other features planned at this time.
 
 This was my first time wiring up and using the GitHub releases pipeline (all my prior projects
 were either built and released using other mechanisms (e.g. Jenkins) or everything was already
-setup before I got involved).
+set up before I got involved).
