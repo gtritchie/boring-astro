@@ -42,11 +42,13 @@ CSS rules ship before the markup that depends on them, so no commit produces a t
 ### Task 1: Add `unist-util-visit` devDependency
 
 **Files:**
+
 - Modify: `package.json`, `package-lock.json`
 
 - [ ] **Step 1: Install the dependency at current stable**
 
 Run:
+
 ```bash
 npm install --save-dev unist-util-visit@latest
 ```
@@ -54,17 +56,21 @@ npm install --save-dev unist-util-visit@latest
 - [ ] **Step 2: Verify install**
 
 Run:
+
 ```bash
 npm ls unist-util-visit
 ```
+
 Expected output: a single top-level entry under `devDependencies`, e.g. `unist-util-visit@5.x.x`. If the version printed is < 5, stop and investigate — Astro's HAST tooling expects v5+.
 
 - [ ] **Step 3: Confirm nothing broke**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes (no astro/prettier/eslint errors). The check is fast on this repo (~10s).
 
 - [ ] **Step 4: Commit**
@@ -79,6 +85,7 @@ git commit -m "Add unist-util-visit devDependency for rehype plugin"
 ### Task 2: Create `src/lib/site.mjs`
 
 **Files:**
+
 - Create: `src/lib/site.mjs`
 
 This module is the single source of truth for the site's canonical origin. `astro.config.mjs` imports `site` from here for its top-level `site` config, and the plugin and component both consume `internalHosts` derived from the same value — so the three cannot drift.
@@ -86,6 +93,7 @@ This module is the single source of truth for the site's canonical origin. `astr
 - [ ] **Step 1: Create the directory if needed**
 
 Run:
+
 ```bash
 ls src/lib 2>/dev/null || mkdir src/lib
 ```
@@ -109,17 +117,21 @@ export const internalHosts = [siteHost, `www.${siteHost}`];
 - [ ] **Step 3: Verify it parses**
 
 Run:
+
 ```bash
 node -e 'import("./src/lib/site.mjs").then(m => console.log(m.site, m.internalHosts))'
 ```
+
 Expected output: `https://boringbydesign.ca [ 'boringbydesign.ca', 'www.boringbydesign.ca' ]`
 
 - [ ] **Step 4: Run the project check**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes.
 
 - [ ] **Step 5: Commit**
@@ -134,6 +146,7 @@ git commit -m "Add site module exporting canonical origin and internal hosts"
 ### Task 3: Add `.visually-hidden` and `.external-glyph` CSS rules
 
 **Files:**
+
 - Modify: `src/styles/global.css` (append at end)
 
 These rules are inert until DOM elements with the matching classes appear. Adding them now means later commits don't introduce a temporary visual glitch.
@@ -165,9 +178,11 @@ Append the following block to the end of `src/styles/global.css`:
 - [ ] **Step 2: Verify**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes.
 
 - [ ] **Step 3: Commit**
@@ -182,6 +197,7 @@ git commit -m "Add .visually-hidden and .external-glyph CSS utilities"
 ### Task 4: Create the rehype plugin
 
 **Files:**
+
 - Create: `src/lib/rehype-external-links.mjs`
 
 The plugin is created in isolation. It is not wired into the build until Task 5, so this commit changes nothing about the rendered output — it only adds new code.
@@ -314,6 +330,7 @@ export default function rehypeExternalLinks({ internalHosts = [] } = {}) {
 - [ ] **Step 2: Smoke-test the plugin in isolation**
 
 Run:
+
 ```bash
 node -e '
 import("./src/lib/rehype-external-links.mjs").then(({ default: plugin }) => {
@@ -336,14 +353,17 @@ import("./src/lib/rehype-external-links.mjs").then(({ default: plugin }) => {
 });
 '
 ```
-Expected: the first `<a>` has `target: "_blank"`, `rel: ["me", "noopener", "noreferrer"]`, `className: ["has-external-glyph"]`, and two appended children (svg + span). The second `<a>` is unchanged. The third `<a>` is unchanged (target=_self opt-out).
+
+Expected: the first `<a>` has `target: "_blank"`, `rel: ["me", "noopener", "noreferrer"]`, `className: ["has-external-glyph"]`, and two appended children (svg + span). The second `<a>` is unchanged. The third `<a>` is unchanged (target=\_self opt-out).
 
 - [ ] **Step 3: Run the project check**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes.
 
 - [ ] **Step 4: Commit**
@@ -358,6 +378,7 @@ git commit -m "Add rehype-external-links plugin for Markdown/MDX"
 ### Task 5: Wire the plugin into `astro.config.mjs`
 
 **Files:**
+
 - Modify: `astro.config.mjs`
 
 This is the activation commit. After this lands, every external link in `src/content/**/*.{md,mdx}` will get the affordance on the next build.
@@ -398,9 +419,11 @@ export default defineConfig({
 - [ ] **Step 2: Build the site**
 
 Run:
+
 ```bash
 npm run build
 ```
+
 Expected: build succeeds. `dist/client/` is regenerated.
 
 - [ ] **Step 3: Verify a known external link in built HTML**
@@ -410,6 +433,7 @@ There are existing external links in `src/content/projects/boring-site.md`, `src
 ```bash
 grep -E 'target="_blank"|external-glyph|visually-hidden' dist/client/projects/boring-site/index.html | head -20
 ```
+
 Expected: lines containing `target="_blank"`, `class="has-external-glyph"` (or similar; HAST may serialize as `class="..."` with multiple tokens), `<svg ... class="external-glyph"`, and `<span class="visually-hidden"> (opens in a new tab)</span>`.
 
 - [ ] **Step 4: Verify an internal-host link is NOT transformed**
@@ -419,6 +443,7 @@ Build output should not slap the affordance onto same-site links. If any content
 ```bash
 grep -RE 'href="https://(www\.)?boringbydesign\.ca' dist/client/ | grep -E 'target="_blank"' | head
 ```
+
 Expected: no output (no internal-host links got `target="_blank"`).
 
 - [ ] **Step 5: Commit**
@@ -433,6 +458,7 @@ git commit -m "Wire rehype-external-links into Markdown and MDX pipelines"
 ### Task 6: Create `<ExternalLink>` component
 
 **Files:**
+
 - Create: `src/components/ExternalLink.astro`
 
 The component is created in isolation. It is not used by any caller until Task 7.
@@ -473,9 +499,7 @@ if (typeof href !== "string") {
   throw new Error("ExternalLink: 'href' is required and must be a string");
 }
 if ("target" in props) {
-  throw new Error(
-    'ExternalLink: do not pass "target" — the component sets target="_blank"',
-  );
+  throw new Error('ExternalLink: do not pass "target" — the component sets target="_blank"');
 }
 for (const key of Object.keys(props)) {
   if (ALLOWED_NAMED.has(key)) continue;
@@ -490,25 +514,18 @@ try {
   throw new Error(`ExternalLink: 'href' is not a valid URL: ${href}`);
 }
 if (!/^https?:$/.test(parsed.protocol)) {
-  throw new Error(
-    `ExternalLink: 'href' must use http(s); got '${parsed.protocol}' in ${href}`,
-  );
+  throw new Error(`ExternalLink: 'href' must use http(s); got '${parsed.protocol}' in ${href}`);
 }
 if (internalHosts.includes(parsed.host)) {
-  throw new Error(
-    `ExternalLink: host '${parsed.host}' is internal; use a regular <a> instead`,
-  );
+  throw new Error(`ExternalLink: host '${parsed.host}' is internal; use a regular <a> instead`);
 }
 
-const relTokens = new Set(
-  typeof rel === "string" ? rel.split(/\s+/).filter(Boolean) : [],
-);
+const relTokens = new Set(typeof rel === "string" ? rel.split(/\s+/).filter(Boolean) : []);
 relTokens.add("noopener");
 relTokens.add("noreferrer");
 const relValue = [...relTokens].join(" ");
 
-const classTokens =
-  typeof className === "string" ? className.split(/\s+/).filter(Boolean) : [];
+const classTokens = typeof className === "string" ? className.split(/\s+/).filter(Boolean) : [];
 if (!classTokens.includes("has-external-glyph")) {
   classTokens.push("has-external-glyph");
 }
@@ -516,12 +533,7 @@ const classValue = classTokens.join(" ");
 
 const passthrough: Record<string, unknown> = {};
 for (const key of Object.keys(props)) {
-  if (
-    key === "id" ||
-    key === "title" ||
-    key.startsWith("aria-") ||
-    key.startsWith("data-")
-  ) {
+  if (key === "id" || key === "title" || key.startsWith("aria-") || key.startsWith("data-")) {
     passthrough[key] = props[key];
   }
 }
@@ -529,28 +541,21 @@ for (const key of Object.keys(props)) {
 
 <a href={href} target="_blank" rel={relValue} class={classValue} {...passthrough}>
   <slot />
-  <svg
-    class="external-glyph"
-    viewBox="0 0 12 12"
-    aria-hidden="true"
-    focusable="false"
-  >
+  <svg class="external-glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
     <path
       d="M4.5 2.5h-2A1 1 0 0 0 1.5 3.5v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2"
       fill="none"
       stroke="currentColor"
       stroke-width="1.2"
       stroke-linecap="round"
-      stroke-linejoin="round"
-    ></path>
+      stroke-linejoin="round"></path>
     <path
       d="M7 1.5h3.5V5M10.5 1.5 5.5 6.5"
       fill="none"
       stroke="currentColor"
       stroke-width="1.2"
       stroke-linecap="round"
-      stroke-linejoin="round"
-    ></path>
+      stroke-linejoin="round"></path>
   </svg>
   <span class="visually-hidden"> (opens in a new tab)</span>
 </a>
@@ -559,9 +564,11 @@ for (const key of Object.keys(props)) {
 - [ ] **Step 2: Verify it parses and type-checks**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes. The component has no callers yet, so any rejection paths are dormant; this only confirms the file is well-formed.
 
 - [ ] **Step 3: Commit**
@@ -576,6 +583,7 @@ git commit -m "Add ExternalLink component for hand-written external links"
 ### Task 7: Migrate raw external `<a>` in `.astro` files to `<ExternalLink>`
 
 **Files:**
+
 - Modify: `src/components/SiteFooter.astro`
 - Modify: `src/pages/about.astro`
 
@@ -633,9 +641,11 @@ The `mailto:` link on the same line stays as a raw `<a>` — it's not external p
 - [ ] **Step 3: Build the site**
 
 Run:
+
 ```bash
 npm run build
 ```
+
 Expected: build succeeds.
 
 - [ ] **Step 4: Verify the migrated link's HTML shape**
@@ -645,14 +655,17 @@ Inspect the footer (which appears on every page) in a built page:
 ```bash
 grep -A2 'github.com/gtritchie' dist/client/about/index.html | head -20
 ```
+
 Expected: the rendered `<a>` should have `target="_blank"`, `rel="me noopener noreferrer"` (token order may vary; all three tokens must be present), `class="has-external-glyph"` (plus any other class), an inline `<svg class="external-glyph" ...>`, and a `<span class="visually-hidden"> (opens in a new tab)</span>`.
 
 - [ ] **Step 5: Verify no raw external `<a>` remains in `.astro`**
 
 Run:
+
 ```bash
 git grep -E '<a [^>]*href="https?://' src/ | grep -v 'src/content/' | grep -v 'ExternalLink.astro'
 ```
+
 Expected: no output (the only matches should be inside Markdown/MDX content under `src/content/`, which is handled by the rehype plugin, and the documentation/example inside `ExternalLink.astro` itself if any — there shouldn't be).
 
 - [ ] **Step 6: Commit**
@@ -667,6 +680,7 @@ git commit -m "Migrate raw external <a> in .astro files to <ExternalLink>"
 ### Task 8: Document the convention in `README.md`
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Add a new subsection under "Adding content"**
@@ -690,15 +704,16 @@ validates the URL and produces the same HTML shape as the Markdown path.
 Same-site links (including `https://www.boringbydesign.ca/…`), `mailto:`,
 `tel:`, fragment, and root-relative links are treated as internal and get
 no affordance.
-
 ```
 
 - [ ] **Step 2: Verify formatting**
 
 Run:
+
 ```bash
 npm run check
 ```
+
 Expected: passes (Prettier will accept the Markdown edit; if it doesn't, run `npm run format` and re-stage).
 
 - [ ] **Step 3: Commit**
@@ -719,6 +734,7 @@ No code changes, no commit. This is the gate before opening a pull request. If a
 ```bash
 npm run check
 ```
+
 Expected: passes.
 
 - [ ] **Step 2: Build**
@@ -726,18 +742,23 @@ Expected: passes.
 ```bash
 npm run build
 ```
+
 Expected: succeeds, no warnings about the plugin or component.
 
 - [ ] **Step 3: Run pa11y in a separate terminal**
 
 In one terminal:
+
 ```bash
 npm run preview:astro
 ```
+
 In another terminal, once the preview is up on `127.0.0.1:4321`:
+
 ```bash
 npm run pa11y
 ```
+
 Expected: passes with no new violations. The visually-hidden span should not introduce any contrast or landmark issues.
 
 - [ ] **Step 4: Manual screen-reader spot-check (optional but recommended)**
