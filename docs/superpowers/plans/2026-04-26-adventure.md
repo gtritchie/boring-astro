@@ -218,14 +218,21 @@ export class LocalStorageSaveStorage implements SaveStorage {
   }
 
   async list(): Promise<string[]> {
-    const out: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key !== null && key.startsWith(SAVE_PREFIX)) {
-        out.push(key.slice(SAVE_PREFIX.length));
+    // Mirrors read() / writeAutosave(): localStorage access can throw entirely
+    // (privacy mode, sandboxed iframes). Return an empty list rather than
+    // letting the launcher's render path crash.
+    try {
+      const out: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key !== null && key.startsWith(SAVE_PREFIX)) {
+          out.push(key.slice(SAVE_PREFIX.length));
+        }
       }
+      return out;
+    } catch {
+      return [];
     }
-    return out;
   }
 
   async delete(name: string): Promise<void> {
@@ -778,7 +785,7 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
     font-size: 0.82rem;
     white-space: nowrap;
   }
-  .adv-saves-table .actions a {
+  .adv-saves-table .actions button {
     margin-left: var(--sp-3);
     color: var(--fg);
     text-decoration: underline;
@@ -789,9 +796,9 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
     padding: 0;
     font: inherit;
   }
-  .adv-saves-table .actions a:first-child { margin-left: 0; }
-  .adv-saves-table .actions .danger { color: var(--accent); }
-  .adv-saves-table .actions a:focus-visible {
+  .adv-saves-table .actions button:first-child { margin-left: 0; }
+  .adv-saves-table .actions button.danger { color: var(--accent); }
+  .adv-saves-table .actions button:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
@@ -820,35 +827,49 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
     border: 0;
   }
 
-  /* Phone breakpoint — collapse the table to stacked rows. */
+  /* Phone breakpoint — collapse each row to a 3-line grid that maps the
+     existing <td> cells (.name, .score, .loc, .when, .actions) into named
+     areas. No row-builder changes needed; the same DOM renders both ways. */
   @media (max-width: 600px) {
+    .adv-saves-table { display: block; }
     .adv-saves-table thead { display: none; }
-    .adv-saves-table,
-    .adv-saves-table tbody,
-    .adv-saves-table tr,
-    .adv-saves-table td { display: block; width: 100%; }
-    .adv-saves-table tr {
+    .adv-saves-table tbody { display: block; }
+    .adv-saves-table tbody tr {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas:
+        "name name when"
+        "score loc loc"
+        "actions actions actions";
+      column-gap: var(--sp-3);
+      row-gap: var(--sp-1);
       padding: var(--sp-3) 0;
       border-bottom: 1px solid var(--border);
     }
     .adv-saves-table tbody td {
-      border-bottom: 0;
       padding: 0;
+      border: 0;
     }
-    .adv-saves-table .row-line1 {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: var(--sp-2);
+    .adv-saves-table tbody td.name { grid-area: name; }
+    .adv-saves-table tbody td.when {
+      grid-area: when;
+      text-align: right;
+      font-size: 0.82rem;
     }
-    .adv-saves-table .row-line2 {
-      display: flex;
-      gap: var(--sp-4);
-      margin: var(--sp-1) 0 var(--sp-2);
+    .adv-saves-table tbody td.score {
+      grid-area: score;
+      font-size: 0.82rem;
+    }
+    .adv-saves-table tbody td.loc {
+      grid-area: loc;
       font-size: 0.82rem;
       color: var(--fg-muted);
     }
-    .adv-saves-table tbody td:last-child { text-align: left; }
+    .adv-saves-table tbody td.actions {
+      grid-area: actions;
+      text-align: left;
+      margin-top: var(--sp-2);
+    }
   }
 </style>
 ```
