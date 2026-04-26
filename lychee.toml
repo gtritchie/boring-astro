@@ -24,6 +24,7 @@ exclude = [
   "^https?://(www\\.)?linkedin\\.com",
   "^https?://(www\\.)?twitter\\.com",
   "^https?://(www\\.)?x\\.com",
+  "^https?://(www\\.)?openai\\.com",
   "mailto:.*",
   "^https?://boringbydesign\\.ca",
 ]

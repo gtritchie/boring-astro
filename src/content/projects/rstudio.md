@@ -28,9 +28,9 @@ application reached via web-browser, or as a desktop application using Electron 
 
 #### RStudio Desktop
 
-Electron wasn't a thing when RStudio was created. Initially it used QtWebKit from the
-[Qt framework](https://www.qt.io/development/qt-framework) for Windows and Linux, and the WebKit
-framework's WebView class for macOS. This was updated to QtWebEngine, and the Mac-specific variant
+Electron wasn't a thing when RStudio was created. Initially it used `QtWebKit` from the
+[Qt framework](https://www.qt.io/development/qt-framework) for Windows and Linux, and the `WebKit`
+framework's `WebView` class for macOS. This was updated to `QtWebEngine`, and the Mac-specific variant
 combined back into a unified codebase. In the early 2020s, we moved to Electron.
 
 #### RStudio Server
@@ -75,6 +75,10 @@ Screen-reader support is still problematic in some areas, but I try to chip away
 As part of this, I became very familiar with WCAG, using screen readers (VoiceOver, JAWS, NVDA), and
 performing formal accessibility audits. I used [Be Inclusive](https://beinclusive.app) to capture
 and share results.
+
+### Electron
+
+I did the bulk of the work to move RStudio from QtWebEngine to Electron.
 
 ### Posit Assistant
 
