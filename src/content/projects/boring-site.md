@@ -5,6 +5,8 @@ status: active
 startedAt: 2026-04-23
 tags: [Astro, TypeScript, HTML, CSS, Markdown, Personal]
 featured: true
+links:
+  repo: https://github.com/gtritchie/boring-astro
 ---
 
 ## Why
@@ -42,3 +44,10 @@ I found out about the [rehype](https://github.com/rehypejs/rehype) pipeline and 
 
 Implemented clicking on project tags to show a list of all projects with that tag. Discovered that
 we show the "year" as a tag, but it isn't, so it's currently not clickable. Future improvement.
+
+### 2026-04-25 - deployment tweaks
+
+Initially used a GitHub workflow to deploy the site, but switched to letting Cloudflare watch the
+repo and handle deployments. This enables deployments of the site from branches other than main
+(preview sites). I also stopped running the Lighthouse checks as part of CI and builds, and will
+run those manually.
