@@ -80,22 +80,33 @@ No new top-level dependencies beyond `@open-adventure/core`.
 
 Implements the package's `SaveStorage`:
 
+Storage keys live in four distinct top-level namespaces so user-supplied names cannot collide with metadata keys regardless of what characters they contain:
+
+| Key | Contents |
+|---|---|
+| `adventure:save:<name>` | User-save JSON payload |
+| `adventure:meta:<name>` | User-save metadata (sidecar — see "Save timestamps") |
+| `adventure:autosave` | Autosave JSON payload |
+| `adventure:autosave-meta` | Autosave metadata |
+
+Methods:
+
 - `read(name)`: returns `localStorage.getItem("adventure:save:" + name)` or `null`. Never throws for missing-file.
-- `write(name, json)`: `localStorage.setItem(...)` plus a sidecar metadata write (see "Save timestamps" below). Catches `QuotaExceededError`, rethrows as a typed `SaveQuotaError` so the package's existing retry loop can handle it.
-- `list()`: enumerates keys with the `adventure:save:` prefix, excludes the autosave key and any `:meta` sidecar keys, returns names.
-- `delete(name)`: removes the save key and its `:meta` sidecar.
+- `write(name, json)`: writes both `adventure:save:<name>` and `adventure:meta:<name>`. Catches `QuotaExceededError`, rethrows as a typed `SaveQuotaError` so the package's existing retry loop can handle it.
+- `list()`: enumerates keys with the `adventure:save:` prefix and returns the substring after the prefix. Because metadata lives under a separate `adventure:meta:` prefix, no filtering of suffixes is needed; any user name (including names containing `:` or ending with `:meta`) is safe.
+- `delete(name)`: removes both `adventure:save:<name>` and `adventure:meta:<name>`.
 
 Plus host-only methods (not part of `SaveStorage`):
 
-- `readAutosave()`, `writeAutosave(json)`, `clearAutosave()` — operate on the reserved key `adventure:autosave`. Autosave is *not* visible to `list()` so the package can't see it via in-game `RESUME`.
+- `readAutosave()`, `writeAutosave(json)`, `clearAutosave()` — operate on `adventure:autosave` and `adventure:autosave-meta`. Autosave is not visible to `list()` so the package can't see it via in-game `RESUME`.
 
-Reserved name validation: when in-game `SAVE` writes, we reject names equal to `[Last session]` (the launcher's display name for the autosave) or starting with `:` to avoid colliding with sidecar suffixes.
+Reserved name validation: when in-game `SAVE` writes, we reject the literal name `[Last session]` (case-sensitive) — the launcher's display name for the autosave row. No other name restrictions are needed because the namespace layout above eliminates structural collisions; the only enforced character cap is the 60-char length limit.
 
 #### Save timestamps
 
-The package's save JSON does not carry a timestamp. We store a sidecar key per save: `adventure:save:<name>:meta` containing `{ "savedAt": <epoch_ms> }`. Written during every `write()` call. `delete()` removes both keys. `list()` ignores sidecar keys (suffix `:meta`). The autosave's metadata key is `adventure:autosave:meta`.
+The package's save JSON does not carry a timestamp. We store a sidecar key per save under the `adventure:meta:` namespace containing `{ "savedAt": <epoch_ms> }`. Written during every `write()` call; removed during `delete()`. The autosave's metadata is at `adventure:autosave-meta` for symmetry.
 
-Rationale: keeps the package format untouched, keeps the meta separate from the engine-validated payload, requires no migration if the engine adds save metadata later.
+Rationale: keeps the package format untouched, keeps the meta separate from the engine-validated payload, requires no migration if the engine adds save metadata later. Using a distinct top-level prefix for metadata (rather than a suffix on the save key) means user-supplied save names can contain any characters without risk of colliding with the metadata namespace.
 
 ### `BrowserGameIO` (`io.ts`)
 
@@ -206,8 +217,8 @@ The game view reads `--bg`, `--fg`, `--fg-muted` directly. The existing `ThemeTo
 - Free-form text from the in-game `SAVE` prompt.
 - Trimmed; empty rejected (package already enforces).
 - Cap at 60 characters (we enforce; package does not).
-- Reject literal `[Last session]` (case-sensitive) and any name starting with `:`.
-- All other characters allowed; the localStorage key is constructed by concatenation, no escaping needed since the prefix is fixed.
+- Reject the literal name `[Last session]` (case-sensitive) — that's the launcher's display label for the autosave row.
+- All other characters allowed. Save data and metadata live in separate top-level namespaces (`adventure:save:` vs `adventure:meta:`), so names containing `:` or ending with `:meta` cannot collide with the metadata key for any other save.
 
 ## Error handling
 
