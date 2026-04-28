@@ -149,11 +149,10 @@ function parseMeta(raw: string | null): SaveMeta | null {
 }
 
 function isQuotaError(err: unknown): boolean {
-  return (
-    ((typeof DOMException !== "undefined" && err instanceof DOMException) ||
-      err instanceof Error) &&
-    (err as { name?: string }).name === "QuotaExceededError"
-  );
+  if (typeof DOMException !== "undefined" && err instanceof DOMException) {
+    return err.name === "QuotaExceededError" || err.code === 22;
+  }
+  return err instanceof Error && err.name === "QuotaExceededError";
 }
 
 /**
