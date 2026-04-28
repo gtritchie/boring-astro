@@ -133,6 +133,18 @@
     outline-offset: 2px;
   }
 
+  /* The browser's UA `[hidden] { display: none }` rule is specificity 0,1,0;
+     our `.adv-input-row { display: flex }` and `.adv-post-game/.adv-error-panel
+     { display: flex }` rules outrank it once Astro scopes them. Re-assert
+     display: none for elements that carry the hidden attribute so the
+     JS-driven visibility toggles (io.readline, showPostGame, showError)
+     remain the source of truth. */
+  .adv-input-row[hidden],
+  .adv-post-game[hidden],
+  .adv-error-panel[hidden] {
+    display: none;
+  }
+
   .adv-sr-only {
     position: absolute;
     width: 1px;
