@@ -111,30 +111,32 @@
     text-align: right;
     padding-right: 0;
   }
-  .adv-saves-table tbody td {
+  /* Dynamic rows: launcher.ts injects <tr>/<td>/<button> at runtime, so these
+     selectors need :global() to escape Astro's per-element scoping. */
+  .adv-saves-table tbody :global(td) {
     padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
     border-bottom: 1px solid var(--border);
     vertical-align: baseline;
   }
-  .adv-saves-table tbody td:last-child {
+  .adv-saves-table tbody :global(td:last-child) {
     padding-right: 0;
     text-align: right;
     white-space: nowrap;
   }
-  .adv-saves-table .name {
+  .adv-saves-table :global(.name) {
     font-weight: 600;
   }
-  .adv-saves-table .score {
+  .adv-saves-table :global(.score) {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  .adv-saves-table .when {
+  .adv-saves-table :global(.when) {
     color: var(--fg-muted);
     font-size: 0.82rem;
     white-space: nowrap;
   }
-  .adv-saves-table .actions button {
+  .adv-saves-table :global(.actions button) {
     margin-left: var(--sp-3);
     color: var(--fg);
     text-decoration: underline;
@@ -145,26 +147,26 @@
     padding: 0;
     font: inherit;
   }
-  .adv-saves-table .actions button:first-child {
+  .adv-saves-table :global(.actions button:first-child) {
     margin-left: 0;
   }
-  .adv-saves-table .actions button.danger {
+  .adv-saves-table :global(.actions button.danger) {
     color: var(--accent);
   }
-  .adv-saves-table .actions button:focus-visible {
+  .adv-saves-table :global(.actions button:focus-visible) {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
-  .adv-saves-table tr.autosave .name {
+  .adv-saves-table :global(tr.autosave .name) {
     font-style: italic;
     color: var(--fg-muted);
     font-weight: 500;
   }
-  .adv-saves-table tr.incompat .name {
+  .adv-saves-table :global(tr.incompat .name) {
     color: var(--fg-muted);
     text-decoration: line-through;
   }
-  .adv-saves-table tr.incompat .loc {
+  .adv-saves-table :global(tr.incompat .loc) {
     color: var(--fg-muted);
   }
 
@@ -182,7 +184,8 @@
 
   /* Phone breakpoint — collapse each row to a 3-line grid that maps the
      existing <td> cells (.name, .score, .loc, .when, .actions) into named
-     areas. No row-builder changes needed; the same DOM renders both ways. */
+     areas. The tr/td selectors are dynamic and need :global(); .adv-saves-table,
+     thead, and tbody are static. */
   @media (max-width: 600px) {
     .adv-saves-table {
       display: block;
@@ -193,7 +196,7 @@
     .adv-saves-table tbody {
       display: block;
     }
-    .adv-saves-table tbody tr {
+    .adv-saves-table tbody :global(tr) {
       display: grid;
       grid-template-columns: auto 1fr auto;
       grid-template-areas:
@@ -205,28 +208,28 @@
       padding: var(--sp-3) 0;
       border-bottom: 1px solid var(--border);
     }
-    .adv-saves-table tbody td {
+    .adv-saves-table tbody :global(td) {
       padding: 0;
       border: 0;
     }
-    .adv-saves-table tbody td.name {
+    .adv-saves-table tbody :global(td.name) {
       grid-area: name;
     }
-    .adv-saves-table tbody td.when {
+    .adv-saves-table tbody :global(td.when) {
       grid-area: when;
       text-align: right;
       font-size: 0.82rem;
     }
-    .adv-saves-table tbody td.score {
+    .adv-saves-table tbody :global(td.score) {
       grid-area: score;
       font-size: 0.82rem;
     }
-    .adv-saves-table tbody td.loc {
+    .adv-saves-table tbody :global(td.loc) {
       grid-area: loc;
       font-size: 0.82rem;
       color: var(--fg-muted);
     }
-    .adv-saves-table tbody td.actions {
+    .adv-saves-table tbody :global(td.actions) {
       grid-area: actions;
       text-align: left;
       margin-top: var(--sp-2);
