@@ -86,7 +86,11 @@ export class LocalStorageSaveStorage implements SaveStorage {
   }
 
   readMeta(name: string): SaveMeta | null {
-    return parseMeta(localStorage.getItem(META_PREFIX + name));
+    try {
+      return parseMeta(localStorage.getItem(META_PREFIX + name));
+    } catch {
+      return null;
+    }
   }
 
   readAutosave(): string | null {
@@ -116,7 +120,11 @@ export class LocalStorageSaveStorage implements SaveStorage {
   }
 
   readAutosaveMeta(): SaveMeta | null {
-    return parseMeta(localStorage.getItem(AUTOSAVE_META_KEY));
+    try {
+      return parseMeta(localStorage.getItem(AUTOSAVE_META_KEY));
+    } catch {
+      return null;
+    }
   }
 }
 
