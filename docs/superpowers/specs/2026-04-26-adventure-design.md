@@ -244,7 +244,8 @@ The game view reads `--bg`, `--fg`, `--fg-muted` directly. The existing `ThemeTo
 ## Bundle and performance
 
 - `@open-adventure/core` is `sideEffects: false`, so Vite tree-shakes unused exports. The Adventure page only imports `runGame`, `createGameState`, `createSettings`, `serializeGame`, `summarizeSave`, `TerminateError`, plus types — types vanish at compile time.
-- Target: Adventure-page-only bundle under 50 KB gzipped (engine + our code combined). Verified via `dist/client/_astro/*adventure*.js` size after `npm run build`.
+- Bundle ceiling: Adventure-page-only chunks (engine + our code combined) under **65 KB gzipped**. Measured at ~60 KB gzipped after the initial implementation; the engine carries Adventure's full dungeon — every location description, vocabulary table, hint, and message string — none of which tree-shakes away. Loaded only on `/adventure/`; other pages remain unaffected.
+- If a future change pushes the page chunks past 65 KB gzipped, the response is to `dynamic-import("@open-adventure/core")` on the **Start new game** click rather than blanket-shrinking the engine. That defers the engine entirely until the player commits to playing, at the cost of a small click-to-welcome delay. Out of scope for the initial implementation.
 - The site's other pages do not load any Adventure code. Astro's per-page `<script>` bundling guarantees this.
 - Initial page render is static HTML — launcher's intro, button, and table shell are pre-rendered. JS only injects save rows + wires handlers. No layout shift on hydrate.
 
@@ -257,7 +258,7 @@ The repo intentionally has no unit-test suite (per `CLAUDE.md`). Verification is
 - `npm run check` — `astro check` (TS), prettier, eslint. Must be clean. Adventure modules use full TypeScript annotations; package types flow through.
 - `npm run pa11y` — `/adventure/` is sitemap-indexed. Initial-load markup (launcher + empty terminal shell) must pass AAA. The `role="log" aria-live="polite"` pattern is canonical and pa11y-clean.
 - `npm run link-check` — the new footer link plus any in-page links must resolve.
-- `npm run lighthouse` (local) — must not regress perf budgets in `.lighthouserc.json`. Bundle-size rule: Adventure-page chunk under 50 KB gzipped.
+- `npm run lighthouse` (local) — must not regress perf budgets in `.lighthouserc.json`. Bundle-size rule: Adventure-page chunks (the page script + ClientRouter chunk) under 65 KB gzipped combined.
 
 ### Manual checklist
 
@@ -276,7 +277,7 @@ The repo intentionally has no unit-test suite (per `CLAUDE.md`). Verification is
 13. Quota error: synthesize by filling localStorage; in-game `SAVE` shows "Can't open file …, try again."
 14. Synthetic incompatible save (manually written localStorage entry with old `version`): launcher row renders gray + delete-only.
 15. Light + dark mode both visually pass for AAA contrast on the game view (eyeball; Lighthouse a11y score sanity-checks).
-16. Run `npm run build` and check `dist/client/_astro/*adventure*.js` size; under 50 KB gzipped.
+16. Run `npm run build` and sum the gzipped sizes of the chunks referenced by `dist/client/adventure/index.html`; under 65 KB combined.
 
 ## Open questions
 

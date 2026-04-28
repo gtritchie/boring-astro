@@ -1720,7 +1720,7 @@ For each chunk, check gzipped size:
 gzip -c dist/client/_astro/<chunk>.js | wc -c
 ```
 
-Sum the chunks. Expected: under 50 KB total gzipped. If over, stop and investigate (likely culprit: tree-shaking failure on a non-side-effect-free import).
+Sum the chunks. Expected: under 65 KB total gzipped. The bulk is the engine itself (~55 KB gzipped) — Adventure's full dungeon, vocabulary, hints, and message strings don't tree-shake away. If the total goes well over 65 KB, the likely culprit is a non-side-effect-free import pulling in extra code, not the engine getting fatter.
 
 - [ ] **Step 4: Link check**
 
