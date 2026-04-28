@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdventureLauncher from "../../components/AdventureLauncher.astro";
+import AdventureTerminal from "../../components/AdventureTerminal.astro";
+---
+
+<BaseLayout
+  title="Adventure"
+  description="Play Colossal Cave Adventure in your browser. Saves stay on your device."
+>
+  <main id="main">
+    <AdventureLauncher />
+    <AdventureTerminal />
+  </main>
+</BaseLayout>
+
+<script>
+  import { bootstrap } from "../../lib/adventure/launcher";
+
+  // ClientRouter swaps body content without reloading the document. Re-run
+  // bootstrap on every page-load so navigating into /adventure/ reinitializes
+  // (mirrors ThemeToggle.astro). Bootstrap is idempotent — safe to call twice.
+  document.addEventListener("astro:page-load", () => {
+    bootstrap();
+  });
+</script>
