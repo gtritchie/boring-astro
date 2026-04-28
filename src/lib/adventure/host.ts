@@ -74,6 +74,9 @@ export class AdventureHost {
   }
 
   private async run(initialSave?: string): Promise<void> {
+    if (this.active) {
+      throw new Error("AdventureHost.run() called while a game is already active.");
+    }
     this.opts.io.reset();
     this.state = createGameState();
     this.active = true;
