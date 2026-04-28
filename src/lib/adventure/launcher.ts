@@ -238,7 +238,9 @@ async function renderSaves(
         buildAutosaveRow(summary, savedAt, {
           onResume: () => {
             showTerminal(dom);
-            void host.resumeAutosave();
+            host.resumeAutosave().catch(() => {
+              showLauncher(dom, storage, host);
+            });
           },
           onClear: () => {
             if (window.confirm("Clear last session? You won't be able to resume it.")) {
@@ -272,7 +274,9 @@ async function renderSaves(
         buildSaveRow(name, summary, savedAt, {
           onResume: () => {
             showTerminal(dom);
-            void host.resume(name);
+            host.resume(name).catch(() => {
+              showLauncher(dom, storage, host);
+            });
           },
           onDelete: () => confirmAndDelete(name, dom, storage, host),
         }),
