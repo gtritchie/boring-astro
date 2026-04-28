@@ -71,6 +71,9 @@ export class BrowserGameIO implements GameIO {
 
   /** Wipe transcript and reset state. Called when starting/resuming a game. */
   reset(): void {
+    // Cancel any pending readline so the previous game's submit listener and
+    // promise don't leak into the new session.
+    this.cancel();
     this.opts.outputEl.replaceChildren();
     this.opts.inputEl.value = "";
     this.opts.inputRowEl.hidden = true;
