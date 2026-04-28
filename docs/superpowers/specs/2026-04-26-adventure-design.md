@@ -8,7 +8,7 @@
 
 ## Summary
 
-A new `/adventure/` page on boringbydesign.ca hosts an in-browser port of *Colossal Cave Adventure*. The game engine is `@open-adventure/core` — Gary's TypeScript port of the public-domain Crowther & Woods code, packaged for distribution. The site embeds the engine, supplies a browser-side `GameIO` and `SaveStorage`, and presents a small launcher UI for starting new games and resuming saves. Saved games persist in `localStorage`; nothing executes server-side.
+A new `/adventure/` page on boringbydesign.ca hosts an in-browser port of _Colossal Cave Adventure_. The game engine is `@open-adventure/core` — Gary's TypeScript port of the public-domain Crowther & Woods code, packaged for distribution. The site embeds the engine, supplies a browser-side `GameIO` and `SaveStorage`, and presents a small launcher UI for starting new games and resuming saves. Saved games persist in `localStorage`; nothing executes server-side.
 
 A new **Adventure** link in the site footer (immediately to the left of the existing **Toolkit** link) is the entry point.
 
@@ -82,12 +82,12 @@ Implements the package's `SaveStorage`:
 
 Storage keys live in four distinct top-level namespaces so user-supplied names cannot collide with metadata keys regardless of what characters they contain:
 
-| Key | Contents |
-|---|---|
-| `adventure:save:<name>` | User-save JSON payload |
-| `adventure:meta:<name>` | User-save metadata (sidecar — see "Save timestamps") |
-| `adventure:autosave` | Autosave JSON payload |
-| `adventure:autosave-meta` | Autosave metadata |
+| Key                       | Contents                                             |
+| ------------------------- | ---------------------------------------------------- |
+| `adventure:save:<name>`   | User-save JSON payload                               |
+| `adventure:meta:<name>`   | User-save metadata (sidecar — see "Save timestamps") |
+| `adventure:autosave`      | Autosave JSON payload                                |
+| `adventure:autosave-meta` | Autosave metadata                                    |
 
 Methods:
 
@@ -202,15 +202,15 @@ The game view reads `--bg`, `--fg`, `--fg-muted` directly. The existing `ThemeTo
 
 ## Save lifecycle
 
-| Event | Storage call | UX |
-|---|---|---|
-| In-game `SAVE` (player-typed) | `storage.write(name, json)` | Silent overwrite; package terminates; host returns to launcher silently |
-| In-game `RESUME` | `storage.read(name)` | Standard package flow; bad / missing → package's existing message |
-| Per-turn autosave | `storage.writeAutosave(json)` | Invisible; runs after every `readline` |
-| Navigation away mid-game | `storage.writeAutosave(json)` | Synchronous on `astro:before-preparation` / `pagehide` |
-| Launcher Resume | `storage.read(name)` → `runGame({ initialSave })` | If `compatible === false`, button is disabled and row is grayed out |
-| Launcher Delete | `storage.delete(name)` after confirm | Row removed |
-| Launcher Clear last session | `storage.clearAutosave()` after confirm | Autosave row removed |
+| Event                         | Storage call                                      | UX                                                                      |
+| ----------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------- |
+| In-game `SAVE` (player-typed) | `storage.write(name, json)`                       | Silent overwrite; package terminates; host returns to launcher silently |
+| In-game `RESUME`              | `storage.read(name)`                              | Standard package flow; bad / missing → package's existing message       |
+| Per-turn autosave             | `storage.writeAutosave(json)`                     | Invisible; runs after every `readline`                                  |
+| Navigation away mid-game      | `storage.writeAutosave(json)`                     | Synchronous on `astro:before-preparation` / `pagehide`                  |
+| Launcher Resume               | `storage.read(name)` → `runGame({ initialSave })` | If `compatible === false`, button is disabled and row is grayed out     |
+| Launcher Delete               | `storage.delete(name)` after confirm              | Row removed                                                             |
+| Launcher Clear last session   | `storage.clearAutosave()` after confirm           | Autosave row removed                                                    |
 
 ### Naming rules
 
@@ -222,14 +222,14 @@ The game view reads `--bg`, `--fg`, `--fg-muted` directly. The existing `ThemeTo
 
 ## Error handling
 
-| Source | Handling |
-|---|---|
-| Package throws non-`TerminateError` | Host catches; replaces input row with error panel (message + collapsed details); preserves autosave; offers **Back to launcher**; no silent `console.error` |
-| `QuotaExceededError` during in-game `SAVE` | Wrapped as `SaveQuotaError`; package's existing `try { write } catch { print "Can't open file …, try again." }` loop handles it |
-| `QuotaExceededError` during autosave | `console.warn` only; player not blocked |
+| Source                                       | Handling                                                                                                                                                                                                   |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package throws non-`TerminateError`          | Host catches; replaces input row with error panel (message + collapsed details); preserves autosave; offers **Back to launcher**; no silent `console.error`                                                |
+| `QuotaExceededError` during in-game `SAVE`   | Wrapped as `SaveQuotaError`; package's existing `try { write } catch { print "Can't open file …, try again." }` loop handles it                                                                            |
+| `QuotaExceededError` during autosave         | `console.warn` only; player not blocked                                                                                                                                                                    |
 | Resume of corrupt save (bad JSON, tampering) | Package's `restore()` returns `RestoreResult` with reason; package emits its `BAD_SAVE` message and continues from initial state (its documented browser behavior). Launcher row stays — player can delete |
-| Resume of incompatible save | `summarizeSave()` returns `compatible: false`; launcher never offers Resume; row shows delete-only |
-| `localStorage` unavailable | Launcher banner; play allowed without save; in-game `SAVE` prints unavailability message |
+| Resume of incompatible save                  | `summarizeSave()` returns `compatible: false`; launcher never offers Resume; row shows delete-only                                                                                                         |
+| `localStorage` unavailable                   | Launcher banner; play allowed without save; in-game `SAVE` prints unavailability message                                                                                                                   |
 
 ## Lifecycle and navigation
 

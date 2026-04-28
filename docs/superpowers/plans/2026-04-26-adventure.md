@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a `/adventure/` page that hosts an in-browser port of *Colossal Cave Adventure*, powered by the published `@open-adventure/core` package, with `localStorage`-backed save/restore and a launcher UI. Add an **Adventure** entry to the site footer.
+**Goal:** Add a `/adventure/` page that hosts an in-browser port of _Colossal Cave Adventure_, powered by the published `@open-adventure/core` package, with `localStorage`-backed save/restore and a launcher UI. Add an **Adventure** entry to the site footer.
 
 **Architecture:** The page renders a static launcher shell (intro, "Start new game" CTA, saves table) and a hidden game-view shell (output region, input form, post-game action bar). A page-scoped client script wires both up: a `LocalStorageSaveStorage` implements the package's `SaveStorage` interface; a `BrowserGameIO` implements `GameIO`; an `AdventureHost` orchestrates `runGame()` calls, autosave-on-navigation, and post-exit UX. No additional UI framework — vanilla TS + DOM.
 
@@ -11,6 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-04-26-adventure-design.md`
 
 **Project conventions worth knowing before starting:**
+
 - Repo intentionally has no unit-test suite (per `CLAUDE.md`). Verification is `npm run check` (astro check + prettier + eslint), `npm run pa11y` against the sitemap, `npm run link-check`, plus a manual smoke checklist. Do not introduce vitest just for this feature.
 - Branch: this plan was prepared on `adventure-design-spec`. The implementation should land on the same branch (or a child of it). Never commit to `main`.
 - Astro static output: build artifacts live under `dist/client/` (not `dist/`).
@@ -22,18 +23,18 @@
 
 ## File Structure
 
-| Path | Purpose |
-|---|---|
-| `package.json` | Add `@open-adventure/core` dependency |
-| `src/lib/adventure/format.ts` | Pure formatting helpers (relative time, score, summary-row mapping) |
-| `src/lib/adventure/storage.ts` | `LocalStorageSaveStorage` (implements package `SaveStorage`); namespace constants; quota error type |
-| `src/lib/adventure/io.ts` | `BrowserGameIO` (implements package `GameIO`); DOM-bound print/readline |
-| `src/lib/adventure/host.ts` | `AdventureHost` orchestrator; nav-handler registration; exit-reason classification |
-| `src/lib/adventure/launcher.ts` | DOM bootstrap; saves-table render; row action wiring; mount/unmount of game view |
-| `src/components/AdventureLauncher.astro` | Static markup for launcher (intro, button, table shell, storage banner) |
-| `src/components/AdventureTerminal.astro` | Static markup for game view (output, input form, post-game bar, error panel) |
-| `src/pages/adventure/index.astro` | Page shell using `BaseLayout`; imports both components; embeds bootstrap `<script>` |
-| `src/components/SiteFooter.astro` | Add `Adventure` link before `Toolkit` |
+| Path                                     | Purpose                                                                                             |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `package.json`                           | Add `@open-adventure/core` dependency                                                               |
+| `src/lib/adventure/format.ts`            | Pure formatting helpers (relative time, score, summary-row mapping)                                 |
+| `src/lib/adventure/storage.ts`           | `LocalStorageSaveStorage` (implements package `SaveStorage`); namespace constants; quota error type |
+| `src/lib/adventure/io.ts`                | `BrowserGameIO` (implements package `GameIO`); DOM-bound print/readline                             |
+| `src/lib/adventure/host.ts`              | `AdventureHost` orchestrator; nav-handler registration; exit-reason classification                  |
+| `src/lib/adventure/launcher.ts`          | DOM bootstrap; saves-table render; row action wiring; mount/unmount of game view                    |
+| `src/components/AdventureLauncher.astro` | Static markup for launcher (intro, button, table shell, storage banner)                             |
+| `src/components/AdventureTerminal.astro` | Static markup for game view (output, input form, post-game bar, error panel)                        |
+| `src/pages/adventure/index.astro`        | Page shell using `BaseLayout`; imports both components; embeds bootstrap `<script>`                 |
+| `src/components/SiteFooter.astro`        | Add `Adventure` link before `Toolkit`                                                               |
 
 No new top-level dependencies beyond `@open-adventure/core`.
 
@@ -42,6 +43,7 @@ No new top-level dependencies beyond `@open-adventure/core`.
 ## Task 1: Add `@open-adventure/core` dependency
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `package-lock.json` (auto)
 
@@ -79,6 +81,7 @@ git commit -m "Add @open-adventure/core dependency"
 ## Task 2: Pure formatting helpers (`format.ts`)
 
 **Files:**
+
 - Create: `src/lib/adventure/format.ts`
 
 - [ ] **Step 1: Create the file**
@@ -146,6 +149,7 @@ git commit -m "Add adventure formatting helpers"
 ## Task 3: `LocalStorageSaveStorage` (`storage.ts`)
 
 **Files:**
+
 - Create: `src/lib/adventure/storage.ts`
 
 This implements the package's `SaveStorage` interface plus host-only autosave methods. Per the spec, save data lives at `adventure:save:<name>` and metadata at `adventure:meta:<name>` — distinct top-level prefixes so user names cannot collide with metadata keys.
@@ -339,11 +343,11 @@ Run: `npm run dev` (in another terminal). Open `http://localhost:4321/`. In DevT
 const m = await import("/src/lib/adventure/storage.ts");
 const s = new m.LocalStorageSaveStorage();
 await s.write("smoke", JSON.stringify({ hello: "world" }));
-console.log(await s.list());            // ["smoke"]
-console.log(await s.read("smoke"));     // '{"hello":"world"}'
-console.log(s.readMeta("smoke"));       // { savedAt: <epoch> }
+console.log(await s.list()); // ["smoke"]
+console.log(await s.read("smoke")); // '{"hello":"world"}'
+console.log(s.readMeta("smoke")); // { savedAt: <epoch> }
 await s.delete("smoke");
-console.log(await s.list());            // []
+console.log(await s.list()); // []
 ```
 
 Expected: each line prints the indicated value; no errors. Then clean up: stop the dev server.
@@ -360,6 +364,7 @@ git commit -m "Add LocalStorageSaveStorage with separate save/meta namespaces"
 ## Task 4: `BrowserGameIO` (`io.ts`)
 
 **Files:**
+
 - Create: `src/lib/adventure/io.ts`
 
 The IO is constructed with element references and an optional `onBeforeReadline` hook (used by the host for autosave). `print` appends text nodes (preserving newlines via `white-space: pre-wrap` in CSS); `readline` shows the prompt, focuses the input, and resolves a Promise on form submit.
@@ -485,6 +490,7 @@ git commit -m "Add BrowserGameIO for the adventure terminal"
 ## Task 5: `AdventureHost` orchestrator (`host.ts`)
 
 **Files:**
+
 - Create: `src/lib/adventure/host.ts`
 
 The host owns one game session at a time. It calls `runGame()`, registers navigation handlers (so the game autosaves and cancels cleanly when the player leaves), and classifies the exit reason for the launcher.
@@ -493,12 +499,7 @@ The host owns one game session at a time. It calls `runGame()`, registers naviga
 
 ```ts
 // src/lib/adventure/host.ts
-import {
-  runGame,
-  createGameState,
-  serializeGame,
-  type GameState,
-} from "@open-adventure/core";
+import { runGame, createGameState, serializeGame, type GameState } from "@open-adventure/core";
 import type { BrowserGameIO } from "./io.js";
 import type { LocalStorageSaveStorage } from "./storage.js";
 
@@ -644,6 +645,7 @@ git commit -m "Add AdventureHost orchestrator with autosave-on-navigation"
 ## Task 6: Launcher static markup (`AdventureLauncher.astro`)
 
 **Files:**
+
 - Create: `src/components/AdventureLauncher.astro`
 
 Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility. Element IDs are stable so `launcher.ts` can find them. Includes the empty-state and storage-unavailable banner up-front (both `hidden` by default).
@@ -658,8 +660,8 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
 <section id="adventure-launcher" class="adv-launcher" aria-labelledby="adv-launcher-h1">
   <h1 id="adv-launcher-h1">Adventure</h1>
   <p class="adv-intro">
-    A browser port of <em>Colossal Cave Adventure</em> — Crowther &amp; Woods's 1977 text adventure,
-    the original of its kind. Runs entirely in your browser; saves stay on this device.
+    A browser port of <em>Colossal Cave Adventure</em> — Crowther &amp; Woods's 1977 text adventure, the
+    original of its kind. Runs entirely in your browser; saves stay on this device.
   </p>
 
   <div id="adv-storage-banner" class="adv-banner" hidden>
@@ -774,7 +776,9 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
     text-align: right;
     white-space: nowrap;
   }
-  .adv-saves-table .name { font-weight: 600; }
+  .adv-saves-table .name {
+    font-weight: 600;
+  }
   .adv-saves-table .score {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
@@ -796,8 +800,12 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
     padding: 0;
     font: inherit;
   }
-  .adv-saves-table .actions button:first-child { margin-left: 0; }
-  .adv-saves-table .actions button.danger { color: var(--accent); }
+  .adv-saves-table .actions button:first-child {
+    margin-left: 0;
+  }
+  .adv-saves-table .actions button.danger {
+    color: var(--accent);
+  }
   .adv-saves-table .actions button:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
@@ -831,9 +839,15 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
      existing <td> cells (.name, .score, .loc, .when, .actions) into named
      areas. No row-builder changes needed; the same DOM renders both ways. */
   @media (max-width: 600px) {
-    .adv-saves-table { display: block; }
-    .adv-saves-table thead { display: none; }
-    .adv-saves-table tbody { display: block; }
+    .adv-saves-table {
+      display: block;
+    }
+    .adv-saves-table thead {
+      display: none;
+    }
+    .adv-saves-table tbody {
+      display: block;
+    }
     .adv-saves-table tbody tr {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -850,7 +864,9 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
       padding: 0;
       border: 0;
     }
-    .adv-saves-table tbody td.name { grid-area: name; }
+    .adv-saves-table tbody td.name {
+      grid-area: name;
+    }
     .adv-saves-table tbody td.when {
       grid-area: when;
       text-align: right;
@@ -891,6 +907,7 @@ git commit -m "Add AdventureLauncher static markup and styles"
 ## Task 7: Terminal static markup (`AdventureTerminal.astro`)
 
 **Files:**
+
 - Create: `src/components/AdventureTerminal.astro`
 
 The terminal is hidden by default. Output region uses `role="log" aria-live="polite"` so screen readers announce each `print()` call. Input has all autocorrect/autocapitalize/spellcheck disabled — text adventures fight these viciously. Post-game action bar and error panel both live in the markup, hidden until needed.
@@ -979,7 +996,9 @@ The terminal is hidden by default. Output region uses `role="log" aria-live="pol
     caret-color: var(--fg);
     min-width: 0;
   }
-  .adv-input:focus { outline: none; }
+  .adv-input:focus {
+    outline: none;
+  }
 
   .adv-output .adv-transcript-line {
     /* Player's submitted line — visually identical to package output. */
@@ -1022,7 +1041,9 @@ The terminal is hidden by default. Output region uses `role="log" aria-live="pol
     cursor: pointer;
   }
   .adv-post-game button:hover,
-  .adv-error-panel button:hover { background: var(--border); }
+  .adv-error-panel button:hover {
+    background: var(--border);
+  }
   .adv-post-game button:focus-visible,
   .adv-error-panel button:focus-visible {
     outline: 2px solid var(--focus-ring);
@@ -1060,6 +1081,7 @@ git commit -m "Add AdventureTerminal static markup and styles"
 ## Task 8: Launcher logic (`launcher.ts`)
 
 **Files:**
+
 - Create: `src/lib/adventure/launcher.ts`
 
 Bootstraps the launcher on page load: collects DOM references, instantiates storage / IO / host, renders the saves table, wires button handlers, mounts/unmounts the terminal in response to host exit reasons.
@@ -1188,17 +1210,45 @@ function collectDOM(): DOM | null {
   const errorBackBtn = $<HTMLButtonElement>("adv-error-back");
 
   if (
-    !launcherEl || !terminalEl || !startBtn || !savesSection || !savesEmpty ||
-    !savesTbody || !storageBanner || !outputEl || !inputEl || !formEl ||
-    !promptEl || !inputRowEl || !postGame || !backToLauncherBtn ||
-    !newGameBtn || !errorPanel || !errorMessage || !errorBackBtn
+    !launcherEl ||
+    !terminalEl ||
+    !startBtn ||
+    !savesSection ||
+    !savesEmpty ||
+    !savesTbody ||
+    !storageBanner ||
+    !outputEl ||
+    !inputEl ||
+    !formEl ||
+    !promptEl ||
+    !inputRowEl ||
+    !postGame ||
+    !backToLauncherBtn ||
+    !newGameBtn ||
+    !errorPanel ||
+    !errorMessage ||
+    !errorBackBtn
   ) {
     return null;
   }
   return {
-    launcherEl, terminalEl, startBtn, savesSection, savesEmpty, savesTbody,
-    storageBanner, outputEl, inputEl, formEl, promptEl, inputRowEl,
-    postGame, backToLauncherBtn, newGameBtn, errorPanel, errorMessage,
+    launcherEl,
+    terminalEl,
+    startBtn,
+    savesSection,
+    savesEmpty,
+    savesTbody,
+    storageBanner,
+    outputEl,
+    inputEl,
+    formEl,
+    promptEl,
+    inputRowEl,
+    postGame,
+    backToLauncherBtn,
+    newGameBtn,
+    errorPanel,
+    errorMessage,
     errorBackBtn,
   };
 }
@@ -1273,30 +1323,34 @@ async function renderSaves(
     const savedAt = meta?.savedAt ?? Date.now();
     if (isError(summary) || !summary.compatible) {
       // Even a stale/incompatible autosave deserves a Clear option.
-      dom.savesTbody.appendChild(buildAutosaveCorruptRow(savedAt, () => {
-        if (window.confirm("Clear last session? You won't be able to resume it.")) {
-          storage.clearAutosave();
-          void renderSaves(dom, storage, null);
-        }
-      }));
-    } else {
-      dom.savesTbody.appendChild(buildAutosaveRow(summary, savedAt, {
-        onResume: () => {
-          showTerminal(dom);
-          // host is created fresh per bootstrap; resume via stored data.
-          const data = storage.readAutosave();
-          if (data === null) return;
-          // Closure capture: the outer bootstrap created exactly one host.
-          // Reach it via the document — simpler, since we don't have it here.
-          dispatchAdventureCommand("resume-autosave");
-        },
-        onClear: () => {
+      dom.savesTbody.appendChild(
+        buildAutosaveCorruptRow(savedAt, () => {
           if (window.confirm("Clear last session? You won't be able to resume it.")) {
             storage.clearAutosave();
             void renderSaves(dom, storage, null);
           }
-        },
-      }));
+        }),
+      );
+    } else {
+      dom.savesTbody.appendChild(
+        buildAutosaveRow(summary, savedAt, {
+          onResume: () => {
+            showTerminal(dom);
+            // host is created fresh per bootstrap; resume via stored data.
+            const data = storage.readAutosave();
+            if (data === null) return;
+            // Closure capture: the outer bootstrap created exactly one host.
+            // Reach it via the document — simpler, since we don't have it here.
+            dispatchAdventureCommand("resume-autosave");
+          },
+          onClear: () => {
+            if (window.confirm("Clear last session? You won't be able to resume it.")) {
+              storage.clearAutosave();
+              void renderSaves(dom, storage, null);
+            }
+          },
+        }),
+      );
     }
     count++;
   }
@@ -1311,21 +1365,27 @@ async function renderSaves(
     const meta = storage.readMeta(name);
     const savedAt = meta?.savedAt ?? Date.now();
     if (isError(summary)) {
-      dom.savesTbody.appendChild(buildIncompatRow(name, savedAt, () => {
-        confirmAndDelete(name, dom, storage);
-      }));
+      dom.savesTbody.appendChild(
+        buildIncompatRow(name, savedAt, () => {
+          confirmAndDelete(name, dom, storage);
+        }),
+      );
     } else if (!summary.compatible) {
-      dom.savesTbody.appendChild(buildIncompatRow(name, savedAt, () => {
-        confirmAndDelete(name, dom, storage);
-      }));
+      dom.savesTbody.appendChild(
+        buildIncompatRow(name, savedAt, () => {
+          confirmAndDelete(name, dom, storage);
+        }),
+      );
     } else {
-      dom.savesTbody.appendChild(buildSaveRow(name, summary, savedAt, {
-        onResume: () => {
-          showTerminal(dom);
-          dispatchAdventureCommand("resume", name);
-        },
-        onDelete: () => confirmAndDelete(name, dom, storage),
-      }));
+      dom.savesTbody.appendChild(
+        buildSaveRow(name, summary, savedAt, {
+          onResume: () => {
+            showTerminal(dom);
+            dispatchAdventureCommand("resume", name);
+          },
+          onDelete: () => confirmAndDelete(name, dom, storage),
+        }),
+      );
     }
     count++;
   }
@@ -1334,11 +1394,7 @@ async function renderSaves(
   dom.savesEmpty.hidden = count !== 0;
 }
 
-function confirmAndDelete(
-  name: string,
-  dom: DOM,
-  storage: LocalStorageSaveStorage,
-): void {
+function confirmAndDelete(name: string, dom: DOM, storage: LocalStorageSaveStorage): void {
   if (!window.confirm(`Delete '${name}'? This cannot be undone.`)) return;
   void storage.delete(name).then(() => renderSaves(dom, storage, null));
 }
@@ -1389,10 +1445,7 @@ function buildAutosaveRow(
   return tr;
 }
 
-function buildAutosaveCorruptRow(
-  savedAt: number,
-  onClear: () => void,
-): HTMLTableRowElement {
+function buildAutosaveCorruptRow(savedAt: number, onClear: () => void): HTMLTableRowElement {
   const tr = document.createElement("tr");
   tr.classList.add("autosave", "incompat");
   tr.appendChild(td("name", AUTOSAVE_DISPLAY_NAME));
@@ -1463,26 +1516,26 @@ Cleaner approach: build IO first, then host (host already takes IO in its option
 ```ts
 // In src/lib/adventure/launcher.ts — replace the construction block:
 
-  const storage = new LocalStorageSaveStorage();
+const storage = new LocalStorageSaveStorage();
 
-  // Forward declaration via a holder; the closure reads .ref at call time.
-  const hostRef: { current: AdventureHost | null } = { current: null };
+// Forward declaration via a holder; the closure reads .ref at call time.
+const hostRef: { current: AdventureHost | null } = { current: null };
 
-  const io = new BrowserGameIO({
-    outputEl: dom.outputEl,
-    inputEl: dom.inputEl,
-    formEl: dom.formEl,
-    promptEl: dom.promptEl,
-    inputRowEl: dom.inputRowEl,
-    onBeforeReadline: () => hostRef.current?.snapshotAutosave(),
-  });
+const io = new BrowserGameIO({
+  outputEl: dom.outputEl,
+  inputEl: dom.inputEl,
+  formEl: dom.formEl,
+  promptEl: dom.promptEl,
+  inputRowEl: dom.inputRowEl,
+  onBeforeReadline: () => hostRef.current?.snapshotAutosave(),
+});
 
-  const host = new AdventureHost({
-    io,
-    storage,
-    onExit: (reason, error) => onExit(dom, reason, error, storage),
-  });
-  hostRef.current = host;
+const host = new AdventureHost({
+  io,
+  storage,
+  onExit: (reason, error) => onExit(dom, reason, error, storage),
+});
+hostRef.current = host;
 ```
 
 And replace the `dispatchAdventureCommand` mechanism with direct closures that capture `host`. Pass `host` into `renderSaves` and into the row builders' `onResume` handlers. Remove the custom-event indirection entirely.
@@ -1530,6 +1583,7 @@ git commit -m "Add adventure launcher logic with save list rendering"
 ## Task 9: Adventure page (`/adventure/index.astro`)
 
 **Files:**
+
 - Create: `src/pages/adventure/index.astro`
 
 The page imports both components, embeds a client-side `<script>` that calls `bootstrap()` on every `astro:page-load` (mirrors `ThemeToggle.astro`'s pattern for ClientRouter survival), and uses `BaseLayout`.
@@ -1575,6 +1629,7 @@ Expected: passes.
 Run: `npm run dev` (in another terminal). Visit `http://localhost:4321/adventure/`.
 
 Checks:
+
 - Launcher renders with H1 "Adventure", intro paragraph, "Start new game" button.
 - "No saved games yet." message appears.
 - Click "Start new game" — terminal appears; the package's welcome flow runs ("Welcome to Adventure!! …", asks if you want instructions).
@@ -1596,6 +1651,7 @@ git commit -m "Add /adventure/ page wiring launcher and terminal"
 ## Task 10: Footer link
 
 **Files:**
+
 - Modify: `src/components/SiteFooter.astro:11-16` (the secondary nav `<ul>`)
 
 - [ ] **Step 1: Add the Adventure entry before Toolkit**
@@ -1603,13 +1659,13 @@ git commit -m "Add /adventure/ page wiring launcher and terminal"
 Replace the secondary-nav `<ul>` block in `src/components/SiteFooter.astro`:
 
 ```astro
-        <ul>
-          <li><a href="/adventure/">Adventure</a></li>
-          <li><a href="/uses/">Toolkit</a></li>
-          <li><a href="/reading/">Reading</a></li>
-          <li><ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink></li>
-          <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
-        </ul>
+<ul>
+  <li><a href="/adventure/">Adventure</a></li>
+  <li><a href="/uses/">Toolkit</a></li>
+  <li><a href="/reading/">Reading</a></li>
+  <li><ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink></li>
+  <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
+</ul>
 ```
 
 - [ ] **Step 2: Type-check and lint**
@@ -1728,9 +1784,15 @@ Run `npm run dev`. Open DevTools console.
    Clean up: `for (let i = 0; i < 10000; i++) localStorage.removeItem("__pad__" + i);`
 2. **Synthetic incompatible save.** Create a save with a wrong version:
    ```js
-   localStorage.setItem("adventure:save:bad-version", JSON.stringify({
-     magic: "open-adventure\n", canary: 2317, version: 1, game: {}
-   }));
+   localStorage.setItem(
+     "adventure:save:bad-version",
+     JSON.stringify({
+       magic: "open-adventure\n",
+       canary: 2317,
+       version: 1,
+       game: {},
+     }),
+   );
    localStorage.setItem("adventure:meta:bad-version", JSON.stringify({ savedAt: Date.now() }));
    ```
    Reload `/adventure/`. The `bad-version` row renders gray, with "Save format outdated", and only a **Delete** action.
@@ -1758,6 +1820,7 @@ git status   # confirm clean
 I checked the spec against this plan with fresh eyes:
 
 **Spec coverage check:**
+
 - Goals (footer entry, all-client, package unmodified, autosave, AAA): tasks 10, 1–9, all use the package via its public API, host registers nav handlers (5), styles use tokens (6, 7).
 - Non-goals (no multi-tab, no server, no SW, no xterm.js, no save-format changes): plan doesn't introduce any of those.
 - Package consumption: task 1.
@@ -1777,6 +1840,7 @@ I checked the spec against this plan with fresh eyes:
 **Placeholder scan:** No "TBD", no "implement later", no "appropriate error handling" — all code is complete. The one place the plan asks the engineer to "investigate" is task 11 step 3 if bundle size exceeds budget, which is a real fork in the road, not a placeholder.
 
 **Type/name consistency:**
+
 - `LocalStorageSaveStorage` used in tasks 3, 5, 8 ✓
 - `BrowserGameIO` used in tasks 4, 5, 8 ✓
 - `AdventureHost` exposed methods (`startNew`, `resume`, `resumeAutosave`, `cancel`, `snapshotAutosave`, `isActive`) used consistently in tasks 5, 8 ✓
