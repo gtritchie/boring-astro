@@ -150,7 +150,14 @@ function parseMeta(raw: string | null): SaveMeta | null {
 
 function isQuotaError(err: unknown): boolean {
   if (typeof DOMException !== "undefined" && err instanceof DOMException) {
-    return err.name === "QuotaExceededError" || err.code === 22;
+    if (err.name === "QuotaExceededError") return true;
+    // Older Safari and historical Firefox throw quota errors without setting
+    // `name`; they only expose the legacy numeric DOMException.code (22).
+    // `code` is marked @deprecated on lib.dom's DOMException, but it's the
+    // only signal those engines provide, so read it via a structural cast
+    // to avoid the deprecation hint.
+    const legacyCode = (err as unknown as { code?: number }).code;
+    return legacyCode === 22;
   }
   return err instanceof Error && err.name === "QuotaExceededError";
 }
