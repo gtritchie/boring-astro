@@ -31,7 +31,25 @@ export class BrowserGameIO implements GameIO {
   async readline(prompt: string): Promise<string | null> {
     this.opts.onBeforeReadline?.();
     this.lastPrompt = prompt;
-    this.opts.promptEl.textContent = prompt;
+
+    // The package's SAVE/RESUME prompts use a leading "\n" (e.g.
+    // "\nFile name: ") to put a blank line above the prompt — natural CLI
+    // behavior. Embedded in our prompt span (white-space: pre), that newline
+    // makes the span two visual lines tall and `align-items: baseline` on the
+    // flex input row aligns the single-line input to the prompt's first
+    // (empty) baseline, putting the input row above the visible prompt text.
+    // Strip leading newlines off the visible prompt and emit them as their
+    // own text node in the output region; the transcript still shows the
+    // blank line, and the input row baseline-aligns to "File name: " correctly.
+    let i = 0;
+    while (i < prompt.length && prompt[i] === "\n") i++;
+    const leadingNewlines = prompt.slice(0, i);
+    const visiblePrompt = prompt.slice(i);
+    if (leadingNewlines.length > 0) {
+      this.opts.outputEl.appendChild(document.createTextNode(leadingNewlines));
+    }
+
+    this.opts.promptEl.textContent = visiblePrompt;
     this.opts.inputRowEl.hidden = false;
     this.opts.inputEl.focus();
     this.scrollIntoView();
@@ -43,7 +61,7 @@ export class BrowserGameIO implements GameIO {
         const value = this.opts.inputEl.value;
         this.opts.inputEl.value = "";
         this.opts.inputRowEl.hidden = true;
-        this.appendTranscript(prompt, value);
+        this.appendTranscript(visiblePrompt, value);
         this.scrollIntoView();
         resolve(value);
       };
