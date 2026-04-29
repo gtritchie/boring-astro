@@ -161,14 +161,16 @@
   }
 
   /* On viewports too narrow for the engine's 70-column hard wrap at the
-     default 1rem font, scale the font and shrink padding so 70 chars fit.
-     Aimed at iPhone SE landscape (667×375); larger phones are unaffected.
-     Phones in portrait still can't fit 70ch — see the rotate-to-landscape
-     hint in AdventureLauncher.astro. */
+     default 1rem font, scale the font and shrink padding so 70 chars fit
+     with breathing room. Note: site root font-size is 18px (per
+     global.css), so 0.8rem ≈ 14.4px → ~73 chars fit at iPhone SE
+     landscape (667 wide) with --sp-4 padding. Phones in portrait still
+     can't fit 70ch — see the rotate-to-landscape hint in
+     AdventureLauncher.astro. */
   @media (max-width: 720px) {
     .adv-terminal {
       padding: var(--sp-4);
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
   }
 </style>
