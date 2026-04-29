@@ -13,6 +13,8 @@
     Your browser blocks local storage; saves won't persist this session.
   </div>
 
+  <p class="adv-rotate-hint">Tip: rotate your device to landscape for a cleaner game view.</p>
+
   <button id="adv-start-new" class="adv-cta" type="button">Start new game</button>
 
   <section id="adv-saves-section" class="adv-saves" aria-labelledby="adv-saves-h2" hidden>
@@ -57,6 +59,23 @@
     margin: 0 0 var(--sp-5);
     font-size: var(--fs-sm);
   }
+  /* Hidden by default; only shown on touch devices in narrow portrait — the
+     only case where rotating to landscape actually helps the engine's 70-col
+     wrap fit. Desktop browsers narrowed to a small width don't trigger because
+     `pointer: coarse` requires a touch primary input. */
+  .adv-rotate-hint {
+    display: none;
+    color: var(--fg-muted);
+    font-size: var(--fs-sm);
+    font-style: italic;
+    margin: 0 0 var(--sp-5);
+  }
+  @media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
+    .adv-rotate-hint {
+      display: block;
+    }
+  }
+
   .adv-cta {
     background: var(--fg);
     color: var(--bg);
