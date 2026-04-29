@@ -40,7 +40,10 @@
 
 <style>
   .adv-terminal {
-    max-width: var(--reading-width);
+    /* The engine hard-wraps output at 70 columns; the inner content area
+       must fit 70 monospace chars or the browser will re-wrap each line.
+       border-box is set globally, so add the horizontal padding back in. */
+    max-width: calc(70ch + var(--sp-6) * 2);
     margin: 0 auto;
     padding: var(--sp-6);
     font-family: var(--font-mono);
