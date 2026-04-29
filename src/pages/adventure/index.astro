@@ -14,6 +14,20 @@ import AdventureTerminal from "../../components/AdventureTerminal.astro";
   </main>
 </BaseLayout>
 
+<style>
+  /* The global `main { max-width: var(--page-width) }` rule caps content at
+     72ch measured in sans-serif (~720px at 18px). The terminal's own
+     calc(70ch + var(--sp-6) * 2) is in monospace (~810px), and 70 mono chars
+     don't fit in the parent's 720px once padding is subtracted — the engine's
+     hard-wrapped lines get browser-rewrapped. Remove the horizontal cap on
+     this page and let AdventureLauncher / AdventureTerminal impose their own
+     widths; vertical padding stays for breathing room. */
+  main {
+    max-width: none;
+    padding: var(--sp-8) 0;
+  }
+</style>
+
 <script>
   import { bootstrap } from "../../lib/adventure/launcher";
 
