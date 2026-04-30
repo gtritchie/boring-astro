@@ -44,7 +44,7 @@ terminal.
 ## Website
 
 With the core package in hand (during which I learned all about publishing npm packages), and the
-"boring by design" philosophy, I created a hosted version of the game on this site.  It remains
+"boring by design" philosophy, I created a hosted version of the game on this site. It remains
 faithful to the original and all text is for a fixed 70-column layout, but it should work on any
 reasonably current device (I tested down to an iPhone SE in landscape mode dimensions).
 
