@@ -4,7 +4,7 @@ summary: My personal website, built with Astro
 status: active
 startedAt: 2026-04-23
 tags: [Astro, TypeScript, HTML, CSS, Markdown, Personal]
-featured: true
+featured: false
 links:
   repo: https://github.com/gtritchie/boring-astro
 ---
