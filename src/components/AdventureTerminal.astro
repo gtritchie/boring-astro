@@ -1,0 +1,176 @@
+---
+// src/components/AdventureTerminal.astro
+---
+
+<section id="adventure-terminal" class="adv-terminal" hidden aria-labelledby="adv-terminal-heading">
+  <h1 id="adv-terminal-heading" class="adv-sr-only">Adventure — game in progress</h1>
+
+  <div id="adv-output" class="adv-output" role="log" aria-live="polite"></div>
+
+  <form id="adv-input-row" class="adv-input-row" hidden autocomplete="off">
+    <span id="adv-prompt" class="adv-prompt" aria-hidden="true">&gt; </span>
+    <input
+      id="adv-input"
+      class="adv-input"
+      type="text"
+      autocapitalize="off"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+      inputmode="text"
+      aria-label="Game input"
+    />
+    <button type="submit" class="adv-sr-only" tabindex="-1">Submit input</button>
+  </form>
+
+  <div id="adv-post-game" class="adv-post-game" hidden>
+    <button id="adv-back-to-launcher" type="button">Back to launcher</button>
+    <button id="adv-new-game" type="button">New game</button>
+  </div>
+
+  <div id="adv-error-panel" class="adv-error-panel" hidden role="alert">
+    <p>The game crashed. Your last session is saved.</p>
+    <details>
+      <summary>Details</summary>
+      <pre id="adv-error-message"></pre>
+    </details>
+    <button id="adv-error-back" type="button">Back to launcher</button>
+  </div>
+</section>
+
+<style>
+  .adv-terminal {
+    /* The engine hard-wraps output at 70 columns; the inner content area
+       must fit 70 monospace chars or the browser will re-wrap each line.
+       border-box is set globally, so add the horizontal padding back in. */
+    max-width: calc(70ch + var(--sp-6) * 2);
+    margin: 0 auto;
+    padding: var(--sp-6);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    line-height: var(--lh-body);
+    color: var(--fg);
+    background: var(--bg);
+  }
+  .adv-output,
+  .adv-input-row {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .adv-input-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    margin: 0;
+  }
+  .adv-prompt {
+    color: var(--fg-muted);
+    user-select: none;
+    flex-shrink: 0;
+    white-space: pre;
+  }
+  .adv-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    color: var(--fg);
+    font: inherit;
+    padding: 0;
+    outline: none;
+    caret-color: var(--fg);
+    min-width: 0;
+  }
+  .adv-input:focus {
+    outline: none;
+  }
+
+  /* Transcript lines are appended dynamically by BrowserGameIO.appendTranscript;
+     :global() opts these selectors out of Astro's per-element scoping so they
+     match runtime-inserted DOM. */
+  .adv-output :global(.adv-transcript-line) {
+    color: var(--fg);
+  }
+  .adv-output :global(.adv-transcript-input) {
+    /* Slight italic to distinguish player input from package output without
+       making it stand out. */
+    font-style: italic;
+  }
+
+  .adv-post-game,
+  .adv-error-panel {
+    margin-top: var(--sp-6);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+  .adv-error-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .adv-error-panel pre {
+    background: var(--btn-bg);
+    padding: var(--sp-3);
+    overflow-x: auto;
+    max-width: 100%;
+    font-size: var(--fs-sm);
+  }
+  .adv-post-game button,
+  .adv-error-panel button {
+    background: var(--btn-bg);
+    border: 1px solid var(--border-ui);
+    color: var(--fg);
+    padding: var(--sp-2) var(--sp-4);
+    font: inherit;
+    cursor: pointer;
+  }
+  .adv-post-game button:hover,
+  .adv-error-panel button:hover {
+    background: var(--border);
+  }
+  .adv-post-game button:focus-visible,
+  .adv-error-panel button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The browser's UA `[hidden] { display: none }` rule is specificity 0,1,0;
+     our `.adv-input-row { display: flex }` and `.adv-post-game/.adv-error-panel
+     { display: flex }` rules outrank it once Astro scopes them. Re-assert
+     display: none for elements that carry the hidden attribute so the
+     JS-driven visibility toggles (io.readline, showPostGame, showError)
+     remain the source of truth. */
+  .adv-input-row[hidden],
+  .adv-post-game[hidden],
+  .adv-error-panel[hidden] {
+    display: none;
+  }
+
+  .adv-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* On viewports too narrow for the engine's 70-column hard wrap at the
+     default 1rem font, scale the font and shrink padding so 70 chars fit
+     with breathing room. Note: site root font-size is 18px (per
+     global.css), so 0.8rem ≈ 14.4px → ~73 chars fit at iPhone SE
+     landscape (667 wide) with --sp-4 padding. Phones in portrait still
+     can't fit 70ch — see the rotate-to-landscape hint in
+     AdventureLauncher.astro. */
+  @media (max-width: 720px) {
+    .adv-terminal {
+      padding: var(--sp-4);
+      font-size: 0.8rem;
+    }
+  }
+</style>

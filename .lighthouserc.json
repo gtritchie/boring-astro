@@ -5,6 +5,7 @@
       "url": [
         "http://localhost/",
         "http://localhost/about/",
+        "http://localhost/adventure/",
         "http://localhost/projects/",
         "http://localhost/projects/boring-site/",
         "http://localhost/tags/typescript/",
