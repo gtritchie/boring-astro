@@ -15,16 +15,19 @@ include = [
 ]
 
 # Don't spam third parties that rate-limit or require auth.
-# Also: skip absolute same-site URLs PRE-LAUNCH. Canonical tags and the
-# sitemap emit absolute https://boringbydesign.ca/... links; until DNS
-# is live, those 404. Remove this last entry after F2 (first deploy)
-# so first-party absolute URLs get verified. Tracked in the F2 handoff
-# note's "Follow-ups to consider after launch".
+# Skip absolute same-site URLs: canonical tags and the sitemap emit
+# https://boringbydesign.ca/… absolute URLs, and any PR that introduces
+# a new page would otherwise fail link-check (the new page exists only
+# on prod after merge + deploy). Astro's build generates those URLs
+# from the actual page set, so they're already validated structurally —
+# lychee's contribution here is verifying external links and in-content
+# links to removed pages.
 exclude = [
   "^https?://(www\\.)?linkedin\\.com",
   "^https?://(www\\.)?twitter\\.com",
   "^https?://(www\\.)?x\\.com",
   "^https?://(www\\.)?openai\\.com",
+  "^https?://(www\\.)?npmjs\\.com",
   "mailto:.*",
   "^https?://boringbydesign\\.ca",
 ]

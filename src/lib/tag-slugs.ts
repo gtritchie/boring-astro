@@ -3,7 +3,11 @@ import type { CollectionEntry } from "astro:content";
 // Explicit slug overrides for tags whose default slug would be poor
 // or would collide with another tag. Empty by default — add an entry
 // only when buildTagIndex throws, or when a tag would slug to "".
-export const tagSlugAliases: Record<string, string> = {};
+export const tagSlugAliases: Record<string, string> = {
+  // "C" and "C++" both default-slug to "c"; route C++ to the conventional
+  // "cpp" so plain C keeps the "c" slug.
+  "C++": "cpp",
+};
 
 export function tagToSlug(tag: string): string {
   if (Object.prototype.hasOwnProperty.call(tagSlugAliases, tag)) {

@@ -3,7 +3,7 @@ title: RStudio IDE
 summary: RStudio is an integrated development environment (IDE) for the R programming language
 status: active
 startedAt: 2016-09-15
-tags: [TypeScript, JavaScript, Java, GWT, R, C++, HTML, CSS, CMake, ant, node.js, Work]
+tags: [TypeScript, JavaScript, Java, GWT, R, C++, HTML, CSS, node.js, Work]
 featured: true
 links:
   repo: https://github.com/rstudio/rstudio
