@@ -41,6 +41,8 @@ No unit test suite. Verification in CI is linting, type-checking, link-check, an
 - **pa11y uses Puppeteer's bundled Chrome** at `~/.cache/puppeteer/`. `run-pa11y.mjs` leaves `chromeLaunchConfig.executablePath` unset so pa11y auto-detects it. `run-pa11y.mjs` also rewrites sitemap URLs to the preview origin — don't regress that when touching the script.
 - **`preview:astro` is what pa11y targets**, not `wrangler dev`. They listen on different ports.
 - **Deploy is Workers Assets only** — no binding to `env.ASSETS`; `wrangler.jsonc` intentionally has no `assets.binding` key (see commit b7ab667).
+- **iOS Safari auto-inflates monospace text** in narrow content blocks. `-webkit-text-size-adjust: 100%` on `html` throttles the algorithm but doesn't disable it. Pin `text-size-adjust: none` on the specific element when CSS sizing must win — see `AdventureTerminal.astro` for the worked example.
+- **Adventure terminal reserves 72ch, not 70.** The engine emits ≤70-char lines, but rendered mono glyph advance ≠ `1ch` exactly and sub-pixel rounding can push 70-char lines past a 70ch container. The 2-char buffer absorbs the variance.
 
 ## CI / deploy
 
