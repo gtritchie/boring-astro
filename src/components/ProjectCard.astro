@@ -15,7 +15,7 @@ const { href, title, summary, tags, status } = Astro.props;
   <h3><a href={href}>{title}</a></h3>
   <p class="summary">{summary}</p>
   <div class="meta">
-    <ul class="tags">
+    <ul class="tags" aria-label="Tags">
       {
         tags.map((t) => (
           <li>
