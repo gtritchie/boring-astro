@@ -9,15 +9,13 @@ interface Props {
   status: "active" | "archived" | "experimental";
 }
 const { href, title, summary, tags, status } = Astro.props;
-const tagsHeadingId = `tags-${href.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "")}`;
 ---
 
 <article class="card">
   <h3><a href={href}>{title}</a></h3>
   <p class="summary">{summary}</p>
   <div class="meta">
-    <h4 id={tagsHeadingId} class="visually-hidden">Tags</h4>
-    <ul class="tags" aria-labelledby={tagsHeadingId}>
+    <ul class="tags" aria-label="Tags">
       {
         tags.map((t) => (
           <li>
