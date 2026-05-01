@@ -1,6 +1,6 @@
 ---
 title: Colossal Cave Adventure Port
-summary: Ported ESR's open-adventure C codebase to Typescript
+summary: Ported ESR's open-adventure C codebase to TypeScript
 status: active
 startedAt: 2026-02-15
 tags: [TypeScript, C, node.js, Personal]
