@@ -40,14 +40,28 @@
 
 <style>
   .adv-terminal {
-    /* The engine hard-wraps output at 70 columns; the inner content area
-       must fit 70 monospace chars or the browser will re-wrap each line.
-       border-box is set globally, so add the horizontal padding back in. */
-    max-width: calc(70ch + var(--sp-6) * 2);
+    /* Engine hard-wraps at 70 cols; the inner content area must hold 70
+       mono chars or the browser re-wraps each line. Reserve 72ch (not 70)
+       so font-metric variance — real monospace glyphs are slightly wider
+       than the `0` glyph that defines `1ch` — and sub-pixel rounding don't
+       push 70-char lines past the inner edge. border-box is set globally,
+       so the horizontal padding is added back into max-width. */
+    max-width: calc(72ch + var(--sp-4) * 2);
     margin: 0 auto;
-    padding: var(--sp-6);
+    padding: var(--sp-4);
     font-family: var(--font-mono);
-    font-size: 1rem;
+    /* Cap at 1rem on wide viewports; on narrower ones, scale down so the
+       72ch inner area + padding stay inside 100vw. The 44 ≈ 72 chars ×
+       0.6em-per-ch + headroom. The 0.7rem floor keeps text readable on
+       phones in portrait — where 70 cols won't fit at any reasonable size,
+       the rotate-to-landscape hint takes over. */
+    font-size: clamp(0.7rem, calc((100vw - var(--sp-4) * 2) / 44), 1rem);
+    /* iOS Safari's auto text-size-adjust inflates monospace text inside
+       narrow content blocks even when -webkit-text-size-adjust is set on
+       html, pushing 70 cols past the viewport on iPad portrait. Opt this
+       element out so the CSS sizing above is what actually renders. */
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
     line-height: var(--lh-body);
     color: var(--fg);
     background: var(--bg);
@@ -158,22 +172,5 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-
-  /* On viewports too narrow for the engine's 70-column hard wrap at the
-     default 1rem font, scale the font and shrink padding so 70 chars fit.
-     The breakpoint is in rem so it tracks the user's root font-size:
-     `1rem` cascades from html (browser default, typically 16px), and Safari's
-     per-site `Aa` size or iOS "Larger Text" can push that higher. At 1rem
-     with --sp-6 padding the terminal needs 70ch + 3rem = 45rem of viewport;
-     below that, 1rem text overflows. e.g. iPad Pro 11" portrait (834 CSS px)
-     is 41.7rem at a 20px root and trips this breakpoint. Phones in portrait
-     still can't fit 70ch even at 0.8rem — see the rotate-to-landscape hint
-     in AdventureLauncher.astro. */
-  @media (max-width: 45rem) {
-    .adv-terminal {
-      padding: var(--sp-4);
-      font-size: 0.8rem;
-    }
   }
 </style>
