@@ -161,13 +161,16 @@
   }
 
   /* On viewports too narrow for the engine's 70-column hard wrap at the
-     default 1rem font, scale the font and shrink padding so 70 chars fit
-     with breathing room. Note: site root font-size is 18px (per
-     global.css), so 0.8rem ≈ 14.4px → ~73 chars fit at iPhone SE
-     landscape (667 wide) with --sp-4 padding. Phones in portrait still
-     can't fit 70ch — see the rotate-to-landscape hint in
-     AdventureLauncher.astro. */
-  @media (max-width: 720px) {
+     default 1rem font, scale the font and shrink padding so 70 chars fit.
+     The breakpoint is in rem so it tracks the user's root font-size:
+     `1rem` cascades from html (browser default, typically 16px), and Safari's
+     per-site `Aa` size or iOS "Larger Text" can push that higher. At 1rem
+     with --sp-6 padding the terminal needs 70ch + 3rem = 45rem of viewport;
+     below that, 1rem text overflows. e.g. iPad Pro 11" portrait (834 CSS px)
+     is 41.7rem at a 20px root and trips this breakpoint. Phones in portrait
+     still can't fit 70ch even at 0.8rem — see the rotate-to-landscape hint
+     in AdventureLauncher.astro. */
+  @media (max-width: 45rem) {
     .adv-terminal {
       padding: var(--sp-4);
       font-size: 0.8rem;
