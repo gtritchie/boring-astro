@@ -51,3 +51,12 @@ Initially used a GitHub workflow to deploy the site, but switched to letting Clo
 repo and handle deployments. This enables deployments of the site from branches other than main
 (preview sites). I also stopped running the Lighthouse checks as part of CI and builds, and will
 run those manually.
+
+### 2026-04-29 - adventure
+
+Added a port of open-adventure to the site.
+
+### 2026-05-01 - project tags accessibility
+
+Improved screen-reader accessibility of the project tags by putting them in a list with an
+accessible name.
