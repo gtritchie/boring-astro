@@ -17,8 +17,8 @@ on my TRS-80 Color Computer 1. I learned years later it was a variant of [Coloss
 
 Something brought this back to mind a few months ago and I discovered Eric S. Raymond's [open-adventure](https://gitlab.com/esr/open-adventure). One thing led to another and I decided to create a TypeScript port,
 just to see if I could. I strived to maintain exact character-for-character output in the port,
-including the 70-column fixed width text. A bunch of test runs shook out a few bugs, and then I
-declared it done. At that point it was a CLI application you could run via node.js.
+including the 70-column fixed width text. The result was a node.js-runnable game indistinguishable
+from the original.
 
 ## Then What?
 
@@ -55,3 +55,7 @@ https://boringbydesign.ca/adventure/.
 
 - screen-reader accessibility improvements
 - actually play the game all the way through
+
+## Other Links
+
+- [More details on Pyramid 2000 for the Color Computer](https://computerarcheology.com/CoCo/Pyramid/)
