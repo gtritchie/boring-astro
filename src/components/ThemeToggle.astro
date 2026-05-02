@@ -1,38 +1,79 @@
 ---
-// src/components/ThemeToggle.astro — cycles Light → Dark → System; persists to localStorage
+// src/components/ThemeToggle.astro — radio group: Light / Dark / System; persists to localStorage
 ---
 
-<button
-  class="theme-toggle"
-  data-theme-toggle
-  aria-label="Cycle theme: light, dark, system"
-  type="button"
->
-  <span data-theme-label>Theme</span>
-</button>
+<div class="theme-toggle" role="radiogroup" aria-label="Theme">
+  <label class="theme-option">
+    <input type="radio" name="theme-choice" value="light" aria-label="Light" data-theme-radio />
+    <span aria-hidden="true">Light ☀︎</span>
+  </label>
+  <label class="theme-option">
+    <input type="radio" name="theme-choice" value="dark" aria-label="Dark" data-theme-radio />
+    <span aria-hidden="true">Dark ☾</span>
+  </label>
+  <label class="theme-option">
+    <input type="radio" name="theme-choice" value="system" aria-label="System" data-theme-radio />
+    <span aria-hidden="true">System ⌘</span>
+  </label>
+</div>
 
 <style>
   .theme-toggle {
-    background: var(--btn-bg);
+    display: inline-flex;
     border: 1px solid var(--border-ui);
-    color: var(--fg);
-    padding: 0.3rem 0.65rem;
     border-radius: 4px;
+  }
+  .theme-option {
+    cursor: pointer;
+    display: inline-flex;
+  }
+  .theme-option > input {
+    /* Visually hide but keep focusable; the label span carries the visual. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .theme-option > span {
+    display: inline-block;
+    padding: 0.3rem 0.65rem;
     font-size: 0.82rem;
     letter-spacing: 0.02em;
+    color: var(--fg);
+    background: var(--btn-bg);
   }
-  .theme-toggle:hover {
+  .theme-option:first-of-type > span {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+  .theme-option:last-of-type > span {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+  .theme-option + .theme-option > span {
+    border-left: 1px solid var(--border-ui);
+  }
+  .theme-option:hover > span {
     background: var(--border);
+  }
+  .theme-option > input:checked + span {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .theme-option > input:focus-visible + span {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
   }
 </style>
 
 <script>
-  // Survives Astro View Transitions: click handler is attached once to
-  // `document` via delegation, and label-update runs on both initial load
+  // Survives Astro View Transitions: change handler is attached once to
+  // `document` via delegation, and radio sync runs on both initial load
   // and every `astro:page-load` event after navigation.
   type Choice = "light" | "dark" | "system";
-  const ORDER: Choice[] = ["light", "dark", "system"];
-  const LABELS: Record<Choice, string> = { light: "Light ☀︎", dark: "Dark ☾", system: "System ⌘" };
   const INIT_FLAG = "__bbdThemeToggleReady";
 
   function currentFromDom(): Choice {
@@ -45,8 +86,8 @@
 
   function read(): Choice {
     // localStorage can throw (SecurityError in strict privacy modes,
-    // sandboxed iframes, etc.) — fall back to the DOM so cycling and
-    // label sync keep tracking the actual applied theme.
+    // sandboxed iframes, etc.) — fall back to the DOM so the radios
+    // and applied theme keep tracking the actual state.
     try {
       const v = localStorage.getItem("theme");
       return v === "light" || v === "dark" || v === "system" ? v : currentFromDom();
@@ -66,36 +107,32 @@
     } catch {
       // Persistence unavailable — theme applies for this page load only.
     }
-    syncLabels(choice);
+    syncRadios(choice);
   }
 
-  function syncLabels(choice: Choice) {
-    for (const el of document.querySelectorAll<HTMLElement>("[data-theme-label]")) {
-      el.textContent = LABELS[choice];
+  function syncRadios(choice: Choice) {
+    for (const el of document.querySelectorAll<HTMLInputElement>("[data-theme-radio]")) {
+      el.checked = el.value === choice;
     }
-  }
-
-  function cycle() {
-    const next = ORDER[(ORDER.indexOf(read()) + 1) % ORDER.length]!;
-    applyTheme(next);
   }
 
   function initOnce() {
     const w = window as unknown as Record<string, unknown>;
     if (w[INIT_FLAG]) return;
     w[INIT_FLAG] = true;
-    // Delegated click — survives any DOM swap because it lives on document.
-    document.addEventListener("click", (e) => {
-      const target = e.target as Element | null;
-      if (target?.closest("[data-theme-toggle]")) cycle();
+    // Delegated change — survives any DOM swap because it lives on document.
+    document.addEventListener("change", (e) => {
+      const target = e.target as HTMLInputElement | null;
+      if (!target?.matches("[data-theme-radio]")) return;
+      const v = target.value;
+      if (v === "light" || v === "dark" || v === "system") applyTheme(v);
     });
-    // Per-page label sync after View Transitions. Registered exactly once
-    // because initOnce is guarded by INIT_FLAG — re-execution of this
-    // component script after a transition is a no-op.
-    document.addEventListener("astro:page-load", () => syncLabels(read()));
+    // Per-page radio sync after View Transitions. Registered exactly once
+    // because initOnce is guarded by INIT_FLAG.
+    document.addEventListener("astro:page-load", () => syncRadios(read()));
   }
 
   // First paint (inline theme bootstrap in <head> has already set data-theme).
   initOnce();
-  syncLabels(read());
+  syncRadios(read());
 </script>
