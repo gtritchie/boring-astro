@@ -19,6 +19,7 @@
       spellcheck="false"
       inputmode="text"
       aria-label="Game input"
+      data-op-ignore
     />
     <button type="submit" class="adv-sr-only" tabindex="-1">Submit input</button>
   </form>
@@ -162,7 +163,12 @@
     display: none;
   }
 
-  .adv-sr-only {
+  .adv-sr-only,
+  /* BrowserGameIO inserts .adv-sr-only spans at runtime to label each
+     transcript turn for screen readers; those spans don't carry Astro's
+     scoping attribute, so a :global() selector is required or the
+     "Adventure says:" / "You typed:" prefixes would render visibly. */
+  .adv-output :global(.adv-sr-only) {
     position: absolute;
     width: 1px;
     height: 1px;

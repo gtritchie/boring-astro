@@ -11,21 +11,46 @@ export interface BrowserGameIOOptions {
 }
 
 /**
- * Browser-side GameIO. Print appends text nodes to the output region; readline
- * resolves on form submit (or with null when host.cancel() is called, which the
- * package treats as EOF).
+ * Browser-side GameIO. Print accumulates output into a buffer; the buffer is
+ * flushed as a single labeled "turn" element when the next readline begins
+ * (or when the host calls flushPendingOutput at game end). Readline resolves
+ * on form submit, or with null when host.cancel() is called (treated as EOF).
+ *
+ * Turn structure exists so screen reader users navigating backwards through
+ * the transcript can distinguish game output from their own input — each turn
+ * carries a visually-hidden "Adventure says: " or "You typed: " prefix.
  */
 export class BrowserGameIO implements GameIO {
   readonly echoInput = false;
 
   private cancelResolver: ((value: string | null) => void) | null = null;
   private lastPrompt = "";
+  private outputBuffer = "";
 
   constructor(private readonly opts: BrowserGameIOOptions) {}
 
   print(msg: string): void {
-    this.opts.outputEl.appendChild(document.createTextNode(msg));
+    this.outputBuffer += msg;
     this.scrollIntoView();
+  }
+
+  /**
+   * Flush any buffered game output as a labeled turn element. Called
+   * automatically before each readline; the host also calls this in its
+   * finally block so end-of-game output isn't lost.
+   */
+  flushPendingOutput(): void {
+    if (this.outputBuffer === "") return;
+    const turn = document.createElement("span");
+    turn.className = "adv-turn adv-turn-game";
+    const srLabel = document.createElement("span");
+    srLabel.className = "adv-sr-only";
+    srLabel.textContent = "Adventure says: ";
+    const content = document.createElement("span");
+    content.textContent = this.outputBuffer;
+    turn.append(srLabel, content);
+    this.opts.outputEl.appendChild(turn);
+    this.outputBuffer = "";
   }
 
   async readline(prompt: string): Promise<string | null> {
@@ -38,19 +63,21 @@ export class BrowserGameIO implements GameIO {
     // makes the span two visual lines tall and `align-items: baseline` on the
     // flex input row aligns the single-line input to the prompt's first
     // (empty) baseline, putting the input row above the visible prompt text.
-    // Strip leading newlines off the visible prompt and emit them as their
-    // own text node in the output region; the transcript still shows the
-    // blank line, and the input row baseline-aligns to "File name: " correctly.
+    // Strip leading newlines off the visible prompt and append them to the
+    // game-output buffer instead; the visible blank line is preserved and the
+    // input row baseline-aligns to "File name: " correctly.
     let i = 0;
     while (i < prompt.length && prompt[i] === "\n") i++;
     const leadingNewlines = prompt.slice(0, i);
     const visiblePrompt = prompt.slice(i);
     if (leadingNewlines.length > 0) {
-      this.opts.outputEl.appendChild(document.createTextNode(leadingNewlines));
+      this.outputBuffer += leadingNewlines;
     }
+    this.flushPendingOutput();
 
     this.opts.promptEl.textContent = visiblePrompt;
     this.opts.inputRowEl.hidden = false;
+    this.updateInputLabel(visiblePrompt);
     this.opts.inputEl.focus();
     this.scrollIntoView();
 
@@ -96,19 +123,32 @@ export class BrowserGameIO implements GameIO {
     this.opts.inputEl.value = "";
     this.opts.inputRowEl.hidden = true;
     this.lastPrompt = "";
+    this.outputBuffer = "";
+  }
+
+  /**
+   * Sync the input's accessible name to the current prompt. The ">" gameplay
+   * prompt has no real label content, so fall back to "Game input"; the SAVE
+   * flow's "File name:" prompt becomes the label directly.
+   */
+  private updateInputLabel(visiblePrompt: string): void {
+    const trimmed = visiblePrompt.replace(/[\s:>]+$/, "").trim();
+    this.opts.inputEl.setAttribute("aria-label", trimmed.length > 0 ? trimmed : "Game input");
   }
 
   private appendTranscript(prompt: string, value: string): void {
     const line = document.createElement("div");
-    line.className = "adv-transcript-line";
+    line.className = "adv-transcript-line adv-turn adv-turn-input";
+    const srLabel = document.createElement("span");
+    srLabel.className = "adv-sr-only";
+    srLabel.textContent = "You typed: ";
     const promptSpan = document.createElement("span");
     promptSpan.setAttribute("aria-hidden", "true");
     promptSpan.textContent = prompt;
     const valueSpan = document.createElement("span");
     valueSpan.className = "adv-transcript-input";
     valueSpan.textContent = value;
-    line.appendChild(promptSpan);
-    line.appendChild(valueSpan);
+    line.append(srLabel, promptSpan, valueSpan);
     this.opts.outputEl.appendChild(line);
   }
 

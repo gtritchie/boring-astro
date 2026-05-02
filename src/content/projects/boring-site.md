@@ -58,5 +58,12 @@ Added a port of open-adventure to the site.
 
 ### 2026-05-01 - project tags accessibility
 
-Improved screen-reader accessibility of the project tags by putting them in a list with an
+Improved screen reader accessibility of the project tags by putting them in a list with an
 accessible name.
+
+### 2026-05-02 - accessibility
+
+Reimplemented the theme switcher as a radio button segmented group for better keyboard and
+screen reader support.
+
+Improvements to the adventure game's screen reader support.

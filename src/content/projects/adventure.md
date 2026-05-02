@@ -53,7 +53,7 @@ https://boringbydesign.ca/adventure/.
 
 ## Next Steps
 
-- screen-reader accessibility improvements
+- screen reader accessibility improvements
 - actually play the game all the way through
 
 ## Other Links
