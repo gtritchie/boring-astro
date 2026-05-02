@@ -2,30 +2,26 @@
 // src/components/ThemeToggle.astro — radio group: Light / Dark / System; persists to localStorage
 ---
 
-<fieldset class="theme-toggle">
-  <legend class="visually-hidden">Theme</legend>
+<div class="theme-toggle" role="radiogroup" aria-label="Theme">
   <label class="theme-option">
-    <input type="radio" name="theme-choice" value="light" data-theme-radio />
-    <span>Light <span aria-hidden="true">☀︎</span></span>
+    <input type="radio" name="theme-choice" value="light" aria-label="Light" data-theme-radio />
+    <span aria-hidden="true">Light ☀︎</span>
   </label>
   <label class="theme-option">
-    <input type="radio" name="theme-choice" value="dark" data-theme-radio />
-    <span>Dark <span aria-hidden="true">☾</span></span>
+    <input type="radio" name="theme-choice" value="dark" aria-label="Dark" data-theme-radio />
+    <span aria-hidden="true">Dark ☾</span>
   </label>
   <label class="theme-option">
-    <input type="radio" name="theme-choice" value="system" data-theme-radio />
-    <span>System <span aria-hidden="true">⌘</span></span>
+    <input type="radio" name="theme-choice" value="system" aria-label="System" data-theme-radio />
+    <span aria-hidden="true">System ⌘</span>
   </label>
-</fieldset>
+</div>
 
 <style>
   .theme-toggle {
     display: inline-flex;
     border: 1px solid var(--border-ui);
     border-radius: 4px;
-    padding: 0;
-    margin: 0;
-    min-inline-size: 0; /* override fieldset default */
   }
   .theme-option {
     cursor: pointer;
