@@ -16,7 +16,7 @@ export interface BrowserGameIOOptions {
  * (or when the host calls flushPendingOutput at game end). Readline resolves
  * on form submit, or with null when host.cancel() is called (treated as EOF).
  *
- * Turn structure exists so screen-reader users navigating backwards through
+ * Turn structure exists so screen reader users navigating backwards through
  * the transcript can distinguish game output from their own input — each turn
  * carries a visually-hidden "Adventure says: " or "You typed: " prefix.
  */

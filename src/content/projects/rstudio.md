@@ -66,7 +66,7 @@ products, so I had to extend to include macOS and Windows support.
 
 ### Accessibility
 
-RStudio had extremely poor accessibility for keyboard-only and screen-reader users. I did a bunch
+RStudio had extremely poor accessibility for keyboard-only and screen reader users. I did a bunch
 of work to improve this, including changes to our GWT fork, and now most of the product can be used
 via the keyboard and meets contrast standards.
 

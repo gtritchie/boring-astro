@@ -106,7 +106,7 @@ responsive srcset). Always include `alt` text.
 ### External links
 
 External links in Markdown/MDX get a "leaves the site" glyph and a
-screen-reader "(opens in a new tab)" announcement automatically — write
+screen reader "(opens in a new tab)" announcement automatically — write
 them as plain Markdown: `[text](https://example.com)`. The build pipeline
 adds `target="_blank"`, merges `noopener noreferrer` into `rel`, and
 appends the glyph and SR text.
