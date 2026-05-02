@@ -96,6 +96,10 @@ export class AdventureHost {
       // code. Anything that escapes is a real error from the engine.
       error = e instanceof Error ? e : new Error(String(e));
     } finally {
+      // The IO buffers print() output and flushes on each readline. After the
+      // game ends there's no further readline, so any final messages would
+      // stay buffered without an explicit flush here.
+      this.opts.io.flushPendingOutput();
       this.unregisterNavHandlers();
       const reason = this.classifyExit(error);
       this.active = false;
