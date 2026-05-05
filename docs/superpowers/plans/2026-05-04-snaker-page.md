@@ -15,6 +15,7 @@
 ## Task 1: Snapshot the snaker engine and isolate from tooling
 
 **Files:**
+
 - Create: `src/snaker/main.js`, `src/snaker/game.js`, `src/snaker/screen.js`, `src/snaker/audio.js`, `src/snaker/input.js`, `src/snaker/storage.js`, `src/snaker/glyphs.js`, `src/snaker/LICENSE`
 - Modify: `eslint.config.js`, `.prettierignore`, `tsconfig.json`
 
@@ -28,12 +29,14 @@ Expected: a feature branch (e.g., `snaker-page-spec` from the spec PR, or a new 
 - [ ] **Step 2: Clone the upstream snaker repo to a scratch location**
 
 Run:
+
 ```bash
 rm -rf /tmp/snaker-snapshot && \
   gh repo clone gtritchie/snaker /tmp/snaker-snapshot
 ```
 
 If `gh` is unavailable or unauthenticated, fall back to:
+
 ```bash
 rm -rf /tmp/snaker-snapshot && \
   git clone https://github.com/gtritchie/snaker.git /tmp/snaker-snapshot
@@ -44,6 +47,7 @@ Expected: clone succeeds; `/tmp/snaker-snapshot/src/main.js` exists.
 - [ ] **Step 3: Capture the upstream commit SHA**
 
 Run:
+
 ```bash
 ( cd /tmp/snaker-snapshot && git rev-parse --short HEAD )
 ```
@@ -53,6 +57,7 @@ Save the short SHA — it goes in the commit message in Step 11.
 - [ ] **Step 4: Copy engine source and license into `src/snaker/`**
 
 Run:
+
 ```bash
 mkdir -p src/snaker && \
   cp /tmp/snaker-snapshot/src/*.js src/snaker/ && \
@@ -64,6 +69,7 @@ mkdir -p src/snaker && \
 Run: `ls src/snaker/`
 
 Expected output (alphabetical):
+
 ```
 LICENSE
 audio.js
@@ -101,9 +107,11 @@ src/snaker/
 ```
 
 Verify:
+
 ```bash
 grep "^src/snaker/$" .prettierignore
 ```
+
 Expected: matches.
 
 - [ ] **Step 8: Add tsconfig exclude for `src/snaker`**
@@ -137,6 +145,7 @@ Expected: passes. The engine is not yet imported by any page, so it won't appear
 - [ ] **Step 11: Commit the snapshot + tooling excludes**
 
 Run:
+
 ```bash
 git add src/snaker/ eslint.config.js .prettierignore tsconfig.json
 git status --short
@@ -145,6 +154,7 @@ git status --short
 Expected: 8 new files under `src/snaker/`, plus the three modified config files.
 
 Run (substitute the SHA captured in Step 3 for `<SHA>`):
+
 ```bash
 git commit -m "$(cat <<'EOF'
 Snapshot snaker engine and isolate from tooling
@@ -165,6 +175,7 @@ EOF
 ## Task 2: Add the `/snaker` page and wire the embed
 
 **Files:**
+
 - Create: `src/pages/snaker.astro`
 
 **Context:** `BaseLayout` provides the page chrome (header, footer, theme toggle, skip link, dark/light tokens). Like `/adventure`, this page overrides the global `main { max-width: var(--page-width) }` cap because the 768px game frame is wider than the 72ch (~720px) sans-serif default. The engine's `boot(canvas)` returns a `destroy()` function; per the engine README, `destroy` runs on `astro:before-swap` (before view-transition DOM swap) and `boot` runs on `astro:page-load` (after new DOM is in place). The engine throws on double-boot without explicit teardown, so this lifecycle wiring is required for back/forward navigation.
@@ -274,11 +285,13 @@ Expected: passes. Verify the output:
 ```bash
 ls dist/client/snaker/
 ```
+
 Expected: `index.html` exists.
 
 ```bash
 ls dist/client/_astro/ | grep -E "\.js$" | head -5
 ```
+
 Expected: hashed JS chunks present (one of them is the bundled engine, but Vite's hashing means the filename isn't predictable).
 
 - [ ] **Step 5: Smoke-test in the local preview**
@@ -286,6 +299,7 @@ Expected: hashed JS chunks present (one of them is the bundled engine, but Vite'
 Open two terminals.
 
 Terminal A:
+
 ```bash
 npm run preview:astro
 ```
@@ -293,6 +307,7 @@ npm run preview:astro
 Wait for "ready in" / "Local: http://127.0.0.1:4321" output.
 
 Terminal B:
+
 ```bash
 curl -s http://127.0.0.1:4321/snaker | grep -E "(snaker-frame|<canvas|>Snaker<)"
 ```
@@ -322,6 +337,7 @@ Expected: passes. The new `https://github.com/gtritchie/snaker` link in the intr
 - [ ] **Step 7: Commit the page**
 
 Run:
+
 ```bash
 git add src/pages/snaker.astro
 git commit -m "$(cat <<'EOF'
@@ -341,6 +357,7 @@ EOF
 ## Task 3: Exclude `/snaker` from pa11y audits
 
 **Files:**
+
 - Modify: `scripts/run-pa11y.mjs`
 
 **Context:** The pa11y runner walks the sitemap and audits every URL. The `/snaker` page is in the sitemap (we want it indexable and linkable) but the game itself requires sight and real-time keyboard/touch reactions; it cannot satisfy AAA contrast or keyboard-navigation checks. A targeted deny-list keeps the page sitemap-visible while skipping the audit. Astro emits trailing-slash URLs in static mode by default, so the deny-list matches both forms defensively.
@@ -402,6 +419,7 @@ Expected output: the startup line includes `(skipped 1 per deny-list: /snaker, /
 The audit itself should pass — existing pages already pass.
 
 If `/snaker` still appears in the audit:
+
 - Check the exact path Astro emits in the sitemap with `curl -s http://127.0.0.1:4321/sitemap-0.xml | grep snaker`. The path should be `/snaker/` (trailing slash) by default — the deny-list covers both forms, but if Astro emits something else (e.g., `/snaker.html`), add that form to `PA11Y_DENY_PATHS`.
 
 Stop the preview server.
@@ -409,6 +427,7 @@ Stop the preview server.
 - [ ] **Step 4: Commit the deny-list**
 
 Run:
+
 ```bash
 git add scripts/run-pa11y.mjs
 git commit -m "$(cat <<'EOF'

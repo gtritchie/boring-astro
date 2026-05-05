@@ -159,7 +159,7 @@ This follows the engine README's recommendation. `astro:before-swap` tears down 
 - `npm run check` — passes. Engine is excluded from typecheck/lint; the page itself is standard Astro.
 - `npm run build` — succeeds. Output includes `dist/client/snaker/index.html` and a bundled engine chunk.
 - `npm run preview:astro` + open `/snaker` — game boots, scales at integer multiples on window resize, key handlers respond only when the canvas is focused.
-- `npm run pa11y` — runs as today against all sitemap URLs *except* `/snaker`. Confirm by counting the URLs logged at startup.
+- `npm run pa11y` — runs as today against all sitemap URLs _except_ `/snaker`. Confirm by counting the URLs logged at startup.
 - `npm run link-check` — passes; `https://github.com/gtritchie/snaker` resolves.
 - View-transition test: navigate to `/snaker`, then `/about`, then back. Game boots cleanly each time, no console errors, no double-boot throw.
 
