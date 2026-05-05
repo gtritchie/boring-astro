@@ -76,7 +76,7 @@ tsconfig.json                 # modified — excludes src/snaker/**
       </p>
     </div>
     <div class="snaker-frame">
-      <canvas id="snaker"></canvas>
+      <canvas id="snaker" tabindex="0"></canvas>
     </div>
   </main>
 </BaseLayout>

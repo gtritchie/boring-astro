@@ -197,7 +197,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </p>
     </div>
     <div class="snaker-frame">
-      <canvas id="snaker"></canvas>
+      <canvas id="snaker" tabindex="0"></canvas>
     </div>
   </main>
 </BaseLayout>
