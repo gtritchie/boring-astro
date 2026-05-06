@@ -42,10 +42,6 @@ jobs:
       - name: Link check
         uses: lycheeverse/lychee-action@v2
         with:
-          # Pinned to align with local lychee (brew installs current stable).
-          # Action default is v0.23.0, where include_fragments was a boolean;
-          # 0.24+ changed it to an enum (none/anchor-only/text-only/full).
-          lycheeVersion: v0.24.2
           args: --config lychee.toml 'dist/client/**/*.html'
           fail: true
 

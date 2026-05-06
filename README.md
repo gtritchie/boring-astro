@@ -12,8 +12,12 @@ transitions.
 - **Chrome or Chromium** — required locally for `npm run lighthouse`.
   `npm run pa11y` uses Puppeteer's bundled Chrome, installed automatically
   by `npm install`.
-- **lychee** — only for `npm run link-check`. `brew install lychee` on macOS,
-  `cargo install lychee` on Linux.
+- **lychee** — only for `npm run link-check`. Pin to a 0.23.x release to
+  match CI (`lycheeverse/lychee-action@v2` defaults to v0.23.0, and 0.24+
+  changed the `lychee.toml` schema). Easiest install:
+  `cargo install lychee --version '~0.23'` (Rust toolchain required).
+  Recent `brew install lychee` ships 0.24+ and will reject this repo's
+  `lychee.toml`.
 
 ## Common commands
 

@@ -6,7 +6,7 @@ max_retries = 2
 timeout = 20
 max_concurrency = 8
 skip_missing = false
-include_fragments = "anchor-only"
+include_fragments = true
 root_dir = "dist/client"
 
 # Only check links *in* the built site; ignore link-farm kind of pages.
