@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Snaker"
+  description="JavaScript port of a snake game I wrote in TRS-80 BASIC in 1983."
+>
+  <main id="main">
+    <div class="snaker-prose">
+      <h1>Snaker</h1>
+      <p>
+        A snake game I wrote on a TRS-80 Color Computer in 1983, ported to JavaScript.
+        <a href="https://github.com/gtritchie/snaker">Source on GitHub</a>.
+      </p>
+    </div>
+    <div class="snaker-frame">
+      <canvas id="snaker" tabindex="0"></canvas>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  /* The global `main { max-width: var(--page-width) }` rule caps content at
+     72ch sans-serif (~720px). The game frame is 768px and would overflow.
+     Drop the cap on this page; the prose block and game frame impose their
+     own widths. Mirrors src/pages/adventure/index.astro. */
+  main {
+    max-width: none;
+    padding: var(--sp-8) var(--sp-6);
+  }
+  .snaker-prose {
+    max-width: var(--reading-width);
+    margin: 0 auto var(--sp-6);
+  }
+  .snaker-prose h1 {
+    margin: 0 0 var(--sp-2);
+    line-height: var(--lh-heading);
+  }
+  .snaker-prose p {
+    color: var(--fg-muted);
+    margin: 0;
+    line-height: var(--lh-body);
+  }
+  .snaker-frame {
+    width: min(100%, 768px);
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    background: #000;
+  }
+  .snaker-frame canvas {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import { boot } from "../snaker/main.js";
+
+  let destroy: (() => void) | null = null;
+
+  // ClientRouter swaps body content without reloading. boot() throws on
+  // double-init, so explicitly destroy on before-swap and re-boot on
+  // page-load. Mirrors the integration sample in the engine README.
+  document.addEventListener("astro:page-load", () => {
+    const canvas = document.getElementById("snaker");
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    destroy = boot(canvas);
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    if (destroy) {
+      destroy();
+      destroy = null;
+    }
+  });
+</script>
