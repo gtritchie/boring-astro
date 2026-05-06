@@ -54,10 +54,12 @@ mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
 writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 
-console.log(
-  `pa11y-ci: auditing ${filteredUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}` +
-    (skipped > 0 ? ` (skipped ${skipped} per deny-list: ${[...PA11Y_DENY_PATHS].join(", ")})` : ""),
-);
+const summary =
+  `pa11y-ci: auditing ${filteredUrls.length} URL(s) ` +
+  `via ${shardUrls.length} sitemap shard(s) at ${base}`;
+const suffix =
+  skipped > 0 ? ` (skipped ${skipped} per deny-list: ${[...PA11Y_DENY_PATHS].join(", ")})` : "";
+console.log(summary + suffix);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);
