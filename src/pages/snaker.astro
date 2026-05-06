@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ExternalLink from "../components/ExternalLink.astro";
 ---
 
 <BaseLayout
@@ -11,7 +12,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <h1>Snaker</h1>
       <p>
         A snake game I wrote on a TRS-80 Color Computer in 1983, ported to JavaScript.
-        <a href="https://github.com/gtritchie/snaker">Source on GitHub</a>.
+        <ExternalLink href="https://github.com/gtritchie/snaker">Source on GitHub</ExternalLink>.
       </p>
     </div>
     <div class="snaker-frame">
@@ -59,19 +60,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
   let destroy: (() => void) | null = null;
 
-  // ClientRouter swaps body content without reloading. boot() throws on
-  // double-init, so explicitly destroy on before-swap and re-boot on
-  // page-load. Mirrors the integration sample in the engine README.
-  document.addEventListener("astro:page-load", () => {
-    const canvas = document.getElementById("snaker");
-    if (!(canvas instanceof HTMLCanvasElement)) return;
-    destroy = boot(canvas);
-  });
-
-  document.addEventListener("astro:before-swap", () => {
+  function teardown() {
     if (destroy) {
       destroy();
       destroy = null;
     }
+  }
+
+  // ClientRouter swaps body content without reloading. boot() throws on
+  // double-init, so always teardown any prior instance before re-booting.
+  // The before-swap teardown handles normal navigation; the page-load
+  // teardown is belt-and-suspenders for cases where before-swap didn't
+  // fire (e.g. an unintercepted history navigation).
+  document.addEventListener("astro:page-load", () => {
+    const canvas = document.getElementById("snaker");
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    teardown();
+    destroy = boot(canvas);
   });
+
+  document.addEventListener("astro:before-swap", teardown);
 </script>
