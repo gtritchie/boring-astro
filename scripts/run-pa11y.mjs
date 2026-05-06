@@ -14,6 +14,11 @@ import { join } from "node:path";
 
 const base = process.env.PA11Y_BASE_URL ?? "http://127.0.0.1:4321";
 
+// URLs to skip. /snaker hosts a real-time keyboard/touch game; it cannot
+// satisfy AAA contrast or keyboard-navigation audits and is excluded by
+// design. The page stays in the sitemap and is publicly indexable.
+const PA11Y_DENY_PATHS = new Set(["/snaker", "/snaker/"]);
+
 async function fetchText(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`fetch ${url} → HTTP ${res.status}`);
@@ -41,15 +46,20 @@ for (const shard of shardUrls) {
 if (pageUrls.length === 0) throw new Error("no page URLs found across sitemap shards");
 
 const cfg = JSON.parse(readFileSync(".pa11yci.json", "utf8"));
-cfg.urls = pageUrls;
+const filteredUrls = pageUrls.filter((url) => !PA11Y_DENY_PATHS.has(new URL(url).pathname));
+const skipped = pageUrls.length - filteredUrls.length;
+cfg.urls = filteredUrls;
 
 mkdirSync(join(tmpdir(), "bbd"), { recursive: true });
 const outPath = join(tmpdir(), "bbd", "pa11yci.json");
 writeFileSync(outPath, JSON.stringify(cfg, null, 2));
 
-console.log(
-  `pa11y-ci: auditing ${pageUrls.length} URL(s) via ${shardUrls.length} sitemap shard(s) at ${base}`,
-);
+const summary =
+  `pa11y-ci: auditing ${filteredUrls.length} URL(s) ` +
+  `via ${shardUrls.length} sitemap shard(s) at ${base}`;
+const suffix =
+  skipped > 0 ? ` (skipped ${skipped} per deny-list: ${[...PA11Y_DENY_PATHS].join(", ")})` : "";
+console.log(summary + suffix);
 
 const result = spawnSync("npx", ["pa11y-ci", "--config", outPath], { stdio: "inherit" });
 process.exit(result.status ?? 1);

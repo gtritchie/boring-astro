@@ -18,7 +18,7 @@ Node 24+ required (`.nvmrc` pins `24.15.0`).
 - `npm run format` — `prettier --write .`
 - `npm run pa11y` — WCAG AAA audit of every sitemap URL; needs `preview:astro` running in another terminal
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
-- `npm run link-check` — builds, then lychee across built HTML (requires `lychee` installed — `brew install lychee`)
+- `npm run link-check` — builds, then lychee across built HTML (requires lychee 0.23.x installed — see `README.md` for install notes; brew ships 0.24+ which is incompatible with this repo's `lychee.toml`)
 
 No unit test suite. Verification in CI is linting, type-checking, link-check, and pa11y. Lighthouse is local-only (`npm run lighthouse`).
 
