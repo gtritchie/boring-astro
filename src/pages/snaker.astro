@@ -58,26 +58,41 @@ import ExternalLink from "../components/ExternalLink.astro";
 <script>
   import { boot } from "../snaker/main.js";
 
-  let destroy: (() => void) | null = null;
+  // Single-init guard mirroring src/components/ThemeToggle.astro. Bundled
+  // external modules are deduped by URL today, so listeners would register
+  // exactly once even without this guard — but keeping a window flag means
+  // future bundling-mode changes (or this script ever going inline) can't
+  // accidentally double-register handlers. boot() throws on double-init,
+  // so the cost of being wrong here is a thrown error in the page script.
+  const INIT_FLAG = "__bbdSnakerReady";
 
-  function teardown() {
-    if (destroy) {
-      destroy();
-      destroy = null;
+  function initOnce() {
+    const w = window as unknown as Record<string, unknown>;
+    if (w[INIT_FLAG]) return;
+    w[INIT_FLAG] = true;
+
+    let destroy: (() => void) | null = null;
+
+    function teardown() {
+      if (destroy) {
+        destroy();
+        destroy = null;
+      }
     }
+
+    // ClientRouter swaps body content without reloading. The before-swap
+    // teardown handles normal navigation; the page-load teardown is
+    // belt-and-suspenders for cases where before-swap didn't fire (e.g.
+    // an unintercepted history navigation).
+    document.addEventListener("astro:page-load", () => {
+      const canvas = document.getElementById("snaker");
+      if (!(canvas instanceof HTMLCanvasElement)) return;
+      teardown();
+      destroy = boot(canvas);
+    });
+
+    document.addEventListener("astro:before-swap", teardown);
   }
 
-  // ClientRouter swaps body content without reloading. boot() throws on
-  // double-init, so always teardown any prior instance before re-booting.
-  // The before-swap teardown handles normal navigation; the page-load
-  // teardown is belt-and-suspenders for cases where before-swap didn't
-  // fire (e.g. an unintercepted history navigation).
-  document.addEventListener("astro:page-load", () => {
-    const canvas = document.getElementById("snaker");
-    if (!(canvas instanceof HTMLCanvasElement)) return;
-    teardown();
-    destroy = boot(canvas);
-  });
-
-  document.addEventListener("astro:before-swap", teardown);
+  initOnce();
 </script>
