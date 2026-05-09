@@ -49,4 +49,3 @@ The sound is problematic (silent) on iOS (iPhone) due to known Safari quirks. Te
 ## Other Games
 
 I wrote a few more games on the CoCo after this, mostly in assembly language, but none of them were accepted for publication. I no longer have the source code for these.
-
