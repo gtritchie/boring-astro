@@ -5,6 +5,7 @@ status: archived
 startedAt: 1983-01-01
 tags: [BASIC, Personal]
 featured: true
+order: 70
 links:
   repo: https://github.com/gtritchie/snaker
   site: https://boringbydesign.ca/snaker

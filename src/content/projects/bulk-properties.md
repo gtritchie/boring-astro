@@ -5,6 +5,7 @@ status: active
 startedAt: 2026-03-24
 tags: [TypeScript, Markdown, HTML, CSS, Obsidian, Personal]
 featured: true
+order: 60
 links:
   repo: https://github.com/gtritchie/bulk-properties
 ---

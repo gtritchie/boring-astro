@@ -5,6 +5,7 @@ status: active
 startedAt: 2026-04-23
 tags: [Astro, TypeScript, HTML, CSS, Markdown, Personal]
 featured: false
+order: 50
 links:
   repo: https://github.com/gtritchie/boring-astro
 ---
