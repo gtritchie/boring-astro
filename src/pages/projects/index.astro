@@ -3,10 +3,9 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectCard from "../../components/ProjectCard.astro";
 import { getCollection } from "astro:content";
+import { sortProjects } from "../../lib/project-sort";
 
-const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
-  (a, b) => b.data.startedAt.getTime() - a.data.startedAt.getTime(),
-);
+const projects = sortProjects(await getCollection("projects", (p) => !p.data.draft));
 ---
 
 <BaseLayout title="Projects" description="Software projects — personal and professional.">
