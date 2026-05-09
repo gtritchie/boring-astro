@@ -67,3 +67,7 @@ Reimplemented the theme switcher as a radio button segmented group for better ke
 screen reader support.
 
 Improvements to the adventure game's screen reader support.
+
+### 2026-05-09 - snaker
+
+Added the snaker game and project page.
