@@ -30,11 +30,16 @@ const { href, title, summary, tags, status } = Astro.props;
 
 <style>
   .card {
+    position: relative;
     background: var(--bg-raised);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: var(--sp-4) var(--sp-5);
     margin-bottom: var(--sp-3);
+    transition: border-color 120ms ease;
+  }
+  .card:hover {
+    border-color: var(--border-ui);
   }
   .card h3 {
     font-size: 1.05rem;
@@ -44,7 +49,12 @@ const { href, title, summary, tags, status } = Astro.props;
     color: var(--fg);
     text-decoration: none;
   }
-  .card h3 a:hover {
+  .card h3 a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .card:hover h3 a {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -67,6 +77,10 @@ const { href, title, summary, tags, status } = Astro.props;
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
+  }
+  .tags li {
+    position: relative;
+    z-index: 1;
   }
   .tags a {
     display: inline-block;
