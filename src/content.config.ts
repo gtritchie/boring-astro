@@ -23,6 +23,7 @@ const projects = defineCollection({
     status: z.enum(["active", "archived", "experimental"]),
     startedAt: z.date(),
     displayYear: z.string().optional(),
+    order: z.number().optional(),
     tags: z.array(z.string()),
     links: z
       .object({

@@ -5,6 +5,7 @@ status: active
 startedAt: 2016-09-15
 tags: [TypeScript, JavaScript, Java, GWT, R, C++, HTML, CSS, node.js, Work]
 featured: true
+order: 90
 links:
   repo: https://github.com/rstudio/rstudio
   site: https://posit.co/products/open-source/rstudio
