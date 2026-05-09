@@ -17,6 +17,7 @@
 ## Task 1: Add `order` to schema and shared sort helper, wire both pages
 
 **Files:**
+
 - Modify: `src/content.config.ts` (projects schema)
 - Create: `src/lib/project-sort.ts`
 - Modify: `src/pages/index.astro` (replace inline sort)
@@ -158,6 +159,7 @@ git commit -m "Add manual project ordering via order frontmatter field"
 ## Task 2: Whole-card click target on `ProjectCard`
 
 **Files:**
+
 - Modify: `src/components/ProjectCard.astro`
 
 ### Step 1: Update the card CSS for the stretched-link pattern
@@ -292,6 +294,7 @@ git commit -m "Make entire ProjectCard clickable via stretched-link pattern"
 ## Task 3: "All projects" link on the home page
 
 **Files:**
+
 - Modify: `src/pages/index.astro`
 
 ### Step 1: Add the link below the featured projects
