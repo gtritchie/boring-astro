@@ -8,6 +8,7 @@ featured: true
 order: 60
 links:
   repo: https://github.com/gtritchie/bulk-properties
+  site: https://community.obsidian.md/plugins/bulk-properties
 ---
 
 ## Background
@@ -15,9 +16,8 @@ links:
 My wife uses [Obsidian](https://obsidian.md/) for task management and wanted to select a few notes
 in a base and bulk-edit a property on them (e.g. to move tasks to a different day).
 
-I wrote a custom Obsidian plugin named "Bulk Properties". It has been submitted to Obsidian for
-inclusion in the Community Plugins registry, but they are taking many months to approve new plugins
-so currently must be installed from GitHub, or using [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+I wrote a custom Obsidian plugin named "Bulk Properties", available in the Obsidian Community
+plugins registry.
 
 ### Plugin options
 
@@ -49,6 +49,12 @@ that don't have the selection property at all will not be modified.
 
 The "Bulk Properties: Remove selection property from all notes" can be used if you want to change
 the property used for indicating selection and first want to remove the existing property.
+
+### Updates
+
+- 2026-05-12
+  - added GitHub artifact attestations for main.js and styles.css
+  - minor code changes to respond to Obsidian review feedback, no functional changes
 
 ### Future work
 
