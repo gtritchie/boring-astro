@@ -29,7 +29,14 @@ jobs:
           node-version: 24
           cache: npm
 
-      - run: npm ci
+      # pa11y-ci pulls in puppeteer transitively, whose postinstall would
+      # otherwise try to download Chrome. CI runs no browser, so skip it.
+      # Scoped to CI only — local installs still download Chrome for
+      # `npm run pa11y`.
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
 
       - name: Lint, format, typecheck
         run: npm run check
@@ -44,12 +51,3 @@ jobs:
         with:
           args: --config lychee.toml 'dist/client/**/*.html'
           fail: true
-
-      - name: Start preview
-        run: npx astro preview --host 127.0.0.1 --port 4321 &
-
-      - name: Wait for preview
-        run: npx wait-on http://127.0.0.1:4321/ --timeout 60000
-
-      - name: pa11y-ci (AAA, every URL in the sitemap index)
-        run: npm run pa11y

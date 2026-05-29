@@ -141,7 +141,8 @@ Astro scopes component CSS automatically — class names like `.inner` or
 ## Deploy
 
 GitHub Actions runs CI on every push and PR to `main`: `npm run check`, build,
-link check, and pa11y. CI is the quality gate; it does not deploy.
+and link check. CI is the quality gate; it does not deploy. The pa11y
+accessibility audit runs locally only (see below).
 
 Deploys are handled by **Cloudflare Workers Builds**. The `boring-site` Worker
 is connected to this repo via the Cloudflare dashboard. On push to `main`,
@@ -162,8 +163,10 @@ variables → Build variables, not in GitHub secrets:
 - `PUBLIC_CF_WA_TOKEN` — Cloudflare Web Analytics site token. When set, Astro
   bakes the beacon into the static output at build time. Optional.
 
-Lighthouse is not run in CI; run `npm run lighthouse` locally when you want a
-perf audit.
+Neither pa11y nor Lighthouse runs in CI — both need a browser, which the
+GitHub runner image no longer provisions cleanly for Puppeteer. Run
+`npm run pa11y` (accessibility) and `npm run lighthouse` (perf) locally; run
+pa11y before merging changes that affect markup or styling.
 
 Day-to-day flow: branch, commit, open PR to `main`, wait for CI, click the
 Cloudflare preview URL on the PR, merge. Production deploy is automatic on
@@ -186,10 +189,10 @@ the GitHub repo settings.
 - **UTC dates** — YAML frontmatter dates parse as UTC midnight. All rendering
   uses `timeZone: "UTC"` and `getUTCFullYear()` so a `2026-04-23` value always
   displays as April 23 regardless of the host or reader's timezone.
-- **pa11y uses Puppeteer's browser** — `npm install` downloads Chrome for
-  Testing to `~/.cache/puppeteer/`. `run-pa11y.mjs` leaves
-  `chromeLaunchConfig.executablePath` unset so pa11y picks it up
-  automatically, in CI and locally.
+- **pa11y uses Puppeteer's browser** — `npm install` runs Puppeteer's
+  postinstall, which downloads Chrome for Testing to `~/.cache/puppeteer/`.
+  `run-pa11y.mjs` leaves `chromeLaunchConfig.executablePath` unset so pa11y
+  picks it up automatically. This is a local-only flow; pa11y is not run in CI.
 - **Cloudflare adapter output** — `dist/client/` (not `dist/`) because in
   static mode the adapter doesn't emit a `_worker.js`. `wrangler.jsonc`
   points `assets.directory` at `./dist/client`.

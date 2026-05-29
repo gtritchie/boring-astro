@@ -20,7 +20,7 @@ Node 24+ required (`.nvmrc` pins `24.15.0`).
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
 - `npm run link-check` — builds, then lychee across built HTML (requires lychee 0.23.x installed — see `README.md` for install notes; brew ships 0.24+ which is incompatible with this repo's `lychee.toml`)
 
-No unit test suite. Verification in CI is linting, type-checking, link-check, and pa11y. Lighthouse is local-only (`npm run lighthouse`).
+No unit test suite. Verification in CI is linting, type-checking, and link-check. The pa11y accessibility audit (`npm run pa11y`) and Lighthouse (`npm run lighthouse`) are local-only — CI does not run a browser, so it needs no Chrome/Puppeteer. Run pa11y locally before merging accessibility-affecting changes.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ No unit test suite. Verification in CI is linting, type-checking, link-check, an
 
 ## CI / deploy
 
-`.github/workflows/ci.yml` runs on push/PR to `main`: `check` → `build` → `link-check` → `pa11y`. CI is the quality gate; it does not deploy.
+`.github/workflows/ci.yml` runs on push/PR to `main`: `check` → `build` → `link-check`. CI is the quality gate; it does not deploy. pa11y is intentionally not in CI — it needs a browser, and the GitHub runner image ships a broken pre-seeded Puppeteer Chrome cache that defeats both the postinstall download and explicit `puppeteer browsers install`. Run it locally instead.
 
 **Deploy is Cloudflare Workers Builds.** The `boring-site` Worker is connected to this repo via the Cloudflare dashboard (Settings → Build). On push to `main`, Cloudflare runs `npm run build` then `npx wrangler deploy` against the production Worker. On push to any other branch, Cloudflare runs `npm run build` then `npx wrangler versions upload`, which produces a unique preview URL per build. Node 24 is auto-detected from `.nvmrc`.
 
