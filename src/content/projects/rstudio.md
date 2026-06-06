@@ -56,7 +56,8 @@ Windows, I had to use [winpty](https://github.com/rprichard/winpty) to provide t
 that are built in to macOS and Linux. Windows 11 (and later builds of Windows 10) include a real
 implementation,
 [ConPTY](https://devblogs.microsoft.com/commandline/windows-command-line-introducing-the-windows-pseudo-console-conpty/),
-but we haven't switched to it yet.
+~~but we haven't switched to it yet.~~ UPDATE: I finally [made the switch](https://github.com/rstudio/rstudio/pull/17814)
+from winpty to ConPTY in RStudio 2026.06.
 
 ### Licensing
 
