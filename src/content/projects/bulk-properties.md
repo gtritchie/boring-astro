@@ -55,6 +55,8 @@ the property used for indicating selection and first want to remove the existing
 - 2026-05-12
   - added GitHub artifact attestations for main.js and styles.css
   - minor code changes to respond to Obsidian review feedback, no functional changes
+- 2026-05-30
+  - updated dependencies including the `obsidian` package in anticipation of Obsidian's 1.13.0 release
 
 ### Future work
 
