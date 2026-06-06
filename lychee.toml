@@ -28,6 +28,10 @@ exclude = [
   "^https?://(www\\.)?x\\.com",
   "^https?://(www\\.)?openai\\.com",
   "^https?://(www\\.)?npmjs\\.com",
+  # Picky PHP host that intermittently 415s automated checks; the link
+  # resolves 200 in a browser and via curl. lychee doesn't retry definitive
+  # status codes, so excluding the host is the only way to keep CI stable.
+  "^https?://(www\\.)?maccheckbook\\.com",
   "mailto:.*",
   "^https?://boringbydesign\\.ca",
 ]
