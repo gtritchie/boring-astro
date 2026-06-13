@@ -65,8 +65,9 @@ Create `src/content/projects/<slug>.md`:
 title: project-name
 summary: One-line pitch.
 status: active # or "archived" or "experimental"
-startedAt: 2026-01-15 # Date; used for sorting
+startedAt: 2026-01-15 # Date; drives the "Year" label and is the sort fallback
 displayYear: "2026" # optional override; e.g. "2023–present"
+order: 50 # optional; primary sort key, ascending (lower = first)
 tags: [Rust, CLI]
 featured: true # optional; shows on home page if true
 links: # optional
@@ -79,6 +80,11 @@ draft: false # optional
 
 Body is Markdown. Shows at `/projects/<slug>/`. Home page includes up to 4
 `featured: true` projects.
+
+Both the projects listing and the home page sort by `order` ascending (lower
+first). Projects with `order` set always come before those without; ties — and
+any entries without `order` — fall back to `startedAt` descending (newest
+first).
 
 ### A new interest
 
