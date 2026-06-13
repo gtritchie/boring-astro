@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # npm: one grouped PR per week. Cooldown delays version updates by 7 days
+  # to match .npmrc's min-release-age; security updates ignore cooldown and
+  # still land immediately.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all-deps:
+        patterns: ["*"]
+
+  # GitHub Actions are SHA-pinned in the workflows. Dependabot bumps the SHA
+  # and rewrites the `# vX.Y.Z` comment when a new release ships.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      all-actions:
+        patterns: ["*"]
