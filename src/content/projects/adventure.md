@@ -5,7 +5,7 @@ status: active
 startedAt: 2026-02-15
 tags: [TypeScript, C, node.js, Personal]
 featured: true
-order: 80
+order: 30
 links:
   repo: https://github.com/gtritchie/open-adventure-ts
   site: https://boringbydesign.ca/adventure/
