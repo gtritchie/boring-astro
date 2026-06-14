@@ -8,13 +8,26 @@ featured: true
 order: 20
 ---
 
+import { Image } from "astro:assets";
+import shipIt from "./ship-it.png";
+import cagHelp from "./cag-help.png";
+import cagHome from "./cag-home.png";
+import cagPreview from "./cag-preview.png";
+import cagProperties from "./cag-properties.png";
+import cagBeans from "./cag-beans.png";
+import cagSkinny from "./cag-skinny.png";
+
 ## The Evil Empire
 
 I joined Microsoft as a developer in 1997, starting on the MediaStore team and working on Clip Gallery 5.0 (CAG-5).
 
 CAG-5 was released with Office-2000, Microsoft Works, and some other long-forgotten software such as Microsoft Home Publishing.
 
-![Ship-it](ship-it.png)
+<Image
+  src={shipIt}
+  alt="Clip Gallery 5.0 ship-it award"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ## CAG History
 
@@ -45,7 +58,11 @@ early releases of CAG-5, but we removed that for... reasons.
 
 Here's the help page on the pop-up control from the Office-2000 help.
 
-![Pop-up menu help](cag-help.png)
+<Image
+  src={cagHelp}
+  alt="Office 2000 help page describing the Clip Gallery pop-up control"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ## Memories of Development Process
 
@@ -69,15 +86,31 @@ onto my Windows-11 PC. It worked, and this is how I captured these screenshots.
 
 For all the Microsoft bashing, backwards compatibility has always been amazing in core Microsoft-land.
 
-![Collections](cag-home.png)
+<Image
+  src={cagHome}
+  alt="Clip Gallery main window showing collections of clips in a thumbnail grid"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
-![Preview window](cag-preview.png)
+<Image
+  src={cagPreview}
+  alt="Clip Gallery preview window for a selected clip"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
-![Clip properties](cag-properties.png)
+<Image
+  src={cagProperties}
+  alt="Clip Gallery dialog for editing a clip's categories and keywords"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
-![Screen beans](cag-beans.png)
+<Image
+  src={cagBeans}
+  alt="Microsoft Screen Beans clip art shown in Clip Gallery"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
-![Skinny view](cag-skinny.png)
+<Image src={cagSkinny} alt="Clip Gallery in its narrow docked sidebar view" sizes="229px" />
 
 ## After CAG (The Sequel)
 
