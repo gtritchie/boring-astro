@@ -36,7 +36,7 @@ Anyway, back to CAG history.
 
 ## What I Worked On
 
-The first thing I remember building was the "popup-control", a custom widget that displayed when you selected a clip
+The first thing I remember building was the "pop-up control", a custom widget that displayed when you selected a clip
 and provided common actions such as inserting or previewing the asset, or editing its categories and keywords.
 
 Other than that I vaguely recall improvements to the thumbnail/grid control, performance things, and improving
