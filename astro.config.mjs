@@ -15,6 +15,12 @@ export default defineConfig({
   // /_astro/*.webp URLs. The adapter's default routes through a runtime /_image
   // endpoint, which 404s on this Workers Assets-only deploy (no _worker.js).
   adapter: cloudflare({ imageService: "compile" }),
+  image: {
+    // Site-wide default: <Image> and markdown images emit srcset/sizes and
+    // responsive styles (aspect-ratio box, object-fit) to prevent layout shift.
+    layout: "constrained",
+    responsiveStyles: true,
+  },
   markdown: {
     // mdx() extends this config by default, so the plugin runs for both
     // .md and .mdx without listing it twice.
