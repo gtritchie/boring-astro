@@ -37,6 +37,7 @@ No unit test suite. Verification in CI is linting, type-checking, and link-check
 ## Gotchas worth remembering
 
 - **`ClientRouter`, not `ViewTransitions`** — renamed in Astro 5+.
+- **Markdown uses remark/rehype, not the Astro 7 default (Sätteri).** Astro 7 defaults `markdown.processor` to `satteri()`, which silently ignores rehype plugins. `astro.config.mjs` opts back in with `processor: unified({ rehypePlugins: [...] })` (from `@astrojs/markdown-remark`) so `rehype-external-links` keeps adding the external-link affordance. Reverting that to the default would silently drop the glyph/`target`/`rel` on markdown links — no build error. mdx() inherits the same processor, covering `.md` and `.mdx`.
 - **UTC dates everywhere.** YAML frontmatter dates parse as UTC midnight. Render with `timeZone: "UTC"` and `getUTCFullYear()` so `2026-04-23` always displays as April 23 regardless of host/reader timezone.
 - **pa11y uses Puppeteer's bundled Chrome** at `~/.cache/puppeteer/`. `run-pa11y.mjs` leaves `chromeLaunchConfig.executablePath` unset so pa11y auto-detects it. `run-pa11y.mjs` also rewrites sitemap URLs to the preview origin — don't regress that when touching the script.
 - **`preview:astro` is what pa11y targets**, not `wrangler dev`. They listen on different ports.
