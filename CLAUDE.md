@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 6 site deployed to Cloudflare Workers (Workers Assets) via Cloudflare Workers Builds. No client JS beyond the theme toggle and Astro's `ClientRouter` view transitions. See `README.md` for content-authoring and design-token locations.
+Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 7 site deployed to Cloudflare Workers (Workers Assets) via Cloudflare Workers Builds. No client JS beyond the theme toggle and Astro's `ClientRouter` view transitions. See `README.md` for content-authoring and design-token locations.
 
 ## Commands
 
@@ -26,7 +26,7 @@ No unit test suite. Verification in CI is linting, type-checking, and link-check
 
 **Static Astro, no SSR.** `output: "static"` with the Cloudflare adapter. The adapter does _not_ emit `_worker.js` in static mode, so build output lives at `dist/client/` and `wrangler.jsonc`'s `assets.directory` points there. Don't assume `dist/` like typical Astro projects.
 
-**Content is the data model.** All user-visible content lives under `src/content/{writing,projects,interests}/` as Markdown/MDX, validated against Zod schemas in `src/content.config.ts`. Collections use Astro 6's content layer (`loader: glob(...)`). Entries expose `entry.id` (not `slug`); render with `render(entry)` imported from `astro:content`. Adding fields means updating both the schema and any consuming page/component.
+**Content is the data model.** All user-visible content lives under `src/content/{writing,projects,interests}/` as Markdown/MDX, validated against Zod schemas in `src/content.config.ts`. Collections use Astro 7's content layer (`loader: glob(...)`). Entries expose `entry.id` (not `slug`); render with `render(entry)` imported from `astro:content`. Adding fields means updating both the schema and any consuming page/component.
 
 **Routing mirrors collections.** `src/pages/{writing,projects,interests}/[...slug].astro` renders individual entries; sibling `index.astro` renders listings. `rss.xml.ts` generates the feed from the `writing` collection. Draft entries (`draft: true`) are excluded from listings, RSS, and the sitemap but still type-check and build.
 

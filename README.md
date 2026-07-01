@@ -1,6 +1,6 @@
 # boring-astro
 
-Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 6 site
+Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 7 site
 deployed to Cloudflare Workers (Workers Assets). Warm-neutral palette, AAA
 contrast, system fonts, no client JS beyond the theme toggle and Astro view
 transitions.
@@ -212,7 +212,7 @@ the GitHub repo settings.
 
 ## Stack notes worth remembering
 
-- **Astro 6 content layer** — collections use `loader: glob(...)` in
+- **Astro 7 content layer** — collections use `loader: glob(...)` in
   `src/content.config.ts`. Entries have `entry.id` (not `slug`). Render via
   `render(entry)` imported from `astro:content`.
 - **ClientRouter, not ViewTransitions** — the component was renamed in Astro 5+.
