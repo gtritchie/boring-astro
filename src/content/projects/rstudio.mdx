@@ -12,6 +12,9 @@ links:
   docs: https://docs.posit.co/ide/user
 ---
 
+import { Image } from "astro:assets";
+import rstudioAssistant from "./rstudio.png";
+
 ## History
 
 RStudio started as a personal project of [JJ Allaire](https://en.wikipedia.org/wiki/Joseph_J._Allaire)
@@ -96,4 +99,8 @@ Although Posit has put a lot of focus on the [Positron IDE](https://positron.pos
 itself is still very widely used, and there is a never-ending list of features and issues to tackle,
 so not likely to be bored anytime soon.
 
-![RStudio and Posit Assistant](rstudio.png)
+<Image
+  src={rstudioAssistant}
+  alt="RStudio IDE with the Posit Assistant pane open in the sidebar"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>

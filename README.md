@@ -109,9 +109,33 @@ frontmatter.
 
 ### Images
 
-Drop images next to the Markdown file and reference them with relative paths.
-Astro 6 auto-routes them through the Image pipeline (WebP/AVIF output,
-responsive srcset). Always include `alt` text.
+Drop images next to the content file and reference them with Astro's
+`<Image>` component (this requires the file to be `.mdx`, not `.md`):
+
+```mdx
+import { Image } from "astro:assets";
+import screenshot from "./screenshot.png";
+
+<Image
+  src={screenshot}
+  alt="Describe what the image shows"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
+```
+
+Astro converts to WebP and emits a responsive `srcset` at build. The explicit
+`sizes` tells the browser the real rendered slot is the 68ch (~722px) reading
+column, so it downloads a ~750w candidate instead of over-serving at viewport
+width. Plain Markdown `![](…)` still builds, but its auto `sizes` collapses to
+`100vw` and ships oversized files — prefer `<Image>`. Always include `alt`.
+
+Cap source masters at roughly **1600px wide** — when an image is wider than
+that, resize it in place with `sips --resampleWidth 1600 image.png`. Width is
+the axis that matters: images render in the 68ch (~722px) reading column, so
+~1600px covers it at 2× DPR (1444px) with margin. A tall portrait screenshot can
+stay taller than 1600px as long as its width is in range. Anything wider only
+bloats the repo and the largest srcset candidate; WebP conversion already
+handles byte size, so images already within the width cap need no resize.
 
 ### External links
 
