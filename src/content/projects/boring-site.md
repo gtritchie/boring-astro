@@ -25,5 +25,5 @@ preference for simple, clean websites that are fast and as low-tech as possible 
 
 I used Claude Code's superpowers to brainstorm, design, and implement this site in an afternoon. I
 had already worked through some Astro tutorials so wasn't flying blind, but deploying to
-[Cloudflare Workers](https://workers.cloudflare.com/product/workers) was a new twist. If you are
+[Cloudflare Workers](https://www.cloudflare.com/products/workers/) was a new twist. If you are
 reading this, I must have figured it out!

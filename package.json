@@ -18,24 +18,25 @@
     "link-check": "bash scripts/run-link-check.sh"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.8",
-    "@astrojs/cloudflare": "^13.2.1",
-    "@astrojs/mdx": "^5.0.4",
-    "@astrojs/rss": "^4.0.18",
-    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/cloudflare": "^14.1.0",
+    "@astrojs/markdown-remark": "^7.2.0",
+    "@astrojs/mdx": "^7.0.1",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
     "@open-adventure/core": "^1.0.2",
-    "astro": "^6.1.9"
+    "astro": "^7.0.5"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
-    "eslint": "^10.2.1",
-    "eslint-plugin-astro": "^1.7.0",
-    "pa11y-ci": "^4.1.0",
-    "prettier": "^3.8.3",
+    "eslint": "^10.6.0",
+    "eslint-plugin-astro": "^2.1.1",
+    "pa11y-ci": "^4.1.1",
+    "prettier": "^3.9.4",
     "prettier-plugin-astro": "^0.14.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.59.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
     "unist-util-visit": "^5.1.0",
-    "wrangler": "^4.85.0"
+    "wrangler": "^4.106.0"
   }
 }
