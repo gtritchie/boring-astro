@@ -11,6 +11,10 @@ links:
   site: https://community.obsidian.md/plugins/bulk-properties
 ---
 
+import { Image } from "astro:assets";
+import optionsDialog from "./bulk-properties-options.png";
+import editDialog from "./bulk-properties-edit.png";
+
 ## Background
 
 My wife uses [Obsidian](https://obsidian.md/) for task management and wanted to select a few notes
@@ -24,7 +28,11 @@ plugins registry.
 The plugin's options let you define a checkbox property to serve as the selection mechanism, and
 choose which properties you want available for bulk-editing.
 
-![Bulk properties options dialog](bulk-properties-options.png)
+<Image
+  src={optionsDialog}
+  alt="Bulk Properties options dialog for choosing the selection and editable properties"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ### Bulk editing
 
@@ -33,7 +41,11 @@ command (or use the ribbon icon) to bring up the dialog. Select the property to 
 the new value. For multi-value properties (e.g. tags, lists) there is an option to add new values,
 replace all existing values, or delete the provided value.
 
-![Bulk edit selected notes dialog](bulk-properties-edit.png)
+<Image
+  src={editDialog}
+  alt="Bulk edit dialog showing a property selector and new-value field for the selected notes"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ### Other features
 

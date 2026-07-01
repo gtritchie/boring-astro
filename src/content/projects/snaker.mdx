@@ -11,6 +11,10 @@ links:
   site: https://boringbydesign.ca/snaker
 ---
 
+import { Image } from "astro:assets";
+import rainbowCover from "./rainbow-cover.png";
+import noTreads from "./no-treads.png";
+
 ## History
 
 In early 1983 I wrote _Snaker_ for the TRS-80 Color Computer, and submitted it to [The Rainbow](<https://en.wikipedia.org/wiki/The_Rainbow_(magazine)>) magazine.
@@ -19,11 +23,19 @@ Submission was via mailing a cassette tape with the source code. It was accepted
 
 ### Magazine Cover
 
-![Magazine Cover](rainbow-cover.png)
+<Image
+  src={rainbowCover}
+  alt="Cover of the January 1984 issue of The Rainbow magazine"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ### First Page of Article
 
-![Article](no-treads.png)
+<Image
+  src={noTreads}
+  alt="First page of the Snaker article and source listing as printed in The Rainbow"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ## Background
 
@@ -45,7 +57,7 @@ The sound is problematic (silent) on iOS (iPhone) due to known Safari quirks. Te
 
 [GAMEPLAY.md](https://github.com/gtritchie/snaker/blob/main/GAMEPLAY.md) explains how to play the (ported) game.
 
-**Play it in your browser:** <https://boringbydesign.ca/snaker>
+**Play it in your browser:** [https://boringbydesign.ca/snaker](https://boringbydesign.ca/snaker)
 
 ## Other Games
 
