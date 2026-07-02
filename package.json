@@ -38,5 +38,13 @@
     "typescript-eslint": "^8.62.1",
     "unist-util-visit": "^5.1.0",
     "wrangler": "^4.106.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "puppeteer@24.42.0": true,
+    "sharp@0.34.5": true,
+    "workerd@1.20260623.1": true,
+    "workerd@1.20260630.1": true
   }
 }
