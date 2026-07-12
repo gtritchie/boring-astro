@@ -9,7 +9,7 @@ links:
   site: https://luxcentric.com
 ---
 
-import { Image } from "astro:assets";
+import ZoomImage from "../../components/ZoomImage.astro";
 import crazyClaude from "./crazy-claude.png";
 
 ## Background
@@ -33,7 +33,7 @@ As the project went on, Claude Code's memories became "cluttered", so I had it d
 
 When I started, I was still using `Opus 4.6`. I switched to `Opus 4.7` and had mixed results, including a session where it lost its mind and tried to do potentially damaging git operations but was blocked by hooks I had put in place to catch such naughtiness. Ultimately I had to throw away all work from that session, have Claude write up instructions for itself to prevent such madness, and start fresh. With those extra guardrails, I was able to get decent work out of `4.7`. Later switched to `4.8`, and also did some late-stage tasks using `Fable`.
 
-<Image
+<ZoomImage
   src={crazyClaude}
   alt="Screenshot of conversation with Claude Code after it lost its mind"
 />
