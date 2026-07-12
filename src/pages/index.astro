@@ -7,7 +7,7 @@ import { sortProjects } from "../lib/project-sort";
 
 const projects = sortProjects(
   await getCollection("projects", (p) => !p.data.draft && p.data.featured),
-).slice(0, 4);
+).slice(0, 6);
 
 const writing = (await getCollection("writing", (p) => !p.data.draft))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())

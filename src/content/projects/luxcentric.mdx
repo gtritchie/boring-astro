@@ -1,0 +1,53 @@
+---
+title: Luxcentric Website
+summary: Business website I converted from WordPress to Astro
+status: active
+startedAt: 2026-05-10
+tags: [Astro, TypeScript, HTML, CSS, Markdown]
+featured: true
+links:
+  site: https://luxcentric.com
+---
+
+import { Image } from "astro:assets";
+import crazyClaude from "./crazy-claude.png";
+
+## Background
+
+My wife's business website was built on WordPress. It was essentially a static site, making all the WordPress overhead (and relatively expensive hosting requirements) overkill. So, I converted it to [Astro](https://astro.build/) running on Cloudflare Workers.
+
+## The Process
+
+The overall goal was to create an Astro-based static site with the same look and feel as the WordPress site, including all pages and content (blog posts, etc.). The WordPress site was using Beaver Builder, an extra layer of horror on top of WordPress' inherent horrors. I start by having Claude Code crawl the site to catalog the pages, potential components, and content-types. From that I went through multiple rounds of planning using the [Superpowers](https://www.claudedirectory.org/plugins/superpowers), and came up with a multi-stage implementation plan including:
+
+- implement the basic Astro project and development tooling, leaning heavily on what was learned building this "boring-by-design" site
+- implement the routing, redirects, and URL structure to match the WordPress site
+- import the content (blog posts, events, games) and implement the necessary components and templates to display it
+- implement the site chrome (header, footer, navigation)
+- implement each page, matching the live site's look and feel
+- style the content collections (blog posts, events, games)
+
+I had a personal goal to improve the accessibility of the site, aiming for WCAG 2.2 AA. The original site wasn't terrible (better than I expected) but had the usual issues with contrast so adjustments to the colour scheme were necessary. I also switched from a layout that expanded to full width (e.g. even on wide desktop displays) to using a centered max-width layout. All pages were tested on mobile, tablet, and desktop layouts.
+
+As the project went on, Claude Code's memories became "cluttered", so I had it do self-evaluations and cleanups on multiple occasions.
+
+When I started, I was still using `Opus 4.6`. I switched to `Opus 4.7` and had mixed results, including a session where it lost its mind and tried to do potentially damaging git operations but was blocked by hooks I had put in place to catch such naughtiness. Ultimately I had to throw away all work from that session, have Claude write up instructions for itself to prevent such madness, and start fresh. With those extra guardrails, I was able to get decent work out of `4.7`. Later switched to `4.8`, and also did some late-stage tasks using `Fable`.
+
+<Image
+  src={crazyClaude}
+  alt="Screenshot of conversation with Claude Code after it lost its mind"
+/>
+
+The workflow was essentially a manual Ralph loop, ultimately taking over 600 Claude Code sessions (as reported by [AgentsView](https://www.agentsview.io)). The early stages were handled by Claude Code's initial plans, which it checked off and tweaked as we went along and learned things. Eventually we entered uncharted territory (aka gaps in the original plan I hadn't noticed up front), and I'd have Claude write up the prompt for the next session as the final step in each session, saving them to my Obsidian vault. For each new session I just gave it the path to the prompt file.
+
+I wasn't under any significant time pressure, so did not try doing things in parallel. Early on I wasn't using `auto` mode so sessions would often be stalled for minutes, hours, or days, waiting for me to approve operations and answer questions. With `auto` mode, and also `/remote-control`, later stages went more efficiently as many could run end-to-end with little to no input from me, and being notified on my phone when Claude had a question allowed me to unblock it more quickly.
+
+My workflow (both on this project and in my "real job") has Claude Code instructed to always work on a branch, and always make meaningful commits then wait for an automated review from [roborev](https://www.roborev.io), using Codex as the review agent, respond to the findings, repeat and rinse. For significant "frameworky" changes, I'd also use Claude Code's `/pr-review-tools` to run final multi-agent reviews against PRs.
+
+### Next Steps
+
+We switched over to the new site on July 11, 2026, and now I'm writing up instructions for my wife so she can make edits, create new pages, etc. She's starting off using Zed as the editor, and for its git/GitHub integration.
+
+I'm making the site self-documenting, with a dedicated "platform" section (not linked to the regular pages): https://luxcentric.com/platform/.
+
+I have looked at some options for a friendlier experience such as [Sveltia CMS](https://www.sveltia.com/cms), which shows promise, but isn't quite there yet. Another future consideration is [EmDash](https://www.emdashcms.com/).
