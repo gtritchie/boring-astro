@@ -10,9 +10,10 @@ import { Image, getImage } from "astro:assets";
 interface Props {
   src: ImageMetadata;
   alt: string;
+  sizes?: string;
 }
 
-const { src, alt } = Astro.props;
+const { src, alt, sizes } = Astro.props;
 
 // Single full-native-width rendition for the overlay. layout "none" opts out
 // of the global responsive srcset: the overlay <img> is one asset scaled by
@@ -22,7 +23,7 @@ const fullSize = await getImage({ src, width: src.width, layout: "none" });
 
 <figure class="zoom-image">
   <button type="button" class="zoom-image__trigger" aria-haspopup="dialog">
-    <Image src={src} alt={alt} />
+    <Image src={src} alt={alt} {...sizes && { sizes }} />
     <span class="zoom-image__badge" aria-hidden="true">
       <svg
         viewBox="0 0 24 24"

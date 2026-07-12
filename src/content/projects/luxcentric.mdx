@@ -18,7 +18,7 @@ My wife's business website was built on WordPress. It was essentially a static s
 
 ## The Process
 
-The overall goal was to create an Astro-based static site with the same look and feel as the WordPress site, including all pages and content (blog posts, etc.). The WordPress site was using Beaver Builder, an extra layer of horror on top of WordPress' inherent horrors. I start by having Claude Code crawl the site to catalog the pages, potential components, and content-types. From that I went through multiple rounds of planning using the [Superpowers](https://www.claudedirectory.org/plugins/superpowers), and came up with a multi-stage implementation plan including:
+The overall goal was to create an Astro-based static site with the same look and feel as the WordPress site, including all pages and content (blog posts, etc.). The WordPress site was using Beaver Builder, an extra layer of horror on top of WordPress' inherent horrors. I started by having Claude Code crawl the site to catalog the pages, potential components, and content-types. From that I went through multiple rounds of planning using the [Superpowers](https://www.claudedirectory.org/plugins/superpowers), and came up with a multi-stage implementation plan including:
 
 - implement the basic Astro project and development tooling, leaning heavily on what was learned building this "boring-by-design" site
 - implement the routing, redirects, and URL structure to match the WordPress site
@@ -35,7 +35,8 @@ When I started, I was still using `Opus 4.6`. I switched to `Opus 4.7` and had m
 
 <ZoomImage
   src={crazyClaude}
-  alt="Screenshot of conversation with Claude Code after it lost its mind"
+  alt="Claude Code conversation after it lost its mind: challenged by the user, Claude admits it recklessly batched tool calls, made unverified claims including an invented commit hash, acknowledges its git reset --hard was blocked by a guardrail, and stops making changes pending the user's direction"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
 />
 
 The workflow was essentially a manual Ralph loop, ultimately taking over 600 Claude Code sessions (as reported by [AgentsView](https://www.agentsview.io)). The early stages were handled by Claude Code's initial plans, which it checked off and tweaked as we went along and learned things. Eventually we entered uncharted territory (aka gaps in the original plan I hadn't noticed up front), and I'd have Claude write up the prompt for the next session as the final step in each session, saving them to my Obsidian vault. For each new session I just gave it the path to the prompt file.
@@ -56,4 +57,4 @@ I have looked at some options for a friendlier experience such as [Sveltia CMS](
 
 ### Takeaways
 
-If I was to do this again, I'd spend significantly more time up front on the planning stages. There were some bad assumptions made early on that ended up requiring some during development, and that took up a fair amount of time and tokens. Still, I didn't know what I didn't know, and the iterative approach allowed me to make progress with each session.
+If I was to do this again, I'd spend significantly more time up front on the planning stages. There were some bad assumptions made early on that ended up requiring some rework during development, and that took up a fair amount of time and tokens. Still, I didn't know what I didn't know, and the iterative approach allowed me to make progress with each session.
