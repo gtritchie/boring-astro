@@ -42,6 +42,8 @@ The workflow was essentially a manual Ralph loop, ultimately taking over 600 Cla
 
 I wasn't under any significant time pressure, so did not try doing things in parallel. Early on I wasn't using `auto` mode so sessions would often be stalled for minutes, hours, or days, waiting for me to approve operations and answer questions. With `auto` mode, and also `/remote-control`, later stages went more efficiently as many could run end-to-end with little to no input from me, and being notified on my phone when Claude had a question allowed me to unblock it more quickly.
 
+I was using the Claude Code $100 Max plan, and never came close to hitting any limits.
+
 My workflow (both on this project and in my "real job") has Claude Code instructed to always work on a branch, and always make meaningful commits then wait for an automated review from [roborev](https://www.roborev.io), using Codex as the review agent, respond to the findings, repeat and rinse. For significant "frameworky" changes, I'd also use Claude Code's `/pr-review-tools` to run final multi-agent reviews against PRs.
 
 ### Next Steps
@@ -51,3 +53,7 @@ We switched over to the new site on July 11, 2026, and now I'm writing up instru
 I'm making the site self-documenting, with a dedicated "platform" section (not linked to the regular pages): https://luxcentric.com/platform/.
 
 I have looked at some options for a friendlier experience such as [Sveltia CMS](https://www.sveltia.com/cms), which shows promise, but isn't quite there yet. Another future consideration is [EmDash](https://www.emdashcms.com/).
+
+### Takeaways
+
+If I was to do this again, I'd spend significantly more time up front on the planning stages. There were some bad assumptions made early on that ended up requiring some during development, and that took up a fair amount of time and tokens. Still, I didn't know what I didn't know, and the iterative approach allowed me to make progress with each session.
