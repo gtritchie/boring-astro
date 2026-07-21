@@ -29,13 +29,18 @@ export default defineConfig({
     // remark/rehype pipeline so our remark/rehype plugins keep running.
     // (gfm + smartypants still default to true.) mdx() extends this config by
     // default, so the plugins run for both .md and .mdx without listing twice.
-    // rehypeHeadingIds is pinned first because rehypeHeadingAnchors needs the
-    // ids it assigns; Astro otherwise injects it after every custom plugin,
-    // too late for us. Astro's own pass still runs afterwards and keeps these
-    // ids, so heading slugs are unchanged.
+    // Rehype order is load-bearing twice over. rehypeHeadingIds is pinned first
+    // so ids exist for rehypeHeadingAnchors, and so ids and headings metadata
+    // are slugged from the author's heading text rather than from post-plugin
+    // markup. Astro appends its own rehypeHeadingIds after every custom plugin,
+    // but unified dedupes attachers by identity, so that call folds into this
+    // one and the pass runs exactly once, here. Anchors then run ahead of
+    // rehype-external-links — see rehype-heading-anchors.mjs for why.
+    // No heading in src/content/ contains a link today, so pinning left every
+    // existing slug untouched; one that did would now slug from its own text.
     processor: unified({
       remarkPlugins: [remarkAlerts],
-      rehypePlugins: [rehypeHeadingIds, rehypeOpts, rehypeHeadingAnchors],
+      rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeOpts],
     }),
   },
   integrations: [mdx(), sitemap()],

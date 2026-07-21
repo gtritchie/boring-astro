@@ -1,22 +1,24 @@
 // rehype plugin: append a deep-link anchor to every h2–h4 that carries an id,
-// so any section of a content entry can be linked from the address bar. The
-// anchor is a chain-link glyph in the heading's own color, revealed on hover
-// or keyboard focus — styling lives in ProseLayout.astro under
-// `.heading-anchor`.
+// so any section of a content entry can be linked from the address bar.
+// Styling — the hover/focus reveal, the always-visible touch fallback — lives
+// in ProseLayout.astro under `.heading-anchor`.
 //
-// Applies to all markdown, which on this site means every entry in every
-// content collection (writing, projects, interests); there is no markdown
-// outside src/content/.
+// Runs on all markdown, which is every content-collection entry: nothing under
+// src/pages/ is markdown and nothing imports a .md file, so src/content/ is the
+// whole of Astro's markdown pipeline (README.md and docs/ never reach it).
 //
-// Requires heading ids to already exist: Astro injects its own rehypeHeadingIds
-// AFTER every custom rehype plugin, so astro.config.mjs pins that plugin ahead
-// of this one. Astro's later pass keeps the ids it finds but re-collects each
-// heading's text for render(entry).headings — which is why the anchor's
-// accessible name is an aria-label rather than the visually-hidden span the
-// external-link glyph uses. A text node added here would leak into that
-// metadata as "HeadingLink to “Heading”".
+// Two preconditions, both enforced by plugin order in astro.config.mjs:
+//   - heading ids exist — rehypeHeadingIds is pinned ahead of this plugin.
+//   - rehype-external-links has NOT run yet. It appends a visually-hidden
+//     " (opens in a new tab)" inside external links, and toText would fold that
+//     into the label of an anchor that opens nothing.
 //
-// h2–h4 only: h1 is the page title rendered by ProseLayout, not markdown.
+// The accessible name is an aria-label rather than the visually-hidden span the
+// external-link glyph uses, so nothing is added to the heading's text content:
+// copying a heading yields the author's words alone.
+//
+// h2–h4 is what content uses. h1 is the page title ProseLayout renders, not
+// markdown; nothing goes deeper than h4.
 
 import { visit } from "unist-util-visit";
 
