@@ -47,6 +47,13 @@
   --accent: #7a331a;
   --accent-bg: #f1e7e0;
   --focus-ring: #7a331a;
+
+  /* Markdown alert accents (GitHub Primer scale, ≥7:1 on --bg for AAA titles) */
+  --alert-note: #0550ae;
+  --alert-tip: #116329;
+  --alert-important: #6639ba;
+  --alert-warning: #633c01;
+  --alert-caution: #a40e26;
 }
 
 [data-theme="dark"] {
@@ -60,6 +67,13 @@
   --accent: #e8a98c;
   --accent-bg: #2a1f1a;
   --focus-ring: #e8a98c;
+
+  /* Markdown alert accents (GitHub Primer scale, ≥7:1 on --bg for AAA titles) */
+  --alert-note: #79c0ff;
+  --alert-tip: #3fb950;
+  --alert-important: #d2a8ff;
+  --alert-warning: #d29922;
+  --alert-caution: #ff7b72;
 }
 
 /* Respect system preference when no explicit choice */
@@ -75,5 +89,10 @@
     --accent: #e8a98c;
     --accent-bg: #2a1f1a;
     --focus-ring: #e8a98c;
+    --alert-note: #79c0ff;
+    --alert-tip: #3fb950;
+    --alert-important: #d2a8ff;
+    --alert-warning: #d29922;
+    --alert-caution: #ff7b72;
   }
 }

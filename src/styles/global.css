@@ -44,6 +44,25 @@ code {
   border-radius: 3px;
 }
 
+/* Keyboard key (<kbd>): a key-cap pill, GitHub-markdown style. Same mono face
+   and size as the inline code chip, but a neutral fill and a bottom edge
+   doubled by the inset shadow — the border-plus-shadow stack is what reads as
+   a physical key rather than a code chip. inline-block + line-height 1 gives
+   the cap its own box so the padding sets the key height instead of
+   stretching the line box. */
+kbd {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1;
+  vertical-align: middle;
+  background: var(--btn-bg);
+  border: 1px solid var(--border-ui);
+  border-radius: 4px;
+  box-shadow: inset 0 -2px 0 var(--border-ui);
+}
+
 hr {
   border: 0;
   border-top: 1px solid var(--border);
