@@ -5,6 +5,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { unified } from "@astrojs/markdown-remark";
 import rehypeExternalLinks from "./src/lib/rehype-external-links.mjs";
+import remarkAlerts from "./src/lib/remark-alerts.mjs";
 import { site, internalHosts } from "./src/lib/site.mjs";
 
 const rehypeOpts = [rehypeExternalLinks, { internalHosts }];
@@ -24,10 +25,10 @@ export default defineConfig({
   },
   markdown: {
     // Astro 7 defaults to the Sätteri pipeline; unified() opts back into the
-    // remark/rehype pipeline so our rehype-external-links plugin keeps running.
+    // remark/rehype pipeline so our remark/rehype plugins keep running.
     // (gfm + smartypants still default to true.) mdx() extends this config by
-    // default, so the plugin runs for both .md and .mdx without listing it twice.
-    processor: unified({ rehypePlugins: [rehypeOpts] }),
+    // default, so the plugins run for both .md and .mdx without listing twice.
+    processor: unified({ remarkPlugins: [remarkAlerts], rehypePlugins: [rehypeOpts] }),
   },
   integrations: [mdx(), sitemap()],
   trailingSlash: "always",

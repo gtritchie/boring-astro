@@ -90,4 +90,70 @@ const fmt = (d?: Date) =>
     padding: var(--sp-3) var(--sp-4);
     overflow-x: auto;
   }
+  /* Plain blockquote: an accent vertical bar replaces the browser's indent
+     (reset.css zeroes the margin). Alerts below reuse the same bar recipe so
+     quote bars and alert bars align down the page. --accent clears the 3:1
+     non-text minimum on both themes (8.7:1 light, 9.4:1 dark). */
+  .prose-body :global(blockquote),
+  .prose-body :global(.markdown-alert) {
+    margin: var(--sp-4) 0;
+    padding: var(--sp-2) var(--sp-4);
+    border-left: 4px solid var(--accent);
+  }
+  .prose-body :global(blockquote) > :global(:first-child),
+  .prose-body :global(.markdown-alert) > :global(:first-child) {
+    margin-top: 0;
+  }
+  .prose-body :global(blockquote) > :global(:last-child),
+  .prose-body :global(.markdown-alert) > :global(:last-child) {
+    margin-bottom: 0;
+  }
+  /* GitHub-style Markdown alerts. The remark-alerts plugin rewrites a
+     `> [!TYPE]` blockquote into `<div class="markdown-alert markdown-alert-<type>">`
+     with a leading `<p class="markdown-alert-title">` label; each type sets its
+     own --alert-accent (bar + label + icon tint, per-theme AAA values in
+     tokens.css) and --alert-icon (a CSS-masked octicon). Faithful to GitHub:
+     colored left bar + labelled title, no background fill. */
+  .prose-body :global(.markdown-alert) {
+    border-left-color: var(--alert-accent);
+  }
+  .prose-body :global(.markdown-alert) :global(p) {
+    margin: var(--sp-2) 0;
+  }
+  .prose-body :global(.markdown-alert-title) {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-weight: 600;
+    color: var(--alert-accent);
+  }
+  .prose-body :global(.markdown-alert-title)::before {
+    content: "";
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    background-color: var(--alert-accent);
+    -webkit-mask: var(--alert-icon) center / contain no-repeat;
+    mask: var(--alert-icon) center / contain no-repeat;
+  }
+  .prose-body :global(.markdown-alert-note) {
+    --alert-accent: var(--alert-note);
+    --alert-icon: url("/icons/alert-note.svg");
+  }
+  .prose-body :global(.markdown-alert-tip) {
+    --alert-accent: var(--alert-tip);
+    --alert-icon: url("/icons/alert-tip.svg");
+  }
+  .prose-body :global(.markdown-alert-important) {
+    --alert-accent: var(--alert-important);
+    --alert-icon: url("/icons/alert-important.svg");
+  }
+  .prose-body :global(.markdown-alert-warning) {
+    --alert-accent: var(--alert-warning);
+    --alert-icon: url("/icons/alert-warning.svg");
+  }
+  .prose-body :global(.markdown-alert-caution) {
+    --alert-accent: var(--alert-caution);
+    --alert-icon: url("/icons/alert-caution.svg");
+  }
 </style>
