@@ -12,7 +12,8 @@ import { visit } from "unist-util-visit";
 // `[^\S\r\n]*` allows trailing spaces/tabs after the marker; the marker must end
 // the line — a newline (inline body on the next line, kept as a soft break in
 // the same text node) or the end of the text node (body in a following
-// paragraph after a blank `>` line).
+// paragraph after a blank `>` line). End-of-node only counts as end-of-line
+// when nothing else follows on the marker's line — see the sibling check below.
 const MARKER_RE = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][^\S\r\n]*(?:\r?\n|$)/;
 
 function titleCase(type) {
@@ -31,14 +32,25 @@ export default function remarkAlerts() {
       if (!match) return;
       const type = match[1];
 
+      // `$` in MARKER_RE matches the end of the text *node*, not the source
+      // line. A match without a newline is only a bare marker if the line truly
+      // ended there: the text node must be the paragraph's last inline child, or
+      // be followed by a hard break (trailing double-space ends the line).
+      // `> [!NOTE] **bold**` parses as text + strong siblings — not an alert.
+      const next = firstChild.children[1];
+      if (!match[0].endsWith("\n") && next && next.type !== "break") return;
+
       // Strip the marker (and its trailing newline, when the body follows on the
       // next line) from the body text.
       firstText.value = firstText.value.slice(match[0].length);
 
       // Marker alone on its own paragraph (body in a later paragraph): the first
-      // text node is now empty — drop it, and drop the paragraph if it emptied.
+      // text node is now empty — drop it, plus the hard break that ended the
+      // marker line (it would render a stray leading <br> in the body), and the
+      // paragraph itself if it emptied.
       if (firstText.value === "") {
         firstChild.children.shift();
+        if (firstChild.children[0]?.type === "break") firstChild.children.shift();
         if (firstChild.children.length === 0) node.children.shift();
       }
 
