@@ -3,8 +3,9 @@ import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import { unified } from "@astrojs/markdown-remark";
+import { unified, rehypeHeadingIds } from "@astrojs/markdown-remark";
 import rehypeExternalLinks from "./src/lib/rehype-external-links.mjs";
+import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors.mjs";
 import remarkAlerts from "./src/lib/remark-alerts.mjs";
 import { site, internalHosts } from "./src/lib/site.mjs";
 
@@ -28,7 +29,14 @@ export default defineConfig({
     // remark/rehype pipeline so our remark/rehype plugins keep running.
     // (gfm + smartypants still default to true.) mdx() extends this config by
     // default, so the plugins run for both .md and .mdx without listing twice.
-    processor: unified({ remarkPlugins: [remarkAlerts], rehypePlugins: [rehypeOpts] }),
+    // rehypeHeadingIds is pinned first because rehypeHeadingAnchors needs the
+    // ids it assigns; Astro otherwise injects it after every custom plugin,
+    // too late for us. Astro's own pass still runs afterwards and keeps these
+    // ids, so heading slugs are unchanged.
+    processor: unified({
+      remarkPlugins: [remarkAlerts],
+      rehypePlugins: [rehypeHeadingIds, rehypeOpts, rehypeHeadingAnchors],
+    }),
   },
   integrations: [mdx(), sitemap()],
   trailingSlash: "always",
