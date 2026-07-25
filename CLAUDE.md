@@ -45,6 +45,8 @@ No unit test suite. Verification in CI is linting, type-checking, and link-check
 - **Deploy is Workers Assets only** — no binding to `env.ASSETS`; `wrangler.jsonc` intentionally has no `assets.binding` key (see commit b7ab667).
 - **iOS Safari auto-inflates monospace text** in narrow content blocks. `-webkit-text-size-adjust: 100%` on `html` throttles the algorithm but doesn't disable it. Pin `text-size-adjust: none` on the specific element when CSS sizing must win — see `AdventureTerminal.astro` for the worked example.
 - **Adventure terminal reserves 72ch, not 70.** The engine emits ≤70-char lines, but rendered mono glyph advance ≠ `1ch` exactly and sub-pixel rounding can push 70-char lines past a 70ch container. The 2-char buffer absorbs the variance.
+- **TypeScript is held at `~6.0.3` — don't bump it to 7.x.** TypeScript 7 is `latest` on npm, so `npm outdated` reports it every cycle, but two peers still cap at 6: `typescript-eslint` (`>=4.8.4 <6.1.0`) and `@astrojs/check` (`^5.0.0 || ^6.0.0`). The tilde also blocks 6.1.x for the same typescript-eslint bound. Lift the pin only once both peers publish TS 7 support.
+- **`allowScripts` keys are exact `name@version` and go stale on every update.** `npm install` warns when an installed package with lifecycle scripts isn't covered — the entry must be re-keyed to the new version, not left behind. A stale key is dead config that silently stops approving anything; conversely, dropping a package that no longer _has_ install scripts (as `sharp` did at 0.35) is the correct cleanup. Verify with a clean install: `trash node_modules && npm install` must print no `allow-scripts` warnings.
 
 ## CI / deploy
 
