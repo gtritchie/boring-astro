@@ -12,12 +12,10 @@ transitions.
 - **Chrome or Chromium** — required locally for `npm run lighthouse`.
   `npm run pa11y` uses Puppeteer's bundled Chrome, installed automatically
   by `npm install`.
-- **lychee** — only for `npm run link-check`. Pin to a 0.23.x release to
-  match CI (`lycheeverse/lychee-action@v2` defaults to v0.23.0, and 0.24+
-  changed the `lychee.toml` schema). Easiest install:
-  `cargo install lychee --version '~0.23'` (Rust toolchain required).
-  Recent `brew install lychee` ships 0.24+ and will reject this repo's
-  `lychee.toml`.
+- **lychee** — only for `npm run link-check`. Pin to a 0.23.x release:
+  0.24+ changed the `lychee.toml` schema and will reject this repo's
+  config. Easiest install: `cargo install lychee --version '~0.23'`
+  (Rust toolchain required). Recent `brew install lychee` ships 0.24+.
 
 ## Common commands
 
@@ -170,9 +168,9 @@ Astro scopes component CSS automatically — class names like `.inner` or
 
 ## Deploy
 
-GitHub Actions runs CI on every push and PR to `main`: `npm run check`, build,
-and link check. CI is the quality gate; it does not deploy. The pa11y
-accessibility audit runs locally only (see below).
+GitHub Actions runs CI on every push and PR to `main`: `npm run check` and
+build. CI is the quality gate; it does not deploy. The pa11y accessibility
+audit and the lychee link check run locally only (see below).
 
 Deploys are handled by **Cloudflare Workers Builds**. The `boring-site` Worker
 is connected to this repo via the Cloudflare dashboard. On push to `main`,
