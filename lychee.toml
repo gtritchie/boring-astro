@@ -16,12 +16,11 @@ include = [
 
 # Don't spam third parties that rate-limit or require auth.
 # Skip absolute same-site URLs: canonical tags and the sitemap emit
-# https://boringbydesign.ca/… absolute URLs, and any PR that introduces
-# a new page would otherwise fail link-check (the new page exists only
-# on prod after merge + deploy). Astro's build generates those URLs
-# from the actual page set, so they're already validated structurally —
-# lychee's contribution here is verifying external links and in-content
-# links to removed pages.
+# https://boringbydesign.ca/… absolute URLs, so a page added locally
+# would otherwise fail link-check — it exists only on prod after deploy.
+# Astro's build generates those URLs from the actual page set, so they're
+# already validated structurally — lychee's contribution here is verifying
+# external links and in-content links to removed pages.
 exclude = [
   "^https?://(www\\.)?linkedin\\.com",
   "^https?://(www\\.)?twitter\\.com",
@@ -30,7 +29,7 @@ exclude = [
   "^https?://(www\\.)?npmjs\\.com",
   # Picky PHP host that intermittently 415s automated checks; the link
   # resolves 200 in a browser and via curl. lychee doesn't retry definitive
-  # status codes, so excluding the host is the only way to keep CI stable.
+  # status codes, so excluding the host is the only way to keep the run clean.
   "^https?://(www\\.)?maccheckbook\\.com",
   "mailto:.*",
   "^https?://boringbydesign\\.ca",

@@ -20,7 +20,7 @@ Node 24.16+ required (`.nvmrc` pins `24.18.0`; eslint-plugin-astro needs ≥24.1
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
 - `npm run link-check` — builds, then lychee across built HTML (requires lychee 0.23.x installed — see `README.md` for install notes; brew ships 0.24+ which is incompatible with this repo's `lychee.toml`)
 
-No unit test suite. Verification in CI is linting, type-checking, and link-check. The pa11y accessibility audit (`npm run pa11y`) and Lighthouse (`npm run lighthouse`) are local-only — CI does not run a browser, so it needs no Chrome/Puppeteer. Run pa11y locally before merging accessibility-affecting changes.
+No unit test suite. Verification in CI is linting, type-checking, and the build. The pa11y accessibility audit (`npm run pa11y`), Lighthouse (`npm run lighthouse`), and link-check (`npm run link-check`) are all local-only. Run pa11y locally before merging accessibility-affecting changes, and link-check after touching links.
 
 ## Architecture
 
@@ -50,7 +50,9 @@ No unit test suite. Verification in CI is linting, type-checking, and link-check
 
 ## CI / deploy
 
-`.github/workflows/ci.yml` runs on push/PR to `main`: `check` → `build` → `link-check`. CI is the quality gate; it does not deploy. pa11y is intentionally not in CI — it needs a browser, and the GitHub runner image ships a broken pre-seeded Puppeteer Chrome cache that defeats both the postinstall download and explicit `puppeteer browsers install`. Run it locally instead.
+`.github/workflows/ci.yml` runs on push/PR to `main`: `check` → `build`. CI is the quality gate; it does not deploy. pa11y is intentionally not in CI — it needs a browser, and the GitHub runner image ships a broken pre-seeded Puppeteer Chrome cache that defeats both the postinstall download and explicit `puppeteer browsers install`. Run it locally instead.
+
+**Link-check is deliberately not in CI either.** It resolves live external URLs, so third-party rate limits and transient outages fail the build for reasons unrelated to the change under test — a `429` from `thehip.com` broke an otherwise-green run. Dead links on a personal site are worth catching eventually, not worth blocking a merge on, so `npm run link-check` stays a local command run on demand.
 
 **Deploy is Cloudflare Workers Builds.** The `boring-site` Worker is connected to this repo via the Cloudflare dashboard (Settings → Build). On push to `main`, Cloudflare runs `npm run build` then `npx wrangler deploy` against the production Worker. On push to any other branch, Cloudflare runs `npm run build` then `npx wrangler versions upload`, which produces a unique preview URL per build. Node 24 is auto-detected from `.nvmrc`.
 
