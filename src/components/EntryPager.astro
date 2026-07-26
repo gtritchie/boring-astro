@@ -24,7 +24,7 @@ const { ariaLabel, prev, next, prevLabel = "Previous", nextLabel = "Next" } = As
   (prev || next) && (
     <nav class="pager" aria-label={ariaLabel}>
       {prev && (
-        <a class="link link--prev" href={prev.href} rel="prev">
+        <a class="link link--prev" href={prev.href}>
           <span class="label">{prevLabel}</span>
           <span class="title">
             {/* The gap sits inside the underlined span so the arrow reads as
@@ -35,7 +35,7 @@ const { ariaLabel, prev, next, prevLabel = "Previous", nextLabel = "Next" } = As
         </a>
       )}
       {next && (
-        <a class="link link--next" href={next.href} rel="next">
+        <a class="link link--next" href={next.href}>
           <span class="label">{nextLabel}</span>
           <span class="title">
             {next.title}
