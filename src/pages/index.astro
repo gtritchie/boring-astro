@@ -3,15 +3,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import EntryList from "../components/EntryList.astro";
 import { getCollection } from "astro:content";
-import { sortProjects } from "../lib/project-sort";
+import { sortProjects, sortWriting } from "../lib/collection-order";
 
 const projects = sortProjects(
   await getCollection("projects", (p) => !p.data.draft && p.data.featured),
 ).slice(0, 6);
 
-const writing = (await getCollection("writing", (p) => !p.data.draft))
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
-  .slice(0, 3);
+const writing = sortWriting(await getCollection("writing", (p) => !p.data.draft)).slice(0, 3);
 
 const writingEntries = writing.map((post) => ({
   href: `/writing/${post.id}/`,

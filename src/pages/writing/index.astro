@@ -3,10 +3,9 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import EntryList from "../../components/EntryList.astro";
 import { getCollection } from "astro:content";
+import { sortWriting } from "../../lib/collection-order";
 
-const posts = (await getCollection("writing", (p) => !p.data.draft)).sort(
-  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
-);
+const posts = sortWriting(await getCollection("writing", (p) => !p.data.draft));
 
 const entries = posts.map((p) => ({
   href: `/writing/${p.id}/`,
