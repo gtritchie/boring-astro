@@ -48,6 +48,8 @@ const fmt = (d?: Date) =>
         <slot />
       </div>
     </article>
+    {/* Outside <article>: the pager moves between entries, it isn't part of one. */}
+    <slot name="pager" />
   </main>
 </BaseLayout>
 

@@ -1,16 +1,26 @@
 ---
 // src/pages/writing/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
+import EntryPager from "../../components/EntryPager.astro";
+import { sortWriting } from "../../lib/collection-order";
 import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("writing", (p) => !p.data.draft);
-  return posts.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+  const posts = sortWriting(await getCollection("writing", (p) => !p.data.draft));
+  // Sorted newest-first, so the lower index is the newer post.
+  return posts.map((p, i) => ({
+    params: { slug: p.id },
+    props: { entry: p, newer: posts[i - 1], older: posts[i + 1] },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, newer, older } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
+
+const link = (p?: CollectionEntry<"writing">) =>
+  p && { href: `/writing/${p.id}/`, title: p.data.title };
 ---
 
 <ProseLayout
@@ -20,4 +30,12 @@ const { data } = entry;
   {...data.updatedAt && { updatedAt: data.updatedAt }}
 >
   <Content />
+  <EntryPager
+    slot="pager"
+    ariaLabel="More writing"
+    prevLabel="Newer"
+    nextLabel="Older"
+    prev={link(newer)}
+    next={link(older)}
+  />
 </ProseLayout>

@@ -1,0 +1,112 @@
+---
+// src/components/EntryPager.astro — prev/next links at the foot of a content
+// entry. Neighbours come from the collection's listing order (collection-order.ts),
+// so the pager walks the same sequence the reader saw on the index page.
+interface PagerLink {
+  href: string;
+  title: string;
+}
+
+interface Props {
+  // Each pager is its own landmark; SiteHeader owns "Primary" and SiteFooter
+  // "Secondary", so callers pass something that distinguishes this one.
+  ariaLabel: string;
+  prev?: PagerLink;
+  next?: PagerLink;
+  prevLabel?: string;
+  nextLabel?: string;
+}
+
+const { ariaLabel, prev, next, prevLabel = "Previous", nextLabel = "Next" } = Astro.props;
+---
+
+{
+  (prev || next) && (
+    <nav class="pager" aria-label={ariaLabel}>
+      {prev && (
+        <a class="link link--prev" href={prev.href} rel="prev">
+          <span class="label">{prevLabel}</span>
+          <span class="title">
+            {/* The gap sits inside the underlined span so the arrow reads as
+                part of the link text rather than a detached glyph. */}
+            <span aria-hidden="true">←&nbsp;</span>
+            {prev.title}
+          </span>
+        </a>
+      )}
+      {next && (
+        <a class="link link--next" href={next.href} rel="next">
+          <span class="label">{nextLabel}</span>
+          <span class="title">
+            {next.title}
+            <span aria-hidden="true">&nbsp;→</span>
+          </span>
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  /* Two fixed halves rather than auto-flow: at either end of a collection only
+     one link exists, and it must keep its side — prev stays left, next stays
+     right — so the control means the same thing on every page. */
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-4) var(--sp-6);
+    margin-top: var(--sp-10);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--border);
+  }
+  .link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    text-decoration: none;
+  }
+  .link--prev {
+    grid-column: 1;
+  }
+  .link--next {
+    grid-column: 2;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+  }
+  /* --fg, not the global link --accent: matches the entry titles in EntryList,
+     which are also the primary text of a navigation row. */
+  .title {
+    color: var(--fg);
+    font-size: 1.05rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .link:hover .title,
+  .link:focus-visible .title {
+    color: var(--accent);
+  }
+
+  /* 640px is the stack point EntryList uses. Stacked, both links read
+     left-aligned — a right-aligned block on its own has nothing to align to. */
+  @media (max-width: 640px) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .link--prev,
+    .link--next {
+      grid-column: 1;
+    }
+    .link--next {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

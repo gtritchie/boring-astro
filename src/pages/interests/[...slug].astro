@@ -1,21 +1,31 @@
 ---
 // src/pages/interests/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
+import EntryPager from "../../components/EntryPager.astro";
+import { sortInterests } from "../../lib/collection-order";
 import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const interests = await getCollection("interests", (p) => !p.data.draft);
-  return interests.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+  const interests = sortInterests(await getCollection("interests", (p) => !p.data.draft));
+  return interests.map((p, i) => ({
+    params: { slug: p.id },
+    props: { entry: p, prev: interests[i - 1], next: interests[i + 1] },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, prev, next } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
+
+const link = (p?: CollectionEntry<"interests">) =>
+  p && { href: `/interests/${p.id}/`, title: p.data.title };
 ---
 
 <ProseLayout title={data.title} description={data.summary}>
   <p class="lede">{data.summary}</p>
   <Content />
+  <EntryPager slot="pager" ariaLabel="More interests" prev={link(prev)} next={link(next)} />
 </ProseLayout>
 
 <style>

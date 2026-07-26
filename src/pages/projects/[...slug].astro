@@ -1,19 +1,28 @@
 ---
 // src/pages/projects/[...slug].astro
 import ProseLayout from "../../layouts/ProseLayout.astro";
+import EntryPager from "../../components/EntryPager.astro";
 import ExternalLink from "../../components/ExternalLink.astro";
 import { isExternalHttp } from "../../lib/site.mjs";
+import { sortProjects } from "../../lib/collection-order";
 import { tagToSlug } from "../../lib/tag-slugs";
 import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const projects = await getCollection("projects", (p) => !p.data.draft);
-  return projects.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+  const projects = sortProjects(await getCollection("projects", (p) => !p.data.draft));
+  return projects.map((p, i) => ({
+    params: { slug: p.id },
+    props: { entry: p, prev: projects[i - 1], next: projects[i + 1] },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, prev, next } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
+
+const link = (p?: CollectionEntry<"projects">) =>
+  p && { href: `/projects/${p.id}/`, title: p.data.title };
 ---
 
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
@@ -85,6 +94,7 @@ const { data } = entry;
     }
   </dl>
   <Content />
+  <EntryPager slot="pager" ariaLabel="More projects" prev={link(prev)} next={link(next)} />
 </ProseLayout>
 
 <style>
