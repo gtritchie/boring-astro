@@ -3,7 +3,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectCard from "../../components/ProjectCard.astro";
 import { getCollection } from "astro:content";
-import { sortProjects } from "../../lib/project-sort";
+import { sortProjects } from "../../lib/collection-order";
 
 const projects = sortProjects(await getCollection("projects", (p) => !p.data.draft));
 ---

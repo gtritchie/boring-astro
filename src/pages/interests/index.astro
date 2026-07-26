@@ -2,10 +2,9 @@
 // src/pages/interests/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { sortInterests } from "../../lib/collection-order";
 
-const interests = (await getCollection("interests", (p) => !p.data.draft)).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title),
-);
+const interests = sortInterests(await getCollection("interests", (p) => !p.data.draft));
 ---
 
 <BaseLayout title="Interests" description="Non-software interests and projects.">
