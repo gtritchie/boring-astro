@@ -1,6 +1,11 @@
 // src/lib/collection-order.ts — the canonical reading order for each content
-// collection. Listing pages and the prev/next pagers both sort through here,
-// so a pager can never disagree with the list the reader arrived from.
+// collection. Listing pages and the prev/next pagers both sort through here, so
+// a pager steps through entries in the order the listing showed them.
+//
+// This shares the order, not the membership: each page still applies its own
+// `!p.data.draft` filter. Adding a second filtering rule to a listing without
+// adding it to the matching [...slug].astro would let the pager walk into a
+// page the listing hides — nothing here would catch that.
 
 type WritingLike = {
   data: {
