@@ -1,23 +1,11 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import ProseLayout from "../layouts/ProseLayout.astro";
 ---
 
-<BaseLayout title="Reading" description="Recently read, currently reading.">
-  <main id="main" class="prose">
-    <h1>Reading</h1>
-    <p>
-      I've always enjoyed reading. For the past few years most of my fiction consumption has been
-      via audiobooks, listened to while walking hither and yon.
-    </p>
-    <p>More to come...</p>
-  </main>
-</BaseLayout>
-
-<style>
-  .prose {
-    max-width: var(--reading-width);
-  }
-  .prose p {
-    margin: var(--sp-4) 0;
-  }
-</style>
+<ProseLayout title="Reading" description="Recently read, currently reading.">
+  <p>
+    I've always enjoyed reading. For the past few years most of my fiction consumption has been via
+    audiobooks, listened to while walking hither and yon.
+  </p>
+  <p>More to come...</p>
+</ProseLayout>

@@ -1,33 +1,23 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import ProseLayout from "../layouts/ProseLayout.astro";
 import ExternalLink from "../components/ExternalLink.astro";
 ---
 
-<BaseLayout title="About" description="About Gary Ritchie.">
-  <main id="main" class="prose">
-    <h1>About</h1>
-    <p>
-      I've been playing with computers since the early 1980s, starting with a TRS-80 Color Computer
-      with 4K of RAM where I taught myself to program in BASIC and 6809 assembly language.
-    </p>
-    <p>
-      My first paid software job was in 1989, and I've been working as a developer ever since, with
-      an almost 20-year stint at Microsoft, a brief time at Apple, and almost 10 years at Posit
-      (formerly RStudio), where I am still working.
-    </p>
-    <p>More to come...</p>
-    <p>
-      If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>. I'm also
-      on <ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink>.
-    </p>
-  </main>
-</BaseLayout>
-
-<style>
-  .prose {
-    max-width: var(--reading-width);
-  }
-  .prose p {
-    margin: var(--sp-4) 0;
-  }
-</style>
+<ProseLayout title="About" description="About Gary Ritchie.">
+  <p>
+    I've been playing with computers since the early 1980s, starting with a TRS-80 Color Computer
+    with 4K of RAM where I taught myself to program in BASIC and 6809 assembly language.
+  </p>
+  <p>
+    My first paid software job was in 1989, and I've been working as a developer ever since, with an
+    almost 20-year stint at Microsoft, a brief time at Apple, and almost 10 years at Posit (formerly
+    RStudio), where I am still working.
+  </p>
+  <p>More to come...</p>
+  <p>
+    If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>. I'm also on <ExternalLink
+      href="https://github.com/gtritchie"
+      rel="me">GitHub</ExternalLink
+    >.
+  </p>
+</ProseLayout>
