@@ -15,7 +15,7 @@ Prompting LLMs comes naturally to me. I talk to them the way I used to talk to m
 
 My experience gives me (I hope) strong intuitions about what to focus on, where to steer the LLM versus letting it wander, and how to validate the output.
 
-All of that said, I'm learning Rust the old way. Working my way through books, typing in code (with all AI-driven completion features turned off in my editor), using the debugger, and so on.
+All of that said, I'm learning [Rust](https://rust-lang.org/) the old way. Working my way through books, typing in code (with all AI-driven completion features turned off in my editor), using the debugger, and so on.
 
 C is my favourite language of all time (definitely NOT C++, which I've used more than any other language but never enjoyed; no doubt due to that feeling that I could actually KNOW C, but C++ was too sprawling to fully load into my brain). So learning Rust makes sense, at least as a recreational programming activity, and I want to see if I can muster the patience and resolve to work through it like it's 1999.
 
