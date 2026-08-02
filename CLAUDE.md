@@ -17,6 +17,7 @@ Node 24.16+ required (`.nvmrc` pins `24.18.0`; eslint-plugin-astro needs ≥24.1
 - `npm run check` — `astro check` + `prettier --check` + `eslint`
 - `npm run format` — `prettier --write .`
 - `npm run pa11y` — WCAG AAA audit of every sitemap URL; needs `preview:astro` running in another terminal
+- `npm run pa11y:full` — same audit, self-contained: builds, starts `astro preview`, audits, tears the server down
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
 - `npm run link-check` — builds, then lychee across built HTML (requires lychee 0.23.x installed — see `README.md` for install notes; brew ships 0.24+ which is incompatible with this repo's `lychee.toml`)
 

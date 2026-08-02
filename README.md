@@ -27,6 +27,7 @@ transitions.
 | `npm run preview:astro` | Builds, then serves via `astro preview` on `127.0.0.1:4321` — port pa11y expects                  |
 | `npm run check`         | `astro check` + `prettier --check` + `eslint`                                                     |
 | `npm run pa11y`         | Audits every sitemap URL for WCAG AAA (needs `npm run preview:astro` running in another terminal) |
+| `npm run pa11y:full`    | Same audit, self-contained — builds, starts the preview, audits, stops the preview                |
 | `npm run lighthouse`    | Builds, then runs LHCI against the budgets in `.lighthouserc.json`                                |
 | `npm run link-check`    | Builds, then runs lychee across the built HTML                                                    |
 
@@ -193,8 +194,9 @@ variables → Build variables, not in GitHub secrets:
 
 Neither pa11y nor Lighthouse runs in CI — both need a browser, which the
 GitHub runner image no longer provisions cleanly for Puppeteer. Run
-`npm run pa11y` (accessibility) and `npm run lighthouse` (perf) locally; run
-pa11y before merging changes that affect markup or styling.
+`npm run pa11y:full` (accessibility — one command, no server to start
+yourself) and `npm run lighthouse` (perf) locally; run pa11y before merging
+changes that affect markup or styling.
 
 Day-to-day flow: branch, commit, open PR to `main`, wait for CI, click the
 Cloudflare preview URL on the PR, merge. Production deploy is automatic on
