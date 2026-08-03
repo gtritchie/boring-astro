@@ -77,7 +77,7 @@ const fmt = (d?: Date) =>
   .prose-body :global(p) {
     margin: var(--sp-4) 0;
   }
-  /* Heading anchor — rehype-heading-anchors.mjs appends a deep-link <a> to
+  /* Heading anchor — satteri-heading-anchors.mjs appends a deep-link <a> to
      every h2–h4. `color: inherit` is what holds the glyph on the heading's
      AAA-contrast color: the SVG paints with currentColor, which without it
      would resolve to the --accent global.css gives links. Revealed on heading
@@ -144,7 +144,7 @@ const fmt = (d?: Date) =>
   .prose-body :global(.markdown-alert) > :global(:last-child) {
     margin-bottom: 0;
   }
-  /* GitHub-style Markdown alerts. The remark-alerts plugin rewrites a
+  /* GitHub-style Markdown alerts. The satteri-alerts plugin rewrites a
      `> [!TYPE]` blockquote into `<div class="markdown-alert markdown-alert-<type>">`
      with a leading `<p class="markdown-alert-title">` label; each type sets its
      own --alert-accent (bar + label + icon tint, per-theme AAA values in
