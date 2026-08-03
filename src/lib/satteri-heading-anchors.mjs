@@ -37,6 +37,7 @@
 // ProseLayout.astro) — see satteri-external-links.mjs for the satteri
 // name-mapping bugs behind both.
 
+import { satteriCollectHastText } from "@astrojs/markdown-satteri";
 import Slugger from "github-slugger";
 
 const ANCHOR_TAGS = new Set(["h2", "h3", "h4"]);
@@ -82,7 +83,14 @@ export default function satteriHeadingAnchors() {
     element: {
       filter: ["h1", "h2", "h3", "h4", "h5", "h6"],
       visit(node, ctx) {
-        const text = ctx.textContent(node);
+        // MDX headings can interpolate frontmatter (`## {frontmatter.title}`);
+        // slug and label from the resolved value, not the literal expression.
+        // Same gate + helper as Astro's built-in heading-ids pass, so the id
+        // set here is the one that pass would have computed itself.
+        const rawText = ctx.textContent(node);
+        const text = rawText.includes("frontmatter")
+          ? satteriCollectHastText(node, ctx.data.astro?.frontmatter ?? {})
+          : rawText;
         const existingId = node.properties?.id;
         const id = typeof existingId === "string" ? existingId : slugger.slug(text);
         if (id === "") return;
