@@ -23,7 +23,10 @@
 //
 // Ordering: this runs before satteri-external-links, which appends a
 // visually-hidden " (opens in a new tab)" inside external links — textContent
-// would fold that into the label of an anchor that opens nothing.
+// would fold that into the label of an anchor that opens nothing. The built-in
+// heading-ids pass runs after BOTH, so a heading containing an external link
+// would still get that span's text folded into its getHeadings() metadata
+// text (not its slug or label) — accepted, see the CLAUDE.md markdown gotcha.
 //
 // The accessible name is an aria-label rather than the visually-hidden span the
 // external-link glyph uses, so nothing is added to the heading's text content:
@@ -32,10 +35,8 @@
 // h2–h4 is what content uses. h1 is the page title ProseLayout renders, not
 // markdown; nothing goes deeper than h4.
 //
-// The glyph's stroke-width is a literal kebab-case name and its
-// stroke-linecap/-linejoin live in CSS (.heading-anchor-glyph in
-// ProseLayout.astro) — see satteri-external-links.mjs for the satteri
-// name-mapping bugs behind both.
+// The glyph's SVG presentation attributes use literal kebab-case names — see
+// satteri-external-links.mjs for the satteri name-mapping gap behind that.
 
 import { satteriCollectHastText } from "@astrojs/markdown-satteri";
 import Slugger from "github-slugger";
@@ -53,6 +54,8 @@ function makeIcon() {
       fill: "none",
       stroke: "currentColor",
       "stroke-width": "2.2",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
       ariaHidden: "true",
       focusable: "false",
     },

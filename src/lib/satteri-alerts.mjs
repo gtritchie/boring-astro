@@ -62,8 +62,11 @@ const satteriAlerts = {
       ctx.setProperty(firstText, "value", stripped);
     }
 
-    // Render the blockquote as the alert container.
+    // Render the blockquote as the alert container. Spread the existing bag —
+    // setProperty replaces `data` wholesale, and clobbering would silently
+    // discard anything an earlier plugin put there.
     ctx.setProperty(node, "data", {
+      ...node.data,
       hName: "div",
       hProperties: { className: `markdown-alert markdown-alert-${type.toLowerCase()}` },
     });

@@ -3,27 +3,23 @@
 // noreferrer into rel, add the has-external-glyph class, and append an
 // inline SVG glyph and a visually-hidden "(opens in a new tab)" span.
 //
-// Defensive opt-out: if the author has explicitly set target to anything
-// other than "_blank" (e.g. raw HTML in MDX with target="_self"), the
-// plugin leaves the link entirely alone — no target/rel/class mutation,
-// no glyph, no SR span. This guarantees the affordance never lies about
-// the link's actual behavior.
+// Only markdown-syntax links reach this visitor: raw HTML in .md stays a hast
+// `raw` node and JSX <a> in MDX is an mdxJsxTextElement, so an author-written
+// anchor is never touched (and never gets the affordance) — same as the old
+// rehype pipeline, whose "element" visits had the identical blind spot.
 //
 // rel and class are written as space-joined strings rather than hast-style
 // arrays: Sätteri's setProperty carries values over a serialized wire, and a
 // plain string round-trips to identical HTML without relying on the
 // serializer's list handling.
 //
-// SVG presentation attributes are shaped around two satteri 0.9.5 name-mapping
-// bugs (className/ariaHidden/viewBox map fine; SVG presentation attributes
-// don't):
-//   - stroke-width is written as a literal kebab-case name, not hast camelCase
-//     (strokeWidth): the name is absent from satteri's tables, so it passes
-//     through verbatim — camelCase would leak into the HTML and be ignored.
-//   - stroke-linecap/-linejoin are NOT set here at all: satteri canonicalizes
-//     either spelling to camelCase on input but never maps it back on output,
-//     so no spelling survives. They live in CSS instead (.external-glyph in
-//     global.css) — stroke properties inherit from the svg to its paths.
+// SVG presentation attributes use literal kebab-case names ("stroke-width"),
+// not hast camelCase (strokeWidth). Kebab-case spellings survive to the HTML
+// verbatim on both the .md and .mdx paths; camelCase leaks into the output
+// unconverted (invalid HTML, browsers ignore it) for strokeLinecap/Linejoin
+// on both paths and for strokeWidth on the MDX path — satteri 0.9.5's name
+// tables cover className/ariaHidden/viewBox but not SVG presentation
+// attributes. Rule: always write these keys kebab-case.
 
 const HTTP_RE = /^https?:\/\//i;
 
@@ -66,6 +62,8 @@ function makeGlyph() {
           fill: "none",
           stroke: "currentColor",
           "stroke-width": "1.2",
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
         },
         children: [],
       },
@@ -77,6 +75,8 @@ function makeGlyph() {
           fill: "none",
           stroke: "currentColor",
           "stroke-width": "1.2",
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
         },
         children: [],
       },
@@ -105,7 +105,6 @@ export default function satteriExternalLinks({ internalHosts = [] } = {}) {
         if (typeof href !== "string" || !HTTP_RE.test(href)) return;
         const host = getHostSafe(href);
         if (!host || internal.has(host)) return;
-        if ("target" in props && props.target !== "_blank") return;
 
         ctx.setProperty(node, "target", "_blank");
         ctx.setProperty(node, "rel", withTokens(props.rel, "noopener", "noreferrer"));
