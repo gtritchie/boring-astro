@@ -11,7 +11,9 @@ export const tagSlugAliases: Record<string, string> = {
 
 export function tagToSlug(tag: string): string {
   if (Object.prototype.hasOwnProperty.call(tagSlugAliases, tag)) {
-    return tagSlugAliases[tag];
+    // hasOwnProperty guarantees the key exists; noUncheckedIndexedAccess
+    // can't see through the guard.
+    return tagSlugAliases[tag]!;
   }
   return tag
     .toLowerCase()
@@ -24,6 +26,8 @@ export interface TagIndexEntry {
   entries: CollectionEntry<"projects">[];
 }
 
+// Entries within each tag keep the input array's order — the tag pages rely on
+// this by passing the canonically sorted listing in.
 export function buildTagIndex(projects: CollectionEntry<"projects">[]): Map<string, TagIndexEntry> {
   const index = new Map<string, TagIndexEntry>();
   // Tracks the source tag string each slug was first seen with, so that

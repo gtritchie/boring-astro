@@ -2,10 +2,9 @@
 // src/pages/writing/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import EntryList from "../../components/EntryList.astro";
-import { getCollection } from "astro:content";
-import { sortWriting } from "../../lib/collection-order";
+import { listWriting } from "../../lib/collection-order";
 
-const posts = sortWriting(await getCollection("writing", (p) => !p.data.draft));
+const posts = await listWriting();
 
 const entries = posts.map((p) => ({
   href: `/writing/${p.id}/`,
