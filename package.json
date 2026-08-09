@@ -44,6 +44,6 @@
     "esbuild@0.28.1": true,
     "fsevents@2.3.3": true,
     "puppeteer@24.43.1": true,
-    "workerd@1.20260730.1": true
+    "workerd@1.20260801.1": true
   }
 }
