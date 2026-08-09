@@ -1,11 +1,10 @@
 // src/pages/rss.xml.ts
 import rss from "@astrojs/rss";
-import { getCollection } from "astro:content";
-import { sortWriting } from "../lib/collection-order";
+import { listWriting } from "../lib/collection-order";
 import type { APIContext } from "astro";
 
 export async function GET(context: APIContext) {
-  const posts = sortWriting(await getCollection("writing", (p) => !p.data.draft));
+  const posts = await listWriting();
 
   return rss({
     title: "Boring by Design",

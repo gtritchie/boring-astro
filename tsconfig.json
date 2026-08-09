@@ -1,5 +1,10 @@
 {
   "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // Types `arr[i]` as `| undefined` so the pager's `entries[i ± 1]` boundary
+    // guard is compiler-enforced (see pagerLink in src/lib/collection-order.ts).
+    "noUncheckedIndexedAccess": true
+  },
   "include": ["src/**/*", ".astro/types.d.ts", "astro.config.mjs", "*.ts"],
   "exclude": ["dist/**/*", "node_modules/**/*", "src/snaker/**/*"]
 }

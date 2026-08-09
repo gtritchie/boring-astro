@@ -1,19 +1,16 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectCard from "../../components/ProjectCard.astro";
-import { getCollection } from "astro:content";
-import { sortProjects } from "../../lib/collection-order";
+import { listProjects } from "../../lib/collection-order";
 import { buildTagIndex } from "../../lib/tag-slugs";
 
 export async function getStaticPaths() {
-  const projects = await getCollection("projects", (p) => !p.data.draft);
-  const index = buildTagIndex(projects);
+  // buildTagIndex preserves input order per tag, so feeding it the sorted
+  // listing keeps every tag page in canonical project order.
+  const index = buildTagIndex(await listProjects());
   return Array.from(index.entries()).map(([slug, { displayTag, entries }]) => ({
     params: { tag: slug },
-    props: {
-      displayTag,
-      entries: sortProjects(entries),
-    },
+    props: { displayTag, entries },
   }));
 }
 
