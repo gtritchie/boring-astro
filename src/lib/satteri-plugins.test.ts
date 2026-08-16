@@ -163,15 +163,93 @@ test("relative and mailto links are untouched", async () => {
 // satteri 0.9.5's name tables miss SVG presentation attributes: camelCase
 // strokeLinecap/strokeLinejoin leak into the HTML unconverted. The glyph
 // builders write kebab-case keys; this pins that the output stays valid.
-// Known residual: this renders the .md path only. strokeLinecap/Linejoin leak
-// on both paths, so a camelCase regression in those is caught here — but
-// strokeWidth converts correctly on .md and leaks only on .mdx, so a
-// strokeWidth-only regression would pass this test and surface only in built
-// MDX output. Driving the MDX compiler in a unit test isn't worth that gap.
+// This renders the .md path only — the cross-path guard for keys satteri
+// converts on .md but leaks on .mdx (strokeWidth) is the key-pinning test
+// below.
 test("glyph SVG presentation attributes serialize kebab-case, not camelCase", async () => {
   const html = await renderCode("## Head\n\n[out](https://example.com)");
   assert.match(html, /stroke-width=/);
   assert.match(html, /stroke-linecap="round"/);
   assert.match(html, /stroke-linejoin="round"/);
   assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/);
+});
+
+// The .mdx path can't be rendered here without standing up the MDX compiler,
+// but it serializes plugin-emitted hast property keys verbatim — so the
+// cross-path invariant lives in the keys themselves. Run each plugin's visitor
+// against a stub ctx and reject any camelCase key outside the set satteri
+// provably converts on both paths (the "write them kebab-case" rule, enforced
+// at the source). This is what catches a strokeWidth-only camelCase
+// regression, which the .md render above would silently convert.
+
+type HastNode = {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+  value?: string;
+};
+
+const SAFE_CAMEL_KEYS = new Set(["className", "ariaHidden", "ariaLabel", "viewBox"]);
+
+function textOf(node: HastNode): string {
+  if (node.type === "text") return node.value ?? "";
+  return (node.children ?? []).map(textOf).join("");
+}
+
+function collectAppended(
+  visit: (node: HastNode, ctx: unknown) => void,
+  node: HastNode,
+): HastNode[] {
+  const appended: HastNode[] = [];
+  visit(node, {
+    data: {},
+    textContent: textOf,
+    setProperty: (n: HastNode, key: string, value: unknown) => {
+      (n.properties ??= {})[key] = value;
+    },
+    appendChild: (_n: HastNode, child: HastNode | HastNode[]) => {
+      appended.push(...(Array.isArray(child) ? child : [child]));
+    },
+  });
+  return appended;
+}
+
+function elementKeys(nodes: HastNode[]): string[] {
+  const keys: string[] = [];
+  const walk = (n: HastNode) => {
+    if (n.type === "element") keys.push(...Object.keys(n.properties ?? {}));
+    (n.children ?? []).forEach(walk);
+  };
+  nodes.forEach(walk);
+  return keys;
+}
+
+test("plugins emit no camelCase hast keys beyond satteri's converted set", async () => {
+  const { default: satteriHeadingAnchors } = await import("./satteri-heading-anchors.mjs");
+  const { default: satteriExternalLinks } = await import("./satteri-external-links.mjs");
+  const heading: HastNode = {
+    type: "element",
+    tagName: "h2",
+    properties: {},
+    children: [{ type: "text", value: "Head" }],
+  };
+  const link: HastNode = {
+    type: "element",
+    tagName: "a",
+    properties: { href: "https://example.com" },
+    children: [{ type: "text", value: "out" }],
+  };
+  const appended = [
+    ...collectAppended(satteriHeadingAnchors().element.visit, heading),
+    ...collectAppended(satteriExternalLinks({ internalHosts: [] }).element.visit, link),
+  ];
+  // anchor + glyph + SR span at minimum — a silently inert stub proves nothing.
+  assert.ok(appended.length >= 3, `visitors appended only ${appended.length} nodes`);
+  for (const key of elementKeys(appended)) {
+    assert.ok(
+      key === key.toLowerCase() || SAFE_CAMEL_KEYS.has(key),
+      `camelCase hast key "${key}" would leak unconverted on the .mdx path — write it kebab-case`,
+    );
+  }
 });

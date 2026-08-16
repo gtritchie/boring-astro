@@ -16,7 +16,7 @@ Node 24.16+ required (`.nvmrc` pins `24.18.0`; eslint-plugin-astro needs ≥24.1
 - `npm run preview:astro` — builds, then `astro preview` on `127.0.0.1:4321` — pa11y expects this exact origin
 - `npm run check` — `astro check` + `prettier --check` + `eslint`
 - `npm run format` — `prettier --write .`
-- `npm test` — `node --test` over `src/**/*.test.ts` (Node's built-in runner + type stripping; no test framework dependency)
+- `npm test` — `node --test` over `src/**/*.test.ts` (Node's built-in runner + type stripping; no test framework dependency). The script pins `TZ=America/Edmonton` so UTC-handling regressions fail even on UTC hosts like CI — keep the pin when touching the script.
 - `npm run pa11y` — WCAG AAA audit of every sitemap URL; needs `preview:astro` running in another terminal
 - `npm run pa11y:full` — same audit, self-contained: builds, starts `astro preview`, audits, tears the server down
 - `npm run lighthouse` — builds, then LHCI against budgets in `.lighthouserc.json`
