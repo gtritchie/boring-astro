@@ -163,6 +163,11 @@ test("relative and mailto links are untouched", async () => {
 // satteri 0.9.5's name tables miss SVG presentation attributes: camelCase
 // strokeLinecap/strokeLinejoin leak into the HTML unconverted. The glyph
 // builders write kebab-case keys; this pins that the output stays valid.
+// Known residual: this renders the .md path only. strokeLinecap/Linejoin leak
+// on both paths, so a camelCase regression in those is caught here — but
+// strokeWidth converts correctly on .md and leaks only on .mdx, so a
+// strokeWidth-only regression would pass this test and surface only in built
+// MDX output. Driving the MDX compiler in a unit test isn't worth that gap.
 test("glyph SVG presentation attributes serialize kebab-case, not camelCase", async () => {
   const html = await renderCode("## Head\n\n[out](https://example.com)");
   assert.match(html, /stroke-width=/);

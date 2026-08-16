@@ -43,11 +43,18 @@ test("under a week counts days", () => {
 });
 
 test("a week or older renders a short absolute date in UTC", () => {
-  // 10 days before NOW is Jan 20 in UTC; a local-timezone render could show
-  // the 19th or 21st depending on host offset.
-  const out = at(10 * DAY);
-  assert.match(out, /20/);
-  assert.match(out, /Jan/i);
+  // Expected value comes from the same Intl options the implementation uses,
+  // so the assertion holds under any host locale — what's under test is the
+  // ≥7-day routing and the timeZone pin, not Intl itself. savedAt sits just
+  // after UTC midnight so a local-timezone render shifts to the previous day
+  // on any western-hemisphere host, making the pin's removal visible.
+  const savedAt = Date.UTC(2026, 0, 20, 0, 30);
+  const expected = new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(savedAt);
+  assert.equal(formatRelativeTime(savedAt, NOW), expected);
 });
 
 test("formatScore joins score and max", () => {
