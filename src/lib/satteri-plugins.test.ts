@@ -246,7 +246,10 @@ test("plugins emit no camelCase hast keys beyond satteri's converted set", async
   ];
   // anchor + glyph + SR span at minimum — a silently inert stub proves nothing.
   assert.ok(appended.length >= 3, `visitors appended only ${appended.length} nodes`);
-  for (const key of elementKeys(appended)) {
+  // Scan the visited nodes too: the stub applies ctx.setProperty into their
+  // properties, so keys written onto the heading/link (id, target, rel, …)
+  // face the same rule as keys in appended subtrees.
+  for (const key of elementKeys([heading, link, ...appended])) {
     assert.ok(
       key === key.toLowerCase() || SAFE_CAMEL_KEYS.has(key),
       `camelCase hast key "${key}" would leak unconverted on the .mdx path — write it kebab-case`,
