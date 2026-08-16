@@ -13,6 +13,7 @@
     "preview:astro": "astro build && astro preview --host 127.0.0.1 --port 4321",
     "check": "astro check && prettier --check . && eslint .",
     "format": "prettier --write .",
+    "test": "TZ=America/Edmonton node --test \"src/**/*.test.ts\"",
     "pa11y": "node scripts/run-pa11y.mjs",
     "pa11y:full": "node scripts/run-pa11y-full.mjs",
     "lighthouse": "astro build && lhci autorun",

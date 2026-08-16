@@ -3,11 +3,8 @@ import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import { satteri } from "@astrojs/markdown-satteri";
-import satteriAlerts from "./src/lib/satteri-alerts.mjs";
-import satteriExternalLinks from "./src/lib/satteri-external-links.mjs";
-import satteriHeadingAnchors from "./src/lib/satteri-heading-anchors.mjs";
-import { site, internalHosts } from "./src/lib/site.mjs";
+import { markdownProcessor } from "./src/lib/satteri-processor.mjs";
+import { site } from "./src/lib/site.mjs";
 
 export default defineConfig({
   site,
@@ -26,16 +23,9 @@ export default defineConfig({
     // Astro 7's default Sätteri pipeline, made explicit so our plugins can be
     // attached. (gfm + smartypants still default to true.) mdx() extends this
     // config by default, so the plugins run for both .md and .mdx without
-    // listing twice.
-    // Hast order is load-bearing: heading-anchors before external-links — see
-    // satteri-heading-anchors.mjs for why, and for why it is passed UNCALLED
-    // (Sätteri instantiates the factory once per document). Sätteri's built-in
-    // heading-ids pass runs after both, keeps the ids heading-anchors already
-    // set, and records them as the slugs in headings metadata.
-    processor: satteri({
-      mdastPlugins: [satteriAlerts],
-      hastPlugins: [satteriHeadingAnchors, satteriExternalLinks({ internalHosts })],
-    }),
+    // listing twice. The processor lives in src/lib/satteri-processor.mjs so
+    // the plugin tests render through the same instance the build uses.
+    processor: markdownProcessor,
   },
   integrations: [mdx(), sitemap()],
   trailingSlash: "always",
