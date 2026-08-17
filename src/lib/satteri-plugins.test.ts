@@ -76,6 +76,21 @@ test("a marker line ended by a hard break converts without a stray <br>", async 
   assert.doesNotMatch(html, /<br/);
 });
 
+// A break from the line below the marker is the author's own hard break — only
+// a break that ended the marker's line itself (trailing double-space) may be
+// consumed with the marker.
+test("a hard break on the line below the marker is preserved", async () => {
+  const html = await renderCode("> [!NOTE]\n> \\\n> Body.");
+  assert.match(html, /markdown-alert-note/);
+  assert.match(html, /<br/);
+});
+
+test("an inline sibling on the line below the marker is preserved", async () => {
+  const html = await renderCode("> [!NOTE]\n> **Bold** rest.");
+  assert.match(html, /markdown-alert-note/);
+  assert.match(html, /<strong>Bold<\/strong> rest\./);
+});
+
 test("an ordinary blockquote is untouched", async () => {
   const html = await renderCode("> Just a quote.");
   assert.match(html, /<blockquote>/);
