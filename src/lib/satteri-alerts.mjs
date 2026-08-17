@@ -16,8 +16,9 @@
 // `[^\S\r\n]*` allows trailing spaces/tabs after the marker; the marker must end
 // the line — a newline (inline body on the next line, kept as a soft break in
 // the same text node) or the end of the text node (body in a following
-// paragraph after a blank `>` line). End-of-node only counts as end-of-line
-// when nothing else follows on the marker's line — see the sibling check below.
+// paragraph after a blank `>` line). An end-of-node match only counts as
+// end-of-line when the marker's line really ended there, which the transform
+// checks against the text node's next sibling.
 const MARKER_RE = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][^\S\r\n]*(?:\r?\n|$)/;
 
 function titleCase(type) {
@@ -41,22 +42,32 @@ const satteriAlerts = {
     // ended there: the text node must be the paragraph's last inline child, or
     // be followed by a hard break (trailing double-space ends the line).
     // `> [!NOTE] **bold**` parses as text + strong siblings — not an alert.
+    // A backslash hard break under the marker (`> [!NOTE]\` with a body line
+    // below it) also produces a `break`, so it converts where GitHub would
+    // not. Its source span is one character shorter than a double-space
+    // break's, but only within a single line-ending convention, and
+    // synthesized trees carry no positions at all — so the check stays
+    // shape-based and that edge case is accepted.
+    const endsLine = match[0].endsWith("\n");
     const next = firstChild.children[1];
-    if (!match[0].endsWith("\n") && next && next.type !== "break") return;
+    if (!endsLine && next && next.type !== "break") return;
 
     // Strip the marker (and its trailing newline, when the body follows on the
     // next line) from the body text.
     const stripped = firstText.value.slice(match[0].length);
     if (stripped === "") {
-      // Marker alone on its own paragraph: drop the emptied text node, plus the
-      // hard break that ended the marker line (it would render a stray leading
-      // <br> in the body) — or the whole paragraph, if that empties it.
-      const dropped = next?.type === "break" ? 2 : 1;
-      if (firstChild.children.length <= dropped) {
+      // The marker consumed the whole text node — it either had its own
+      // paragraph (body in a later one) or a hard break ended its line. Drop
+      // the emptied node, and the break with it, but only when that break is
+      // what ended the marker's line: if the match already carried the
+      // newline, a following break came from a later line and is the author's
+      // own. If dropping empties the paragraph, drop the paragraph instead.
+      const dropBreak = !endsLine && next?.type === "break";
+      if (firstChild.children.length <= (dropBreak ? 2 : 1)) {
         ctx.removeNode(firstChild);
       } else {
         ctx.removeNode(firstText);
-        if (next?.type === "break") ctx.removeNode(next);
+        if (dropBreak) ctx.removeNode(next);
       }
     } else {
       ctx.setProperty(firstText, "value", stripped);
