@@ -9,9 +9,10 @@ import { markdownProcessor } from "./satteri-processor.mjs";
 // HTML — and the build stays green through all of them. Rendering through the
 // configured processor turns each into a red test instead.
 //
-// Assertions are against the HTML string. That couples them to serializer
-// details (attribute order, quoting), which is deliberate: the serializer IS
-// part of what a satteri upgrade could change out from under the site.
+// Assertions are against the emitted string — HTML for .md, compiled module
+// code for .mdx. That couples them to serializer details (attribute order,
+// quoting), which is deliberate: the serializer IS part of what a satteri
+// upgrade could change out from under the site.
 
 const renderer = await markdownProcessor.createRenderer({});
 
@@ -21,6 +22,33 @@ async function render(src: string) {
 
 async function renderCode(src: string): Promise<string> {
   return (await render(src)).code;
+}
+
+// The .md and .mdx paths are separate entry points on the processor —
+// `createRenderer()` renders Markdown to HTML, `createMdxRenderer()` compiles
+// MDX to a JS component module. `createRenderer` ignores `fileURL`'s
+// extension, so a .mdx *render* is still Markdown; only this compiles MDX.
+//
+// The compiled module is not executed — that would need Astro's runtime.
+// Asserting on the emitted code is enough for what differs between the paths:
+// the hast property keys the plugins wrote arrive as JSX prop names, which is
+// exactly where a casing leak used to show up as `strokeWidth: "2.2"`.
+// Optional on the MarkdownProcessor type. Fail loudly rather than skip: a
+// satteri upgrade that drops the method should turn this file red, not
+// quietly leave the MDX path unverified.
+const { createMdxRenderer } = markdownProcessor;
+if (!createMdxRenderer) {
+  throw new Error("markdownProcessor exposes no createMdxRenderer — MDX assertions cannot run");
+}
+const mdxRenderer = await createMdxRenderer.call(
+  markdownProcessor,
+  { syntaxHighlight: false, shikiConfig: {}, gfm: true, smartypants: true },
+  { optimize: false },
+);
+
+async function compileMdx(src: string): Promise<string> {
+  const { code } = await mdxRenderer.process(src, "/virtual/entry.mdx", {});
+  return String(code);
 }
 
 // --- alerts (satteri-alerts.mjs) ---
@@ -175,99 +203,65 @@ test("relative and mailto links are untouched", async () => {
   }
 });
 
-// satteri 0.9.5's name tables miss SVG presentation attributes: camelCase
-// strokeLinecap/strokeLinejoin leak into the HTML unconverted. The glyph
-// builders write kebab-case keys; this pins that the output stays valid.
-// This renders the .md path only — the cross-path guard for keys satteri
-// converts on .md but leaks on .mdx (strokeWidth) is the key-pinning test
-// below.
-test("glyph SVG presentation attributes serialize kebab-case, not camelCase", async () => {
+// Both glyph builders write SVG presentation attributes kebab-case
+// ("stroke-width"), the spelling the emitted HTML uses. satteri 0.9.5 left
+// camelCase equivalents unconverted, so the kebab-case rule started as a
+// workaround; 0.10 fixed the name tables and converts either spelling, so the
+// rule now just matches the output. Either way the serialized attribute is
+// what matters, so assert on that rather than on the keys the plugins write.
+test("glyph SVG presentation attributes serialize kebab-case in rendered HTML", async () => {
   const html = await renderCode("## Head\n\n[out](https://example.com)");
-  assert.match(html, /stroke-width=/);
+  assert.match(html, /stroke-width="2\.2"/, "heading-anchor glyph");
+  assert.match(html, /stroke-width="1\.2"/, "external-link glyph");
   assert.match(html, /stroke-linecap="round"/);
   assert.match(html, /stroke-linejoin="round"/);
   assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/);
 });
 
-// The .mdx path can't be rendered here without standing up the MDX compiler,
-// but it serializes plugin-emitted hast property keys verbatim — so the
-// cross-path invariant lives in the keys themselves. Run each plugin's visitor
-// against a stub ctx and reject any camelCase key outside the set satteri
-// provably converts on both paths (the "write them kebab-case" rule, enforced
-// at the source). This is what catches a strokeWidth-only camelCase
-// regression, which the .md render above would silently convert.
+// The same invariant on the MDX path, which reaches the browser through a
+// different satteri entry point and has diverged on attribute casing before:
+// satteri 0.9.5 converted `strokeWidth` on .md while leaking it here.
+test("glyph SVG presentation attributes stay kebab-case in compiled MDX", async () => {
+  const code = await compileMdx("## Head\n\n[out](https://example.com)\n");
+  assert.match(code, /"stroke-width": "2\.2"/, "heading-anchor glyph");
+  assert.match(code, /"stroke-width": "1\.2"/, "external-link glyph");
+  assert.match(code, /"stroke-linecap": "round"/);
+  assert.match(code, /"stroke-linejoin": "round"/);
+  assert.doesNotMatch(code, /strokeWidth|strokeLinecap|strokeLinejoin/);
+});
 
-type HastNode = {
-  type: string;
-  tagName?: string;
-  properties?: Record<string, unknown>;
-  children?: HastNode[];
-  value?: string;
-};
+// Guards the two assertions above: they would also pass on a compile that
+// produced no glyphs at all, so pin that both glyph plugins actually ran.
+test("both hast plugins run on the MDX path", async () => {
+  const code = await compileMdx("## Head\n\n[out](https://example.com)\n");
+  assert.match(code, /id: "head"/, "heading id");
+  assert.match(code, /class: "heading-anchor"/);
+  assert.match(code, /"has-external-glyph"/);
+  assert.match(code, /\(opens in a new tab\)/);
+});
 
-const SAFE_CAMEL_KEYS = new Set(["className", "ariaHidden", "ariaLabel", "viewBox"]);
-
-function textOf(node: HastNode): string {
-  if (node.type === "text") return node.value ?? "";
-  return (node.children ?? []).map(textOf).join("");
-}
-
-function collectAppended(
-  visit: (node: HastNode, ctx: unknown) => void,
-  node: HastNode,
-): HastNode[] {
-  const appended: HastNode[] = [];
-  visit(node, {
-    data: {},
-    textContent: textOf,
-    setProperty: (n: HastNode, key: string, value: unknown) => {
-      (n.properties ??= {})[key] = value;
-    },
-    appendChild: (_n: HastNode, child: HastNode | HastNode[]) => {
-      appended.push(...(Array.isArray(child) ? child : [child]));
-    },
-  });
-  return appended;
-}
-
-function elementKeys(nodes: HastNode[]): string[] {
-  const keys: string[] = [];
-  const walk = (n: HastNode) => {
-    if (n.type === "element") keys.push(...Object.keys(n.properties ?? {}));
-    (n.children ?? []).forEach(walk);
-  };
-  nodes.forEach(walk);
-  return keys;
-}
-
-test("plugins emit no camelCase hast keys beyond satteri's converted set", async () => {
-  const { default: satteriHeadingAnchors } = await import("./satteri-heading-anchors.mjs");
-  const { default: satteriExternalLinks } = await import("./satteri-external-links.mjs");
-  const heading: HastNode = {
-    type: "element",
-    tagName: "h2",
-    properties: {},
-    children: [{ type: "text", value: "Head" }],
-  };
-  const link: HastNode = {
-    type: "element",
-    tagName: "a",
-    properties: { href: "https://example.com" },
-    children: [{ type: "text", value: "out" }],
-  };
-  const appended = [
-    ...collectAppended(satteriHeadingAnchors().element.visit, heading),
-    ...collectAppended(satteriExternalLinks({ internalHosts: [] }).element.visit, link),
-  ];
-  // anchor + glyph + SR span at minimum — a silently inert stub proves nothing.
-  assert.ok(appended.length >= 3, `visitors appended only ${appended.length} nodes`);
-  // Scan the visited nodes too: the stub applies ctx.setProperty into their
-  // properties, so keys written onto the heading/link (id, target, rel, …)
-  // face the same rule as keys in appended subtrees.
-  for (const key of elementKeys([heading, link, ...appended])) {
-    assert.ok(
-      key === key.toLowerCase() || SAFE_CAMEL_KEYS.has(key),
-      `camelCase hast key "${key}" would leak unconverted on the .mdx path — write it kebab-case`,
-    );
-  }
+// The mdast plugin on the MDX path. Alerts rewrite the blockquote through
+// `data.hName`/`hProperties` and prepend a title paragraph, and satteri 0.10.4
+// fixed plugin-inserted elements being emitted as literal JSX tags instead of
+// going through `_components` — the indirection that lets an MDX author
+// override `div`/`p`. Pin both the transform and that routing.
+test("alerts convert on the MDX path and route through _components", async () => {
+  const code = await compileMdx("> [!NOTE]\n> Body.\n");
+  // Bind element to props: `_components.p` alone proves nothing, since the
+  // alert body is a paragraph too and would satisfy it on its own.
+  assert.match(
+    code,
+    /_jsxs\(_components\.div, \{\s*class: "markdown-alert markdown-alert-note"/,
+    "container",
+  );
+  assert.match(
+    code,
+    /_jsx\(_components\.p, \{\s*class: "markdown-alert-title",\s*children: "Note"/,
+    "title paragraph",
+  );
+  assert.doesNotMatch(code, /blockquote/);
+  // A literal `_jsx("div"` / `_jsx("p"` renders the same but ignores
+  // props.components, so an MDX author's overrides stop applying. Every
+  // element here comes from Markdown or the plugin, so none should be literal.
+  assert.doesNotMatch(code, /_jsxs?\("(?:div|p)"/, "element bypassed _components");
 });
