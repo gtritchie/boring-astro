@@ -247,11 +247,21 @@ test("both hast plugins run on the MDX path", async () => {
 // override `div`/`p`. Pin both the transform and that routing.
 test("alerts convert on the MDX path and route through _components", async () => {
   const code = await compileMdx("> [!NOTE]\n> Body.\n");
-  assert.match(code, /_components\.div/, "container element");
-  assert.match(code, /class: "markdown-alert markdown-alert-note"/);
-  assert.match(code, /class: "markdown-alert-title"/);
-  assert.match(code, /children: "Note"/);
+  // Bind element to props: `_components.p` alone proves nothing, since the
+  // alert body is a paragraph too and would satisfy it on its own.
+  assert.match(
+    code,
+    /_jsxs\(_components\.div, \{\s*class: "markdown-alert markdown-alert-note"/,
+    "container",
+  );
+  assert.match(
+    code,
+    /_jsx\(_components\.p, \{\s*class: "markdown-alert-title",\s*children: "Note"/,
+    "title paragraph",
+  );
   assert.doesNotMatch(code, /blockquote/);
-  // A literal `_jsx("div"` would render the same but ignore props.components.
-  assert.doesNotMatch(code, /_jsxs?\("div"/, "container bypassed _components");
+  // A literal `_jsx("div"` / `_jsx("p"` renders the same but ignores
+  // props.components, so an MDX author's overrides stop applying. Every
+  // element here comes from Markdown or the plugin, so none should be literal.
+  assert.doesNotMatch(code, /_jsxs?\("(?:div|p)"/, "element bypassed _components");
 });
