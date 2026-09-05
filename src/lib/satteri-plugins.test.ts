@@ -231,11 +231,27 @@ test("glyph SVG presentation attributes stay kebab-case in compiled MDX", async 
 });
 
 // Guards the two assertions above: they would also pass on a compile that
-// produced no glyphs at all, so pin that both plugins actually ran.
-test("both plugins run on the MDX path", async () => {
+// produced no glyphs at all, so pin that both glyph plugins actually ran.
+test("both hast plugins run on the MDX path", async () => {
   const code = await compileMdx("## Head\n\n[out](https://example.com)\n");
   assert.match(code, /id: "head"/, "heading id");
   assert.match(code, /class: "heading-anchor"/);
   assert.match(code, /"has-external-glyph"/);
   assert.match(code, /\(opens in a new tab\)/);
+});
+
+// The mdast plugin on the MDX path. Alerts rewrite the blockquote through
+// `data.hName`/`hProperties` and prepend a title paragraph, and satteri 0.10.4
+// fixed plugin-inserted elements being emitted as literal JSX tags instead of
+// going through `_components` — the indirection that lets an MDX author
+// override `div`/`p`. Pin both the transform and that routing.
+test("alerts convert on the MDX path and route through _components", async () => {
+  const code = await compileMdx("> [!NOTE]\n> Body.\n");
+  assert.match(code, /_components\.div/, "container element");
+  assert.match(code, /class: "markdown-alert markdown-alert-note"/);
+  assert.match(code, /class: "markdown-alert-title"/);
+  assert.match(code, /children: "Note"/);
+  assert.doesNotMatch(code, /blockquote/);
+  // A literal `_jsx("div"` would render the same but ignore props.components.
+  assert.doesNotMatch(code, /_jsxs?\("div"/, "container bypassed _components");
 });
