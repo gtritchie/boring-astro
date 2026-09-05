@@ -15,12 +15,15 @@ import { markdownProcessor } from "./satteri-processor.mjs";
 
 const renderer = await markdownProcessor.createRenderer({});
 
-async function render(src: string) {
-  return await renderer.render(src, {});
+// `ext` picks the entry point satteri compiles through. Defaults to "md";
+// the casing tests below render both, since @astrojs/mdx 8 moved .mdx
+// compilation into this same processor.
+async function render(src: string, ext = "md") {
+  return await renderer.render(src, { fileURL: new URL(`file:///entry.${ext}`) });
 }
 
-async function renderCode(src: string): Promise<string> {
-  return (await render(src)).code;
+async function renderCode(src: string, ext = "md"): Promise<string> {
+  return (await render(src, ext)).code;
 }
 
 // --- alerts (satteri-alerts.mjs) ---
@@ -175,99 +178,32 @@ test("relative and mailto links are untouched", async () => {
   }
 });
 
-// satteri 0.9.5's name tables miss SVG presentation attributes: camelCase
-// strokeLinecap/strokeLinejoin leak into the HTML unconverted. The glyph
-// builders write kebab-case keys; this pins that the output stays valid.
-// This renders the .md path only — the cross-path guard for keys satteri
-// converts on .md but leaks on .mdx (strokeWidth) is the key-pinning test
-// below.
-test("glyph SVG presentation attributes serialize kebab-case, not camelCase", async () => {
-  const html = await renderCode("## Head\n\n[out](https://example.com)");
-  assert.match(html, /stroke-width=/);
-  assert.match(html, /stroke-linecap="round"/);
-  assert.match(html, /stroke-linejoin="round"/);
-  assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/);
+// Both glyph builders write SVG presentation attributes kebab-case
+// ("stroke-width"), the spelling the HTML actually uses. satteri 0.9.5 left
+// camelCase equivalents unconverted, so the kebab-case rule started as a
+// workaround; 0.10 fixed the name tables and the rule now just matches the
+// output. Either way the serialized attribute is what matters, so assert on
+// that rather than on the property keys the plugins hand to satteri.
+//
+// Rendered on both paths: `.md` and `.mdx` reach the HTML through different
+// satteri entry points, and they have diverged on attribute casing before.
+test("glyph SVG presentation attributes serialize kebab-case on both paths", async () => {
+  for (const ext of ["md", "mdx"]) {
+    const html = await renderCode("## Head\n\n[out](https://example.com)", ext);
+    assert.match(html, /stroke-width="2\.2"/, `${ext}: heading-anchor glyph`);
+    assert.match(html, /stroke-width="1\.2"/, `${ext}: external-link glyph`);
+    assert.match(html, /stroke-linecap="round"/, ext);
+    assert.match(html, /stroke-linejoin="round"/, ext);
+    assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/, ext);
+  }
 });
 
-// The .mdx path can't be rendered here without standing up the MDX compiler,
-// but it serializes plugin-emitted hast property keys verbatim — so the
-// cross-path invariant lives in the keys themselves. Run each plugin's visitor
-// against a stub ctx and reject any camelCase key outside the set satteri
-// provably converts on both paths (the "write them kebab-case" rule, enforced
-// at the source). This is what catches a strokeWidth-only camelCase
-// regression, which the .md render above would silently convert.
-
-type HastNode = {
-  type: string;
-  tagName?: string;
-  properties?: Record<string, unknown>;
-  children?: HastNode[];
-  value?: string;
-};
-
-const SAFE_CAMEL_KEYS = new Set(["className", "ariaHidden", "ariaLabel", "viewBox"]);
-
-function textOf(node: HastNode): string {
-  if (node.type === "text") return node.value ?? "";
-  return (node.children ?? []).map(textOf).join("");
-}
-
-function collectAppended(
-  visit: (node: HastNode, ctx: unknown) => void,
-  node: HastNode,
-): HastNode[] {
-  const appended: HastNode[] = [];
-  visit(node, {
-    data: {},
-    textContent: textOf,
-    setProperty: (n: HastNode, key: string, value: unknown) => {
-      (n.properties ??= {})[key] = value;
-    },
-    appendChild: (_n: HastNode, child: HastNode | HastNode[]) => {
-      appended.push(...(Array.isArray(child) ? child : [child]));
-    },
-  });
-  return appended;
-}
-
-function elementKeys(nodes: HastNode[]): string[] {
-  const keys: string[] = [];
-  const walk = (n: HastNode) => {
-    if (n.type === "element") keys.push(...Object.keys(n.properties ?? {}));
-    (n.children ?? []).forEach(walk);
-  };
-  nodes.forEach(walk);
-  return keys;
-}
-
-test("plugins emit no camelCase hast keys beyond satteri's converted set", async () => {
-  const { default: satteriHeadingAnchors } = await import("./satteri-heading-anchors.mjs");
-  const { default: satteriExternalLinks } = await import("./satteri-external-links.mjs");
-  const heading: HastNode = {
-    type: "element",
-    tagName: "h2",
-    properties: {},
-    children: [{ type: "text", value: "Head" }],
-  };
-  const link: HastNode = {
-    type: "element",
-    tagName: "a",
-    properties: { href: "https://example.com" },
-    children: [{ type: "text", value: "out" }],
-  };
-  const appended = [
-    ...collectAppended(satteriHeadingAnchors().element.visit, heading),
-    ...collectAppended(satteriExternalLinks({ internalHosts: [] }).element.visit, link),
-  ];
-  // anchor + glyph + SR span at minimum — a silently inert stub proves nothing.
-  assert.ok(appended.length >= 3, `visitors appended only ${appended.length} nodes`);
-  // Scan the visited nodes too: the stub applies ctx.setProperty into their
-  // properties, so keys written onto the heading/link (id, target, rel, …)
-  // face the same rule as keys in appended subtrees.
-  for (const key of elementKeys([heading, link, ...appended])) {
-    assert.ok(
-      key === key.toLowerCase() || SAFE_CAMEL_KEYS.has(key),
-      `camelCase hast key "${key}" would leak unconverted on the .mdx path — write it kebab-case`,
-    );
-  }
+// The two plugins have to fire on .mdx as well, or the assertions above pass
+// on an .mdx render that simply produced no glyphs.
+test("both plugins run on the .mdx path", async () => {
+  const html = await renderCode("## Head\n\n[out](https://example.com)", "mdx");
+  assert.match(html, /<h2 id="head">/);
+  assert.match(html, /class="heading-anchor"/);
+  assert.match(html, /class="has-external-glyph"/);
+  assert.match(html, /<span class="visually-hidden"> \(opens in a new tab\)<\/span>/);
 });

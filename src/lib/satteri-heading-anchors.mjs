@@ -36,7 +36,7 @@
 // markdown; nothing goes deeper than h4.
 //
 // The glyph's SVG presentation attributes use literal kebab-case names — see
-// satteri-external-links.mjs for the satteri name-mapping gap behind that.
+// satteri-external-links.mjs for the history behind that spelling.
 
 import { satteriCollectHastText } from "@astrojs/markdown-satteri";
 import Slugger from "github-slugger";

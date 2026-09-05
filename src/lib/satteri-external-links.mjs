@@ -14,12 +14,14 @@
 // serializer's list handling.
 //
 // SVG presentation attributes use literal kebab-case names ("stroke-width"),
-// not hast camelCase (strokeWidth). Kebab-case spellings survive to the HTML
-// verbatim on both the .md and .mdx paths; camelCase leaks into the output
-// unconverted (invalid HTML, browsers ignore it) for strokeLinecap/Linejoin
-// on both paths and for strokeWidth on the MDX path — satteri 0.9.5's name
-// tables cover className/ariaHidden/viewBox but not SVG presentation
-// attributes. Rule: always write these keys kebab-case.
+// which is the spelling the emitted HTML uses. This began as a workaround:
+// satteri 0.9.5's name tables covered className/ariaHidden/viewBox but not SVG
+// presentation attributes, so camelCase strokeWidth/strokeLinecap/strokeLinejoin
+// leaked into the output unconverted. satteri 0.10 fixed both halves of that
+// and now converts either spelling, so kebab-case is a plain style choice
+// rather than a constraint. satteri-plugins.test.ts asserts the serialized
+// attributes on both the .md and .mdx paths, which is the invariant that
+// actually matters if satteri ever regresses.
 
 const HTTP_RE = /^https?:\/\//i;
 
