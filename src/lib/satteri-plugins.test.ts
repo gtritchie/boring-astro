@@ -9,21 +9,46 @@ import { markdownProcessor } from "./satteri-processor.mjs";
 // HTML — and the build stays green through all of them. Rendering through the
 // configured processor turns each into a red test instead.
 //
-// Assertions are against the HTML string. That couples them to serializer
-// details (attribute order, quoting), which is deliberate: the serializer IS
-// part of what a satteri upgrade could change out from under the site.
+// Assertions are against the emitted string — HTML for .md, compiled module
+// code for .mdx. That couples them to serializer details (attribute order,
+// quoting), which is deliberate: the serializer IS part of what a satteri
+// upgrade could change out from under the site.
 
 const renderer = await markdownProcessor.createRenderer({});
 
-// `ext` picks the entry point satteri compiles through. Defaults to "md";
-// the casing tests below render both, since @astrojs/mdx 8 moved .mdx
-// compilation into this same processor.
-async function render(src: string, ext = "md") {
-  return await renderer.render(src, { fileURL: new URL(`file:///entry.${ext}`) });
+async function render(src: string) {
+  return await renderer.render(src, {});
 }
 
-async function renderCode(src: string, ext = "md"): Promise<string> {
-  return (await render(src, ext)).code;
+async function renderCode(src: string): Promise<string> {
+  return (await render(src)).code;
+}
+
+// The .md and .mdx paths are separate entry points on the processor —
+// `createRenderer()` renders Markdown to HTML, `createMdxRenderer()` compiles
+// MDX to a JS component module. `createRenderer` ignores `fileURL`'s
+// extension, so a .mdx *render* is still Markdown; only this compiles MDX.
+//
+// The compiled module is not executed — that would need Astro's runtime.
+// Asserting on the emitted code is enough for what differs between the paths:
+// the hast property keys the plugins wrote arrive as JSX prop names, which is
+// exactly where a casing leak used to show up as `strokeWidth: "2.2"`.
+// Optional on the MarkdownProcessor type. Fail loudly rather than skip: a
+// satteri upgrade that drops the method should turn this file red, not
+// quietly leave the MDX path unverified.
+const { createMdxRenderer } = markdownProcessor;
+if (!createMdxRenderer) {
+  throw new Error("markdownProcessor exposes no createMdxRenderer — MDX assertions cannot run");
+}
+const mdxRenderer = await createMdxRenderer.call(
+  markdownProcessor,
+  { syntaxHighlight: false, shikiConfig: {}, gfm: true, smartypants: true },
+  { optimize: false },
+);
+
+async function compileMdx(src: string): Promise<string> {
+  const { code } = await mdxRenderer.process(src, "/virtual/entry.mdx", {});
+  return String(code);
 }
 
 // --- alerts (satteri-alerts.mjs) ---
@@ -179,31 +204,38 @@ test("relative and mailto links are untouched", async () => {
 });
 
 // Both glyph builders write SVG presentation attributes kebab-case
-// ("stroke-width"), the spelling the HTML actually uses. satteri 0.9.5 left
+// ("stroke-width"), the spelling the emitted HTML uses. satteri 0.9.5 left
 // camelCase equivalents unconverted, so the kebab-case rule started as a
-// workaround; 0.10 fixed the name tables and the rule now just matches the
-// output. Either way the serialized attribute is what matters, so assert on
-// that rather than on the property keys the plugins hand to satteri.
-//
-// Rendered on both paths: `.md` and `.mdx` reach the HTML through different
-// satteri entry points, and they have diverged on attribute casing before.
-test("glyph SVG presentation attributes serialize kebab-case on both paths", async () => {
-  for (const ext of ["md", "mdx"]) {
-    const html = await renderCode("## Head\n\n[out](https://example.com)", ext);
-    assert.match(html, /stroke-width="2\.2"/, `${ext}: heading-anchor glyph`);
-    assert.match(html, /stroke-width="1\.2"/, `${ext}: external-link glyph`);
-    assert.match(html, /stroke-linecap="round"/, ext);
-    assert.match(html, /stroke-linejoin="round"/, ext);
-    assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/, ext);
-  }
+// workaround; 0.10 fixed the name tables and converts either spelling, so the
+// rule now just matches the output. Either way the serialized attribute is
+// what matters, so assert on that rather than on the keys the plugins write.
+test("glyph SVG presentation attributes serialize kebab-case in rendered HTML", async () => {
+  const html = await renderCode("## Head\n\n[out](https://example.com)");
+  assert.match(html, /stroke-width="2\.2"/, "heading-anchor glyph");
+  assert.match(html, /stroke-width="1\.2"/, "external-link glyph");
+  assert.match(html, /stroke-linecap="round"/);
+  assert.match(html, /stroke-linejoin="round"/);
+  assert.doesNotMatch(html, /strokeWidth|strokeLinecap|strokeLinejoin/);
 });
 
-// The two plugins have to fire on .mdx as well, or the assertions above pass
-// on an .mdx render that simply produced no glyphs.
-test("both plugins run on the .mdx path", async () => {
-  const html = await renderCode("## Head\n\n[out](https://example.com)", "mdx");
-  assert.match(html, /<h2 id="head">/);
-  assert.match(html, /class="heading-anchor"/);
-  assert.match(html, /class="has-external-glyph"/);
-  assert.match(html, /<span class="visually-hidden"> \(opens in a new tab\)<\/span>/);
+// The same invariant on the MDX path, which reaches the browser through a
+// different satteri entry point and has diverged on attribute casing before:
+// satteri 0.9.5 converted `strokeWidth` on .md while leaking it here.
+test("glyph SVG presentation attributes stay kebab-case in compiled MDX", async () => {
+  const code = await compileMdx("## Head\n\n[out](https://example.com)\n");
+  assert.match(code, /"stroke-width": "2\.2"/, "heading-anchor glyph");
+  assert.match(code, /"stroke-width": "1\.2"/, "external-link glyph");
+  assert.match(code, /"stroke-linecap": "round"/);
+  assert.match(code, /"stroke-linejoin": "round"/);
+  assert.doesNotMatch(code, /strokeWidth|strokeLinecap|strokeLinejoin/);
+});
+
+// Guards the two assertions above: they would also pass on a compile that
+// produced no glyphs at all, so pin that both plugins actually ran.
+test("both plugins run on the MDX path", async () => {
+  const code = await compileMdx("## Head\n\n[out](https://example.com)\n");
+  assert.match(code, /id: "head"/, "heading id");
+  assert.match(code, /class: "heading-anchor"/);
+  assert.match(code, /"has-external-glyph"/);
+  assert.match(code, /\(opens in a new tab\)/);
 });
