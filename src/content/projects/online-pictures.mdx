@@ -7,4 +7,21 @@ tags: [C++, Work]
 featured: false
 ---
 
-Coming soon...
+import { Image } from "astro:assets";
+import onlinePictures from "./online-pictures-2013.png";
+
+## Sequel to the Sequel
+
+In Office-2013, we removed Clip Organizer entirely, and stopped shipping clipart assets with the product, instead leveraging online sources.
+
+I believe I did the implementation of the new "Insert Pictures" dialog, which was really just a container for a web browser (Trident at the time) control. I had little to do with what was shown inside the rectangle; our web-devs who built and operated Office Online, and later Bing Images, did all of that.
+
+Here's a screenshot of how it looked in the earlier releases.
+
+<Image
+  src={onlinePictures}
+  alt="Insert Pictures dialog from Office 2013 with search boxes for Office.com Clip Art and Bing Image Search"
+  sizes="(min-width: 745px) 697px, calc(100vw - 3rem)"
+/>
+
+This dialog still exists in the most recent releases of Microsoft Office for Windows. Mac Office has a similar feature, I believe, but not sure if there was any shared code for that (I wasn't involved).
