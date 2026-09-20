@@ -7,4 +7,58 @@ tags: [C++, Work]
 featured: false
 ---
 
-Coming soon...
+import { Image } from "astro:assets";
+import corgStandalone from "./corg-standalone.jpg";
+import corgTaskPane from "./corg-taskpane.webp";
+import corgBullet from "./corg-bullet.jpg";
+
+## To MSO and beyond
+
+After shipping [Clip Gallery 5](/projects/cag/) with Office-2000 and some other products, we (the team) became a more formal part of the Office organization, meaning we could start using the shared Office codebase in `mso.dll`, whether we liked it or not.
+
+This brought in a massive amount of functionality we could leverage, at the expense of going from an application that could be compiled in a few minutes, using publicly documented APIs (Win32, MFC) to something requiring hours to build from scratch, and documentation that was, essentially, "search and read the source code".
+
+Initially I tried keeping us separated, taking pre-built drops of MSO.dll from the Office build lab and integrating them into our little standalone universe, but we quickly discovered problems with that, mainly that MSO's function signatures and exports changed constantly (there were hundreds of developers working on this shared code) and by the time we merged our stuff back into the Office build pipeline, it was almost always incompatible with MSO from > 1 second ago.
+
+So I got to learn about and introduce our little team to the joys of working in the "real" Office development environment, involving `ocheck`, `ohome`, `SDM`, `RAID`, and `SLM` and many other strange and mysterious acronyms.
+
+## Feature Overview
+
+Clip Organizer was a complete ground-up rewrite, using the Office UI frameworks of the day, rather than generic Win32. We did maintain compatibility with the old Clip Gallery content collection formats, so users who had accumulated clipart collections via multiple generations of various Microsoft products could make them show up in the new UI.
+
+Clip Organizer had a standalone application, which could be used to organize and search from outside the Office applications. You could, for example, drag & drop from this into any Windows application that supported images, not just Office.
+
+<Image
+  src={corgStandalone}
+  alt="Clip Organizer standalone window with a collection tree on the left and a grid of clip thumbnails on the right"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
+
+There was also a Task Pane (i.e. a sidebar) version in the Office apps themselves (Word, Excel, PowerPoint, Publisher, maybe also Outlook, but I'm fuzzy on that). This was search-driven and allowed inserting an asset directly into the current document.
+
+<Image
+  src={corgTaskPane}
+  alt="Clip Art task pane docked beside a blank slide in PowerPoint 2010, with a search box, media type filter, and empty results list"
+  sizes="(min-width: 598px) 550px, calc(100vw - 3rem)"
+/>
+
+There was also a modal-dialog variant used in some obscure cases, such as for custom bullets and horizontal lines, which ran canned searches against hidden keywords.
+
+<Image
+  src={corgBullet}
+  alt="Picture Bullet dialog showing a grid of small bullet images, a search box, and an Import button"
+  sizes="300px"
+/>
+
+The first time a user started up Clip Organizer, it offered to search their hard-drive for content and import it into the collection. This was "Nifty" (tm) but had a lot of overhead and bugs, and in subsequent releases it stopped offering to do it automatically, then, I think, we removed it altogether.
+
+The larger team also built and operated the online Clipart website as part of Office Online, and Clip Organizer could pull content from that, as well. I don't remember much about how that worked.
+
+Around this time, the Windows Installer "Darwin" (msi) technology was under development, and I had to figure out how to leverage it for standalone content collection CDs that came with Publisher Deluxe. The tooling was very immature at the time, so I ended up writing a lot of my own. Words that come to mind are Orca and merge modules. The Windows Installer wasn't very excited about dealing with hundreds of thousands of tiny little files, so performance was a concern. Not sure I ever really solved it. At the time, disk space concerns were still Real, so Office leaned heavily into "install-on-demand" where a feature was advertised but not actually installed until the first time you used it. This did not play nicely with clipart collections. Eventually this morphed into doing a similar thing from online (versus CD-ROM) installation sources, but by then we were moving away from shipping a bazillion clipart assets directly with the product.
+
+## Ship Vehicles
+
+Clip Organizer shipped with Office-XP, Office-2003, Office-2007, and Office-2010. Then, once again, I got to delete the thing I had worked on and replace it with the next thing, [Online Pictures](/projects/online-pictures/).
+
+> [!NOTE]
+> I don't want to imply that I wrote all of this myself (Clip Organizer). For much of its active development I was a dev-lead, with a team of great developers, then the dev-manager. Early on I did a lot of the work figuring out the basics of working in the Office dev environment, getting the core application built, but many other people worked on features, as well.
