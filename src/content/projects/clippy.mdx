@@ -7,4 +7,29 @@ tags: [C++, Work]
 featured: false
 ---
 
-Coming soon...
+import { Image } from "astro:assets";
+import clippy from "./clippy.jpg";
+
+<Image
+  src={clippy}
+  alt="Clippy the paperclip on a sheet of paper, with a speech bubble reading: Hi! I am Clippy, your office assistant. Would you like some assistance today? Yes. No."
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
+
+## Oh My God, They Killed Clippy!
+
+For most of my tenure at Microsoft, I was on the team that owned the help system in Microsoft Office, and that included Clippy (the assistant).
+
+I didn't have anything to do with the creation of Clippy, but I was involved in removing it (him?) from Office.
+
+Clippy arrived in Office-97, as an offshoot of Microsoft Bob!
+
+In Office-XP (circa 2001), Clippy remained part of Office, but was off by default. Users had to enable it.
+
+Finally, in Office-2007, my team removed Clippy altogether. I was the dev-manager of the team at the time, and always looking for opportunities to play in the code rather than do whatever it was that managers were supposed to do, so I did a very exhaustive search and destroy, yanking out any bits of source code related to the assistant.
+
+The Office C codebase used [Hungarian Notation](https://en.wikipedia.org/wiki/Hungarian_notation), and the prefix for all things Clippy was `TFC`.
+
+This, famously, was because Bill Gates referred to this feature as "That Fuzzy Clown", but "Fuzzy" was a different "F" word.
+
+`TFC` provided a great trail to follow for my search and destroy mission. If someone wanted to bring Clippy back, I wanted to make sure they had to start from scratch. Really, I just enjoyed (and still enjoy) removing dead code. Most of what I did in 19 years at Microsoft was delete code, including most of the code I wrote. Hmmm...
