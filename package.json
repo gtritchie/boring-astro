@@ -22,7 +22,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@astrojs/cloudflare": "^14.3.0",
-    "@astrojs/markdown-satteri": "0.4.0",
+    "@astrojs/markdown-satteri": "0.4.1",
     "@astrojs/mdx": "^8.0.0",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
@@ -39,12 +39,12 @@
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.65.0",
-    "wrangler": "^4.129.0"
+    "wrangler": "^4.135.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
     "fsevents@2.3.3": true,
     "puppeteer@24.43.1": true,
-    "workerd@1.20260903.1": true
+    "workerd@1.20260918.1": true
   }
 }
