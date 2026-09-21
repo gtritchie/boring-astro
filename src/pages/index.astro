@@ -1,10 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ProjectCard from "../components/ProjectCard.astro";
 import EntryList from "../components/EntryList.astro";
 import { listProjects, listWriting } from "../lib/collection-order";
 
-const projects = (await listProjects()).filter((p) => p.data.featured).slice(0, 6);
+// Every non-draft project, newest first (listProjects owns the ordering). The
+// previous featured-cards treatment lives, unused, in FeaturedProjects.astro.
+const projects = (await listProjects()).map((p) => ({
+  href: `/projects/${p.id}/`,
+  title: p.data.title,
+  year: p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear()),
+}));
 
 const writing = (await listWriting()).slice(0, 3);
 
@@ -26,21 +31,16 @@ const writingEntries = writing.map((post) => ({
       A catalog of my <a href="/projects/">software projects</a> over the years.
     </p>
 
-    <h2 class="section-label">Featured projects</h2>
-    {
-      projects.map((p) => (
-        <ProjectCard
-          href={`/projects/${p.id}/`}
-          title={p.data.title}
-          summary={p.data.summary}
-          tags={p.data.tags}
-          status={p.data.status}
-        />
-      ))
-    }
-    <p class="all-projects-link">
-      <a href="/projects/">All projects &rarr;</a>
-    </p>
+    <h2 class="section-label">Projects</h2>
+    <ul class="project-list">
+      {
+        projects.map((p) => (
+          <li>
+            <a href={p.href}>{p.title}</a> ({p.year})
+          </li>
+        ))
+      }
+    </ul>
 
     <h2 class="section-label">Recent writing</h2>
     <EntryList entries={writingEntries} />
@@ -61,17 +61,21 @@ const writingEntries = writing.map((post) => ({
     color: var(--fg-muted);
     margin: var(--sp-10) 0 var(--sp-4);
   }
-  .all-projects-link {
-    margin: var(--sp-2) 0 0;
-    font-size: 0.95rem;
+  /* Multi-column rather than grid so the newest-first order reads down the
+     first column and continues down the second. */
+  .project-list {
+    columns: 2;
+    column-gap: var(--sp-8);
+    margin: 0;
+    padding-left: 1.25em;
   }
-  .all-projects-link a {
-    color: var(--fg-muted);
-    text-decoration: none;
+  .project-list li {
+    break-inside: avoid;
+    margin-bottom: var(--sp-2);
   }
-  .all-projects-link a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    color: var(--fg);
+  @media (max-width: 640px) {
+    .project-list {
+      columns: 1;
+    }
   }
 </style>
