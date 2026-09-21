@@ -3,8 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import EntryList from "../components/EntryList.astro";
 import { listProjects, listWriting } from "../lib/collection-order";
 
-// Every non-draft project, newest first (listProjects owns the ordering). The
-// previous featured-cards treatment lives, unused, in FeaturedProjects.astro.
+// Every non-draft project, newest first (listProjects owns the ordering).
 const projects = (await listProjects()).map((p) => ({
   href: `/projects/${p.id}/`,
   title: p.data.title,
