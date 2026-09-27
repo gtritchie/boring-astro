@@ -63,6 +63,11 @@ const writingEntries = writing.map((post) => ({
     break-inside: avoid;
     margin-bottom: var(--sp-2);
   }
+  /* At the global 3px offset the underline crosses descenders and skip-ink
+     breaks it around them ("Clippy"); 0.3em drops it clear of them. */
+  .project-list a {
+    text-underline-offset: 0.3em;
+  }
   @media (max-width: 640px) {
     .project-list {
       columns: 1;
