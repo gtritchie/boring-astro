@@ -5,6 +5,12 @@
 
 body {
   font-size: 18px;
+  /* Inherited, so it reaches every underline, including non-links. At a
+     fixed 2-4px the line crossed descenders and skip-ink broke it around
+     them ("Clippy"). A percentage re-resolves against each element's font
+     size, where 0.3em would inherit as 5.4px; em is the pre-Safari-18.2 fallback. */
+  text-underline-offset: 0.3em;
+  text-underline-offset: 30%;
 }
 
 h1 {
@@ -29,7 +35,6 @@ p {
 a {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
 a:hover {
   text-decoration-thickness: 2px;
