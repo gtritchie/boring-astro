@@ -7,4 +7,52 @@ tags: [C, x86-assembler, Work]
 featured: false
 ---
 
-Coming soon...
+import { Image } from "astro:assets";
+import classified from "./gma-job-posting.png";
+import compaq from "./compaq.png";
+
+## In the Beginning...
+
+In January 1989 I graduated from "The Honeywell Bull Institute for Computer Programming" in Calgary. This was a six-month course covering COBOL, Fortran, C, JCL, systems analysis, and job-hunting and interviewing skills. I took this so I would have something to show when applying for jobs other than "Played with a Color Computer in high school".
+
+My first programming job was with GMA (Geophysical Microcomputer Applications) in Calgary, starting not long after I graduated. I responded to this newspaper ad (yes, I'm THAT old):
+
+<Image
+  src={classified}
+  alt="Newspaper job posting for GMA Programmer/Analyst"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
+
+I believe this was the first and only job I applied for after graduating, but that could just be selective memory.
+
+## Day One
+
+On my first day I was given a Compaq portable, a floppy disk with some C source code, and a vague description of a bug to hunt down. This was soon replaced by an actual desktop computer, but the Compaq always sticks in my mind.
+
+<Image
+  src={compaq}
+  alt="Compaq Portable PC circa 1989"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
+
+This was my first time encountering non-toy C code, and I was quite overwhelmed. My imposter syndrome was in full force, and the next morning I called in and told them they had made a horrible mistake in hiring me, and I tried to quit.
+
+Fortunately, my manager, Dennis, wasn't having it, and he convinced me to come back in. I settled down and began several years of late nights and weekends, absorbing everything I could about C, assembly language, dBASE, and eventually Unix and networking.
+
+For dBASE, we used a library from Sequiter Software in Edmonton, named CodeBase. I was curious, and it turns out they remained in business much longer than I would have expected (~2015), finally releasing the libraries as open source in 2018: https://github.com/MPSystemsServices/CodeBase-for-DBF.
+
+I didn't have much of a life outside of work (other than going to a lot of movies, and playing Arkanoid at an arcade a few blocks from my apartment), but I don't regret it; it was very educational and satisfying. I've since been told by Dennis that I tried to quit one or two more times after that. I have no memory of that, but it fits.
+
+The actual software was, as I described it, "Software for making squiggles". I didn't know the difference between a Fast Fourier Transform and a Quarter Pounder with Cheese, but it was rarely a problem. I was building user interfaces for DOS, and later graphical interfaces using a graphics library (still DOS), and when math was needed, it was supplied and I plugged it in.
+
+That program I was given to troubleshoot on day one was for printing said squiggles to a dot matrix printer, and the bug manifested when printing very long output (many, many pages). I don't know that I ever solved it, nor did anyone else in my memory. I eventually rewrote it to work with a DOS extender that ran in protected mode so it could use 32-bit offsets, and the bug survived that! I was sure it was an over- or underflow issue, and I used the tools we had at the time (e.g. [PC-Lint](https://www.vector.com/en/product/pc-lint-plus/), [BoundsChecker](https://en.wikipedia.org/wiki/BoundsChecker)), but never quite found it. I'm sure an LLM would have solved it in 0.3 seconds.
+
+## LogM
+
+I mostly worked on a software package named LogM. It made squiggles. Unfortunately screenshots of DOS software from the early 1990s are hard to come by, so I don't have anything but vague memories of the menu system that was used to launch the various modules.
+
+One of the modules was named "sos" and was invoked by the menu system to exit the menu system (via returning a particular exit code). I was quite proud to convert that from a regular DOS `.exe` to a `.com` that took a whopping 5 bytes on disk. It loaded the return code into a register and invoked the DOS terminate interrupt. Nobody cared but me, but I thought it was super-great.
+
+## Still Kicking
+
+Long after my tenure at GMA, they sold the rights to LogM (by then a Windows application) to another company (Landmark/Halliburton, yes, that Halliburton), and it is still being sold as part of GVERSE GeoGraphix (at version 2026.2 as I write this). I doubt any code remains from my era, but this makes it an older product than Microsoft Office, in terms of things I've worked on.
