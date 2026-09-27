@@ -2,10 +2,21 @@
 title: TalkBack
 summary: Multi-user text and voice chat with file sharing
 status: archived
-startedAt: 1991-05-01
+startedAt: 1992-05-01
 tags: [Objective-C, Personal]
 featured: false
-draft: true
 ---
 
-Coming soon...
+## Ahead of Its Time
+
+In 1992, a friend was working on a project as part of his comp-sci degree, and asked for help in completing the implementation.
+
+I threw something together, and produced TalkBack, a multi-user text and voice chat application (with drag & drop file sharing) for NeXTSTEP. We realized this might be something people would actually use, so we made a vague attempt to turn it into a commercial product. Making a commercial product for NeXTSTEP was... unlikely to succeed, and we had no idea how to pull it off. Years later we realized that we had essentially created Skype (years before the internet went mainstream). Had we targeted a mainstream operating system and known how to actually market it (and possibly patent some aspects of it), we'd be the evil billionaires now. Oh well.
+
+That said, it ended up being used (the free version) by a Wall Street trading firm, who called us up asking for information on licensing. It was a Big Name firm, but I had never heard of it, and they laughed when I asked who they were.
+
+The only mention I found of it online was from NeXTWORLD magazine (October 1992):
+
+> TalkBack allows users to conference across the office or the ocean. Participants can exchange text, file, and voice messages with single or multiple attendees. The decentralized model allows users to join and exit conferences at will. Single-copy price is $95. For educational and group pricing, contact NightShade Software: (removed the ancient phone number and email address, which I now see had a typo...).
+
+NeXTSTEP made creation of such an application relatively trivial in 1992. I think I used UDP for the actual protocol, and my audio compression "algorithm" was "throw away several bits of the audio data from each byte and RLE the remainder". You could still understand what was being said, but I imagine it sounded a bit weird.
