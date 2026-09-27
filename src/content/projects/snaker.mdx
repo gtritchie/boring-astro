@@ -11,8 +11,10 @@ links:
 ---
 
 import { Image } from "astro:assets";
+import ZoomImage from "../../components/ZoomImage.astro";
 import rainbowCover from "./rainbow-cover.png";
 import noTreads from "./no-treads.png";
+import newspaper from "./newspaper.png";
 
 **Play Snaker in your browser:** [https://boringbydesign.ca/snaker](https://boringbydesign.ca/snaker)
 
@@ -45,6 +47,16 @@ Snaker relies on the screen scrolling mechanism to move everything up one line. 
 Taking advantage of this allowed more to happen on-screen than would be possible with plain BASIC code. To give an idea of just how slow this interpreted language was on this hardware, pausing for one second was achieved via a no-op `for` loop of 460 iterations. Keeping source code as small as possible (e.g. single-character variable names, avoiding all unnecessary whitespace) was a significant factor in application performance on the CoCo.
 
 I stumbled across this idea while playing with a [Timex Sinclair 1000](https://en.wikipedia.org/wiki/Timex_Sinclair_1000). I was probably trying to write a Pong-style game with a paddle moving left and right at the bottom of the screen when I unintentionally triggered scrolling and saw the snake-like pattern.
+
+## Fame and Fortune
+
+My mother decided I should be in the newspaper, so she called in a favour (I assume) and I was interviewed for the Lethbridge Herald. Surprisingly I did not get beat up at school as a result of this.
+
+<ZoomImage
+  src={newspaper}
+  alt="Newspaper article about Gary's programming in the Lethbridge Herald"
+  sizes="(min-width: 770px) 722px, calc(100vw - 3rem)"
+/>
 
 ## JavaScript Port
 
