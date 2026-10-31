@@ -60,7 +60,11 @@ for (const key of Object.keys(props)) {
 
 // The compiler keeps the newlines prettier wraps around long link text, which
 // would render as an underlined space between the label and the glyph.
-const label = (await Astro.slots.render("default")).trim();
+// Labels must be static: rendering to a string drops an island's hydration instructions.
+const label = (await Astro.slots.render("default"))?.trim();
+if (!label) {
+  throw new Error(`ExternalLink: link text is required; got none for ${href}`);
+}
 ---
 
 <a href={href} target="_blank" rel={relValue} class={classValue} {...passthrough}>
