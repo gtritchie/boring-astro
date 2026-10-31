@@ -93,10 +93,14 @@ if (buildStatus !== 0) {
 // 3. Start the preview bound to `base`'s host/port, in its own process group
 // (detached) so teardown can signal the npx wrapper and astro together. Binding
 // the same origin we poll and audit keeps a PA11Y_BASE_URL override coherent.
+// ASTRO_PREVIEW_BACKGROUND=0: under an AI coding agent, astro preview otherwise
+// daemonizes and exits, which reads as "exited before it was ready" and orphans
+// the server on the port.
 console.log(`run-pa11y-full: starting preview server at ${base} …`);
 const preview = spawn("npx", ["astro", "preview", "--host", hostname, "--port", port], {
   stdio: "ignore",
   detached: true,
+  env: { ...process.env, ASTRO_PREVIEW_BACKGROUND: "0" },
 });
 
 let previewExited = false;
