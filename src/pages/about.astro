@@ -14,11 +14,10 @@ import ExternalLink from "../components/ExternalLink.astro";
     RStudio), where I am still working.
   </p>
   <p>More to come...</p>
+  {/* Unformatted so the period stays attached to the link whatever compressHTML is set to. */}
+  <!-- prettier-ignore -->
   <p>
-    If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>. I'm also on{" "}
-    <ExternalLink href="https://github.com/gtritchie" rel="me">
-      GitHub
-    </ExternalLink>
-    .
+    If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>.
+    I'm also on <ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink>.
   </p>
 </ProseLayout>
