@@ -57,10 +57,14 @@ for (const key of Object.keys(props)) {
     passthrough[key] = props[key];
   }
 }
+
+// The compiler keeps the newlines prettier wraps around long link text, which
+// would render as an underlined space between the label and the glyph.
+const label = (await Astro.slots.render("default")).trim();
 ---
 
 <a href={href} target="_blank" rel={relValue} class={classValue} {...passthrough}>
-  <slot />
+  <Fragment set:html={label} />
   <svg class="external-glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
     <path
       d="M4.5 2.5h-2A1 1 0 0 0 1.5 3.5v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2"
