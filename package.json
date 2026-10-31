@@ -35,7 +35,7 @@
     "@lhci/cli": "^0.15.1",
     "eslint": "^10.14.0",
     "eslint-plugin-astro": "^3.2.1",
-    "pa11y-ci": "^4.1.1",
+    "pa11y-ci": "^5.0.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "~6.0.3",
@@ -44,8 +44,8 @@
   },
   "allowScripts": {
     "fsevents@2.3.3": true,
-    "puppeteer@24.43.1": true,
     "esbuild@0.28.2": true,
-    "workerd@1.20261023.1": true
+    "workerd@1.20261023.1": true,
+    "puppeteer@25.16.0": true
   }
 }
