@@ -8,7 +8,7 @@ Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 7 site d
 
 ## Commands
 
-Node 24.16+ required (`.nvmrc` pins `24.18.0`; eslint-plugin-astro needs ≥24.16).
+Node 24.16+ required (`.nvmrc` pins `24.22.1`; eslint-plugin-astro needs ≥24.16).
 
 - `npm run dev` — Astro dev server on `:4321`
 - `npm run build` — outputs to `dist/client/` (not `dist/` — see below)
@@ -71,7 +71,7 @@ Unit tests (`node:test`, colocated `*.test.ts` in `src/lib/`) cover the Sätteri
 
 **Link-check is deliberately not in CI either.** It resolves live external URLs, so third-party rate limits and transient outages fail the build for reasons unrelated to the change under test — a `429` from `thehip.com` broke an otherwise-green run. Dead links on a personal site are worth catching eventually, not worth blocking a merge on, so `npm run link-check` stays a local command run on demand.
 
-**Deploy is Cloudflare Workers Builds.** The `boring-site` Worker is connected to this repo via the Cloudflare dashboard (Settings → Build). On push to `main`, Cloudflare runs `npm run build` then `npx wrangler deploy` against the production Worker. On push to any other branch, Cloudflare runs `npm run build` then `npx wrangler versions upload`, which produces a unique preview URL per build. Node 24 is auto-detected from `.nvmrc`.
+**Deploy is Cloudflare Workers Builds.** The `boring-site` Worker is connected to this repo via the Cloudflare dashboard (Settings → Build). On push to `main`, Cloudflare runs `npm run build` then `npx wrangler deploy` against the production Worker. On push to any other branch, Cloudflare runs `npm run build` then `npx wrangler versions upload`, which produces a unique preview URL per build. Node 24 is auto-detected from `.nvmrc`. npm is not: Workers Builds installs with npm 10.9.2 unless `packageManager` in `package.json` names a version, and npm 10's `npm ci` can reject a lockfile npm 11 wrote (an unmet optional peer npm 11 omits). `packageManager` pins the npm bundled with the `.nvmrc` Node — bump the two together; CI runs on the `.nvmrc` Node and fails if they disagree.
 
 **Preview URLs are `noindex`'d.** `BaseLayout.astro` reads `import.meta.env.WORKERS_CI_BRANCH` (auto-set by Workers Builds) at build time and emits `<meta name="robots" content="noindex, nofollow">` whenever the branch isn't `main`. ProseLayout extends BaseLayout, so this covers every page.
 
