@@ -21,31 +21,31 @@
     "link-check": "bash scripts/run-link-check.sh"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/cloudflare": "^14.3.0",
-    "@astrojs/markdown-satteri": "0.4.1",
-    "@astrojs/mdx": "^8.0.0",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/cloudflare": "^14.4.3",
+    "@astrojs/markdown-satteri": "0.4.6",
+    "@astrojs/mdx": "^8.1.2",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@open-adventure/core": "^1.0.2",
-    "astro": "^7.1.6",
+    "astro": "^7.4.4",
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
-    "eslint": "^10.8.0",
-    "eslint-plugin-astro": "^3.1.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-astro": "^3.2.1",
     "pa11y-ci": "^4.1.1",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.10",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.65.0",
-    "wrangler": "^4.135.0"
+    "typescript-eslint": "^8.72.1",
+    "wrangler": "^4.156.0"
   },
   "allowScripts": {
-    "esbuild@0.28.1": true,
     "fsevents@2.3.3": true,
     "puppeteer@24.43.1": true,
-    "workerd@1.20260918.1": true
+    "esbuild@0.28.2": true,
+    "workerd@1.20261023.1": true
   }
 }
