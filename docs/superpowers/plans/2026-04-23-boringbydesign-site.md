@@ -799,9 +799,7 @@ Astro scopes the `<style>` block to this component; hashed class names prevent c
 // src/components/SkipLink.astro — visually hidden until focused; jumps to #main
 ---
 
-<a class="skip-link" href="#main">
-  Skip to content
-</a>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <style>
   .skip-link {
@@ -857,19 +855,19 @@ const pathname = Astro.url.pathname;
 
 <header class="site-header">
   <div class="inner">
-    <a class="wordmark" href="/" aria-label="Home">
-      Boring by Design
-    </a>
+    <a class="wordmark" href="/" aria-label="Home">Boring by Design</a>
     <div class="right">
       <nav aria-label="Primary">
         <ul>
-          {navItems.map((item) => (
-            <li>
-              <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
-                {item.label}
-              </a>
-            </li>
-          ))}
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
       <ThemeToggle />
@@ -937,25 +935,13 @@ const year = new Date().getFullYear();
 
 <footer class="site-footer">
   <div class="inner">
-    <span>
-      © {year} Gary Ritchie · <a href="/rss.xml">RSS</a>
-    </span>
+    <span>© {year} Gary Ritchie · <a href="/rss.xml">RSS</a></span>
     <nav aria-label="Secondary">
       <ul>
-        <li>
-          <a href="/uses/">Uses</a>
-        </li>
-        <li>
-          <a href="/reading/">Reading</a>
-        </li>
-        <li>
-          <a href="https://github.com/gtritchie" rel="me">
-            GitHub
-          </a>
-        </li>
-        <li>
-          <a href="mailto:kitty.dwell3q@icloud.com">Email</a>
-        </li>
+        <li><a href="/uses/">Uses</a></li>
+        <li><a href="/reading/">Reading</a></li>
+        <li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
+        <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
       </ul>
     </nav>
   </div>
@@ -1142,22 +1128,24 @@ const fmt = (d?: Date) =>
     : null;
 ---
 
-<BaseLayout title={title} {...(description && { description })}>
+<BaseLayout title={title} {...description && { description }}>
   <main id="main" class="prose-main">
     <article>
       <header class="prose-header">
         <h1>{title}</h1>
-        {publishedAt && (
-          <p class="meta">
-            <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
-            {updatedAt && (
-              <>
-                {" "}
-                · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
-              </>
-            )}
-          </p>
-        )}
+        {
+          publishedAt && (
+            <p class="meta">
+              <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
+              {updatedAt && (
+                <>
+                  {" "}
+                  · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
+                </>
+              )}
+            </p>
+          )
+        }
       </header>
       <div class="prose-body">
         <slot />
@@ -1462,19 +1450,21 @@ const fmt = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit"
 ---
 
 <ul class="entry-list">
-  {entries.map((e) => (
-    <li class="entry">
-      <time class="date" datetime={e.date.toISOString()}>
-        {fmt.format(e.date)}
-      </time>
-      <div>
-        <a class="title" href={e.href}>
-          {e.title}
-        </a>
-        <p class="desc">{e.description}</p>
-      </div>
-    </li>
-  ))}
+  {
+    entries.map((e) => (
+      <li class="entry">
+        <time class="date" datetime={e.date.toISOString()}>
+          {fmt.format(e.date)}
+        </time>
+        <div>
+          <a class="title" href={e.href}>
+            {e.title}
+          </a>
+          <p class="desc">{e.description}</p>
+        </div>
+      </li>
+    ))
+  }
 </ul>
 
 <style>
@@ -1537,15 +1527,11 @@ const { href, title, summary, tech, displayYear, status } = Astro.props;
 ---
 
 <article class="card">
-  <h3>
-    <a href={href}>{title}</a>
-  </h3>
+  <h3><a href={href}>{title}</a></h3>
   <p class="summary">{summary}</p>
   <div class="meta">
     <ul class="tags">
-      {tech.map((t) => (
-        <li>{t}</li>
-      ))}
+      {tech.map((t) => <li>{t}</li>)}
       <li>{displayYear}</li>
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
@@ -1661,16 +1647,18 @@ const writingEntries = writing.map((post) => ({
     </p>
 
     <h2 class="section-label">Featured projects</h2>
-    {projects.map((p) => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tech={p.data.tech}
-        displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
-        status={p.data.status}
-      />
-    ))}
+    {
+      projects.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tech={p.data.tech}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
 
     <h2 class="section-label">Recent writing</h2>
     <EntryList entries={writingEntries} />
@@ -1736,11 +1724,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </p>
     <p>
       If you want to reach me, <a href="mailto:kitty.dwell3q@icloud.com">email works</a>. I'm also
-      on{" "}
-      <a href="https://github.com/gtritchie" rel="me">
-        GitHub
-      </a>
-      .
+      on <a href="https://github.com/gtritchie" rel="me">GitHub</a>.
     </p>
   </main>
 </BaseLayout>
@@ -1815,9 +1799,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <BaseLayout title="Not found" description="Page not found.">
   <main id="main" class="prose">
     <h1>Not found</h1>
-    <p>
-      That page doesn't exist. <a href="/">Back to the home page.</a>
-    </p>
+    <p>That page doesn't exist. <a href="/">Back to the home page.</a></p>
   </main>
 </BaseLayout>
 
@@ -1872,16 +1854,18 @@ const projects = (await getCollection("projects", (p) => !p.data.draft)).sort(
 <BaseLayout title="Projects" description="Software projects — personal and professional.">
   <main id="main">
     <h1>Projects</h1>
-    {projects.map((p) => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tech={p.data.tech}
-        displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
-        status={p.data.status}
-      />
-    ))}
+    {
+      projects.map((p) => (
+        <ProjectCard
+          href={`/projects/${p.id}/`}
+          title={p.data.title}
+          summary={p.data.summary}
+          tech={p.data.tech}
+          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
+          status={p.data.status}
+        />
+      ))
+    }
   </main>
 </BaseLayout>
 ```
@@ -1907,38 +1891,33 @@ const { data } = entry;
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
   <p class="lede">{data.summary}</p>
   <dl class="facts">
-    <div>
-      <dt>Year</dt>
-      <dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd>
-    </div>
-    <div>
-      <dt>Status</dt>
-      <dd>{data.status}</dd>
-    </div>
-    <div>
-      <dt>Tech</dt>
-      <dd>{data.tech.join(", ")}</dd>
-    </div>
-    {data.links?.repo && (
-      <div>
-        <>
-          <dt>Repo</dt>
-          <dd>
-            <a href={data.links.repo}>{data.links.repo}</a>
-          </dd>
-        </>
-      </div>
-    )}
-    {data.links?.site && (
-      <div>
-        <>
-          <dt>Site</dt>
-          <dd>
-            <a href={data.links.site}>{data.links.site}</a>
-          </dd>
-        </>
-      </div>
-    )}
+    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
+    <div><dt>Status</dt><dd>{data.status}</dd></div>
+    <div><dt>Tech</dt><dd>{data.tech.join(", ")}</dd></div>
+    {
+      data.links?.repo && (
+        <div>
+          <>
+            <dt>Repo</dt>
+            <dd>
+              <a href={data.links.repo}>{data.links.repo}</a>
+            </dd>
+          </>
+        </div>
+      )
+    }
+    {
+      data.links?.site && (
+        <div>
+          <>
+            <dt>Site</dt>
+            <dd>
+              <a href={data.links.site}>{data.links.site}</a>
+            </dd>
+          </>
+        </div>
+      )
+    }
   </dl>
   <Content />
 </ProseLayout>
@@ -2008,15 +1987,17 @@ const interests = (await getCollection("interests", (p) => !p.data.draft)).sort(
   <main id="main">
     <h1>Interests</h1>
     <ul class="list">
-      {interests.map((i) => (
-        <li>
-          <h3>
-            <a href={`/interests/${i.id}/`}>{i.data.title}</a>
-          </h3>
-          <p>{i.data.summary}</p>
-          {i.data.kind && <small class="kind">{i.data.kind}</small>}
-        </li>
-      ))}
+      {
+        interests.map((i) => (
+          <li>
+            <h3>
+              <a href={`/interests/${i.id}/`}>{i.data.title}</a>
+            </h3>
+            <p>{i.data.summary}</p>
+            {i.data.kind && <small class="kind">{i.data.kind}</small>}
+          </li>
+        ))
+      }
     </ul>
   </main>
 </BaseLayout>
@@ -2273,14 +2254,16 @@ Cloudflare gives you a site-specific token once you add Web Analytics in the Clo
 Edit `BaseLayout.astro`, after the `<ClientRouter />` element, add:
 
 ```astro
-{import.meta.env.PUBLIC_CF_WA_TOKEN && (
-  <script
-    is:inline
-    defer
-    src="https://static.cloudflareinsights.com/beacon.min.js"
-    data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_WA_TOKEN}"}`}
-  />
-)}
+{
+  import.meta.env.PUBLIC_CF_WA_TOKEN && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_WA_TOKEN}"}`}
+    />
+  )
+}
 ```
 
 - [ ] **Step 3: Document the env var**

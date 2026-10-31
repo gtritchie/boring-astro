@@ -660,17 +660,15 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
 <section id="adventure-launcher" class="adv-launcher" aria-labelledby="adv-launcher-h1">
   <h1 id="adv-launcher-h1">Adventure</h1>
   <p class="adv-intro">
-    A browser port of <em>Colossal Cave Adventure</em> — Crowther &amp; Woods's 1977 text adventure,
-    the original of its kind. Runs entirely in your browser; saves stay on this device.
+    A browser port of <em>Colossal Cave Adventure</em> — Crowther &amp; Woods's 1977 text adventure, the
+    original of its kind. Runs entirely in your browser; saves stay on this device.
   </p>
 
   <div id="adv-storage-banner" class="adv-banner" hidden>
     Your browser blocks local storage; saves won't persist this session.
   </div>
 
-  <button id="adv-start-new" class="adv-cta" type="button">
-    Start new game
-  </button>
+  <button id="adv-start-new" class="adv-cta" type="button">Start new game</button>
 
   <section id="adv-saves-section" class="adv-saves" aria-labelledby="adv-saves-h2" hidden>
     <h2 id="adv-saves-h2">Saved games</h2>
@@ -681,18 +679,14 @@ Static markup, fully styled. JS only injects `<tr>` rows and toggles visibility.
           <th scope="col">Score</th>
           <th scope="col">Location</th>
           <th scope="col">Saved</th>
-          <th scope="col">
-            <span class="adv-sr-only">Actions</span>
-          </th>
+          <th scope="col"><span class="adv-sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody id="adv-saves-tbody"></tbody>
     </table>
   </section>
 
-  <p id="adv-saves-empty" class="adv-saves-empty">
-    No saved games yet.
-  </p>
+  <p id="adv-saves-empty" class="adv-saves-empty">No saved games yet.</p>
 </section>
 
 <style>
@@ -926,16 +920,12 @@ The terminal is hidden by default. Output region uses `role="log" aria-live="pol
 ---
 
 <section id="adventure-terminal" class="adv-terminal" hidden aria-labelledby="adv-terminal-heading">
-  <h1 id="adv-terminal-heading" class="adv-sr-only">
-    Adventure — game in progress
-  </h1>
+  <h1 id="adv-terminal-heading" class="adv-sr-only">Adventure — game in progress</h1>
 
   <div id="adv-output" class="adv-output" role="log" aria-live="polite"></div>
 
   <form id="adv-input-row" class="adv-input-row" hidden autocomplete="off">
-    <span id="adv-prompt" class="adv-prompt" aria-hidden="true">
-      &gt;{" "}
-    </span>
+    <span id="adv-prompt" class="adv-prompt" aria-hidden="true">&gt; </span>
     <input
       id="adv-input"
       class="adv-input"
@@ -950,12 +940,8 @@ The terminal is hidden by default. Output region uses `role="log" aria-live="pol
   </form>
 
   <div id="adv-post-game" class="adv-post-game" hidden>
-    <button id="adv-back-to-launcher" type="button">
-      Back to launcher
-    </button>
-    <button id="adv-new-game" type="button">
-      New game
-    </button>
+    <button id="adv-back-to-launcher" type="button">Back to launcher</button>
+    <button id="adv-new-game" type="button">New game</button>
   </div>
 
   <div id="adv-error-panel" class="adv-error-panel" hidden role="alert">
@@ -964,9 +950,7 @@ The terminal is hidden by default. Output region uses `role="log" aria-live="pol
       <summary>Details</summary>
       <pre id="adv-error-message"></pre>
     </details>
-    <button id="adv-error-back" type="button">
-      Back to launcher
-    </button>
+    <button id="adv-error-back" type="button">Back to launcher</button>
   </div>
 </section>
 
@@ -1676,23 +1660,11 @@ Replace the secondary-nav `<ul>` block in `src/components/SiteFooter.astro`:
 
 ```astro
 <ul>
-  <li>
-    <a href="/adventure/">Adventure</a>
-  </li>
-  <li>
-    <a href="/uses/">Toolkit</a>
-  </li>
-  <li>
-    <a href="/reading/">Reading</a>
-  </li>
-  <li>
-    <ExternalLink href="https://github.com/gtritchie" rel="me">
-      GitHub
-    </ExternalLink>
-  </li>
-  <li>
-    <a href="mailto:kitty.dwell3q@icloud.com">Email</a>
-  </li>
+  <li><a href="/adventure/">Adventure</a></li>
+  <li><a href="/uses/">Toolkit</a></li>
+  <li><a href="/reading/">Reading</a></li>
+  <li><ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink></li>
+  <li><a href="mailto:kitty.dwell3q@icloud.com">Email</a></li>
 </ul>
 ```
 
