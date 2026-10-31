@@ -93,14 +93,15 @@ if (buildStatus !== 0) {
 // 3. Start the preview bound to `base`'s host/port, in its own process group
 // (detached) so teardown can signal the npx wrapper and astro together. Binding
 // the same origin we poll and audit keeps a PA11Y_BASE_URL override coherent.
-// ASTRO_PREVIEW_BACKGROUND=0: under an AI coding agent, astro preview otherwise
-// daemonizes and exits, which reads as "exited before it was ready" and orphans
-// the server on the port.
+// --ignore-lock: under an AI coding agent, astro preview otherwise daemonizes
+// and exits, which reads as "exited before it was ready" and orphans the server
+// on the port. It is Astro's documented one-off foreground mode, and it skips
+// the lock file, so another preview elsewhere in the project can't refuse it.
+const previewArgs = ["astro", "preview", "--ignore-lock", "--host", hostname, "--port", port];
 console.log(`run-pa11y-full: starting preview server at ${base} …`);
-const preview = spawn("npx", ["astro", "preview", "--host", hostname, "--port", port], {
+const preview = spawn("npx", previewArgs, {
   stdio: "ignore",
   detached: true,
-  env: { ...process.env, ASTRO_PREVIEW_BACKGROUND: "0" },
 });
 
 let previewExited = false;
@@ -133,7 +134,8 @@ async function waitForReady() {
   while (Date.now() < deadline) {
     if (previewExited) {
       throw new Error(
-        "preview server exited before it was ready — run `npm run preview:astro` on its own to see why.",
+        `preview server exited before it was ready — run \`npx ${previewArgs.join(" ")}\` ` +
+          "on its own to see why.",
       );
     }
     try {
