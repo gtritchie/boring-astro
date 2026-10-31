@@ -3,12 +3,16 @@
 ---
 
 <section id="adventure-terminal" class="adv-terminal" hidden aria-labelledby="adv-terminal-heading">
-  <h1 id="adv-terminal-heading" class="adv-sr-only">Adventure — game in progress</h1>
+  <h1 id="adv-terminal-heading" class="adv-sr-only">
+    Adventure — game in progress
+  </h1>
 
   <div id="adv-output" class="adv-output" role="log" aria-live="polite"></div>
 
   <form id="adv-input-row" class="adv-input-row" hidden autocomplete="off">
-    <span id="adv-prompt" class="adv-prompt" aria-hidden="true">&gt; </span>
+    <span id="adv-prompt" class="adv-prompt" aria-hidden="true">
+      &gt;{" "}
+    </span>
     <input
       id="adv-input"
       class="adv-input"
@@ -21,12 +25,18 @@
       aria-label="Game input"
       data-op-ignore
     />
-    <button type="submit" class="adv-sr-only" tabindex="-1">Submit input</button>
+    <button type="submit" class="adv-sr-only" tabindex="-1">
+      Submit input
+    </button>
   </form>
 
   <div id="adv-post-game" class="adv-post-game" hidden>
-    <button id="adv-back-to-launcher" type="button">Back to launcher</button>
-    <button id="adv-new-game" type="button">New game</button>
+    <button id="adv-back-to-launcher" type="button">
+      Back to launcher
+    </button>
+    <button id="adv-new-game" type="button">
+      New game
+    </button>
   </div>
 
   <div id="adv-error-panel" class="adv-error-panel" hidden role="alert">
@@ -35,7 +45,9 @@
       <summary>Details</summary>
       <pre id="adv-error-message"></pre>
     </details>
-    <button id="adv-error-back" type="button">Back to launcher</button>
+    <button id="adv-error-back" type="button">
+      Back to launcher
+    </button>
   </div>
 </section>
 

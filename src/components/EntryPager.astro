@@ -20,32 +20,30 @@ interface Props {
 const { ariaLabel, prev, next, prevLabel = "Previous", nextLabel = "Next" } = Astro.props;
 ---
 
-{
-  (prev || next) && (
-    <nav class="pager" aria-label={ariaLabel}>
-      {prev && (
-        <a class="link link--prev" href={prev.href}>
-          <span class="label">{prevLabel}</span>
-          <span class="title">
-            {/* The gap sits inside the underlined span so the arrow reads as
-                part of the link text rather than a detached glyph. */}
-            <span aria-hidden="true">←&nbsp;</span>
-            {prev.title}
-          </span>
-        </a>
-      )}
-      {next && (
-        <a class="link link--next" href={next.href}>
-          <span class="label">{nextLabel}</span>
-          <span class="title">
-            {next.title}
-            <span aria-hidden="true">&nbsp;→</span>
-          </span>
-        </a>
-      )}
-    </nav>
-  )
-}
+{(prev || next) && (
+  <nav class="pager" aria-label={ariaLabel}>
+    {prev && (
+      <a class="link link--prev" href={prev.href}>
+        <span class="label">{prevLabel}</span>
+        <span class="title">
+          {/* The gap sits inside the underlined span so the arrow reads as
+              part of the link text rather than a detached glyph. */}
+          <span aria-hidden="true">←&nbsp;</span>
+          {prev.title}
+        </span>
+      </a>
+    )}
+    {next && (
+      <a class="link link--next" href={next.href}>
+        <span class="label">{nextLabel}</span>
+        <span class="title">
+          {next.title}
+          <span aria-hidden="true">&nbsp;→</span>
+        </span>
+      </a>
+    )}
+  </nav>
+)}
 
 <style>
   /* Two fixed halves rather than auto-flow: at either end of a collection only

@@ -41,16 +41,14 @@ const isPreview = Boolean(branch) && branch !== "main";
       })();
     </script>
 
-    {
-      import.meta.env["PUBLIC_CF_WA_TOKEN"] && (
-        <script
-          is:inline
-          defer
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}", "spa": true}`}
-        />
-      )
-    }
+    {import.meta.env["PUBLIC_CF_WA_TOKEN"] && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token": "${import.meta.env["PUBLIC_CF_WA_TOKEN"]}", "spa": true}`}
+      />
+    )}
 
     <ClientRouter />
   </head>

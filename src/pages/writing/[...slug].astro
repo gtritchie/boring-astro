@@ -23,7 +23,7 @@ const { data } = entry;
   title={data.title}
   description={data.description}
   publishedAt={data.publishedAt}
-  {...data.updatedAt && { updatedAt: data.updatedAt }}
+  {...(data.updatedAt && { updatedAt: data.updatedAt })}
 >
   <Content />
   <EntryPager

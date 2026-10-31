@@ -24,70 +24,68 @@ const { data } = entry;
 <ProseLayout title={data.title} description={data.summary} publishedAt={data.startedAt}>
   <p class="lede">{data.summary}</p>
   <dl class="facts">
-    <div><dt>Year</dt><dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd></div>
-    <div><dt>Status</dt><dd>{data.status}</dd></div>
+    <div>
+      <dt>Year</dt>
+      <dd>{data.displayYear ?? data.startedAt.getUTCFullYear()}</dd>
+    </div>
+    <div>
+      <dt>Status</dt>
+      <dd>{data.status}</dd>
+    </div>
     <div>
       <dt>Tags</dt>
       <dd>
         <ul class="tags">
-          {
-            data.tags.map((t) => (
-              <li>
-                <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
-              </li>
-            ))
-          }
+          {data.tags.map((t) => (
+            <li>
+              <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+            </li>
+          ))}
         </ul>
       </dd>
     </div>
-    {
-      data.links?.repo && (
-        <div>
-          <>
-            <dt>Repo</dt>
-            <dd>
-              {isExternalHttp(data.links.repo) ? (
-                <ExternalLink href={data.links.repo}>{data.links.repo}</ExternalLink>
-              ) : (
-                <a href={data.links.repo}>{data.links.repo}</a>
-              )}
-            </dd>
-          </>
-        </div>
-      )
-    }
-    {
-      data.links?.site && (
-        <div>
-          <>
-            <dt>Site</dt>
-            <dd>
-              {isExternalHttp(data.links.site) ? (
-                <ExternalLink href={data.links.site}>{data.links.site}</ExternalLink>
-              ) : (
-                <a href={data.links.site}>{data.links.site}</a>
-              )}
-            </dd>
-          </>
-        </div>
-      )
-    }
-    {
-      data.links?.docs && (
-        <div>
-          <>
-            <dt>Docs</dt>
-            <dd>
-              {isExternalHttp(data.links.docs) ? (
-                <ExternalLink href={data.links.docs}>{data.links.docs}</ExternalLink>
-              ) : (
-                <a href={data.links.docs}>{data.links.docs}</a>
-              )}
-            </dd>
-          </>
-        </div>
-      )
-    }
+    {data.links?.repo && (
+      <div>
+        <>
+          <dt>Repo</dt>
+          <dd>
+            {isExternalHttp(data.links.repo) ? (
+              <ExternalLink href={data.links.repo}>{data.links.repo}</ExternalLink>
+            ) : (
+              <a href={data.links.repo}>{data.links.repo}</a>
+            )}
+          </dd>
+        </>
+      </div>
+    )}
+    {data.links?.site && (
+      <div>
+        <>
+          <dt>Site</dt>
+          <dd>
+            {isExternalHttp(data.links.site) ? (
+              <ExternalLink href={data.links.site}>{data.links.site}</ExternalLink>
+            ) : (
+              <a href={data.links.site}>{data.links.site}</a>
+            )}
+          </dd>
+        </>
+      </div>
+    )}
+    {data.links?.docs && (
+      <div>
+        <>
+          <dt>Docs</dt>
+          <dd>
+            {isExternalHttp(data.links.docs) ? (
+              <ExternalLink href={data.links.docs}>{data.links.docs}</ExternalLink>
+            ) : (
+              <a href={data.links.docs}>{data.links.docs}</a>
+            )}
+          </dd>
+        </>
+      </div>
+    )}
   </dl>
   <Content />
   <EntryPager slot="pager" ariaLabel="More projects" prev={prev} next={next} />

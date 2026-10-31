@@ -28,13 +28,11 @@ const writingEntries = writing.map((post) => ({
     <h1>Gary's Personal Site</h1>
     <h2 class="section-label">Software I've Worked On</h2>
     <ul class="project-list">
-      {
-        projects.map((p) => (
-          <li>
-            <a href={p.href}>{p.title}</a> ({p.year})
-          </li>
-        ))
-      }
+      {projects.map((p) => (
+        <li>
+          <a href={p.href}>{p.title}</a> ({p.year})
+        </li>
+      ))}
     </ul>
 
     <h2 class="section-label">Recent writing</h2>
