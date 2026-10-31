@@ -11,17 +11,15 @@ const projects = await listProjects();
   <main id="main">
     <h1>Projects</h1>
     <h2 class="section-label">All projects</h2>
-    {
-      projects.map((p) => (
-        <ProjectCard
-          href={`/projects/${p.id}/`}
-          title={p.data.title}
-          summary={p.data.summary}
-          tags={p.data.tags}
-          status={p.data.status}
-        />
-      ))
-    }
+    {projects.map((p) => (
+      <ProjectCard
+        href={`/projects/${p.id}/`}
+        title={p.data.title}
+        summary={p.data.summary}
+        tags={p.data.tags}
+        status={p.data.status}
+      />
+    ))}
   </main>
 </BaseLayout>
 

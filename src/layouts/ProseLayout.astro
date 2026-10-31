@@ -25,24 +25,22 @@ const fmt = (d?: Date) =>
     : null;
 ---
 
-<BaseLayout title={title} {...description && { description }}>
+<BaseLayout title={title} {...(description && { description })}>
   <main id="main" class="prose-main">
     <article>
       <header class="prose-header">
         <h1>{title}</h1>
-        {
-          publishedAt && (
-            <p class="meta">
-              <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
-              {updatedAt && (
-                <>
-                  {" "}
-                  · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
-                </>
-              )}
-            </p>
-          )
-        }
+        {publishedAt && (
+          <p class="meta">
+            <time datetime={publishedAt.toISOString()}>{fmt(publishedAt)}</time>
+            {updatedAt && (
+              <>
+                {" "}
+                · updated <time datetime={updatedAt.toISOString()}>{fmt(updatedAt)}</time>
+              </>
+            )}
+          </p>
+        )}
       </header>
       <div class="prose-body">
         <slot />

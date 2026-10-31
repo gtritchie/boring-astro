@@ -12,17 +12,17 @@ const { href, title, summary, tags, status } = Astro.props;
 ---
 
 <article class="card">
-  <h3><a href={href}>{title}</a></h3>
+  <h3>
+    <a href={href}>{title}</a>
+  </h3>
   <p class="summary">{summary}</p>
   <div class="meta">
     <ul class="tags" aria-label="Tags">
-      {
-        tags.map((t) => (
-          <li>
-            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
-          </li>
-        ))
-      }
+      {tags.map((t) => (
+        <li>
+          <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+        </li>
+      ))}
     </ul>
     {status !== "active" && <span class="status">{status}</span>}
   </div>

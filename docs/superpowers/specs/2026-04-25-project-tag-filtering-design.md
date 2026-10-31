@@ -129,7 +129,10 @@ Page renders inside `BaseLayout`:
 The Tags row in the `<dl>`:
 
 ```astro
-<div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
+<div>
+  <dt>Tags</dt>
+  <dd>{data.tags.join(", ")}</dd>
+</div>
 ```
 
 becomes:
@@ -139,13 +142,11 @@ becomes:
   <dt>Tags</dt>
   <dd>
     <ul class="tags">
-      {
-        data.tags.map((t) => (
-          <li>
-            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
-          </li>
-        ))
-      }
+      {data.tags.map((t) => (
+        <li>
+          <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+        </li>
+      ))}
     </ul>
   </dd>
 </div>

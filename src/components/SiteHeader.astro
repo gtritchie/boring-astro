@@ -14,19 +14,19 @@ const pathname = Astro.url.pathname;
 
 <header class="site-header">
   <div class="inner">
-    <a class="wordmark" href="/">Boring by Design</a>
+    <a class="wordmark" href="/">
+      Boring by Design
+    </a>
     <div class="right">
       <nav aria-label="Primary">
         <ul>
-          {
-            navItems.map((item) => (
-              <li>
-                <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
+          {navItems.map((item) => (
+            <li>
+              <a href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
       <ThemeToggle />

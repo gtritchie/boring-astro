@@ -307,17 +307,15 @@ In `src/pages/index.astro`, add a small link element immediately after the `proj
   <p class="intro">Software projects, interests, and an occasional note.</p>
 
   <h2 class="section-label">Featured projects</h2>
-  {
-    projects.map((p) => (
-      <ProjectCard
-        href={`/projects/${p.id}/`}
-        title={p.data.title}
-        summary={p.data.summary}
-        tags={p.data.tags}
-        status={p.data.status}
-      />
-    ))
-  }
+  {projects.map((p) => (
+    <ProjectCard
+      href={`/projects/${p.id}/`}
+      title={p.data.title}
+      summary={p.data.summary}
+      tags={p.data.tags}
+      status={p.data.status}
+    />
+  ))}
   <p class="all-projects-link">
     <a href="/projects/">All projects &rarr;</a>
   </p>

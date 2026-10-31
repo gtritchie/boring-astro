@@ -550,14 +550,16 @@ for (const key of Object.keys(props)) {
       stroke="currentColor"
       stroke-width="1.2"
       stroke-linecap="round"
-      stroke-linejoin="round"></path>
+      stroke-linejoin="round"
+    ></path>
     <path
       d="M7 1.5h3.5V5M10.5 1.5 5.5 6.5"
       fill="none"
       stroke="currentColor"
       stroke-width="1.2"
       stroke-linecap="round"
-      stroke-linejoin="round"></path>
+      stroke-linejoin="round"
+    ></path>
   </svg>
   <span class="visually-hidden"> (opens in a new tab)</span>
 </a>
@@ -606,13 +608,21 @@ const year = new Date().getFullYear();
 Then replace line 13 — change:
 
 ```astro
-<li><a href="https://github.com/gtritchie" rel="me">GitHub</a></li>
+<li>
+  <a href="https://github.com/gtritchie" rel="me">
+    GitHub
+  </a>
+</li>
 ```
 
 to:
 
 ```astro
-<li><ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink></li>
+<li>
+  <ExternalLink href="https://github.com/gtritchie" rel="me">
+    GitHub
+  </ExternalLink>
+</li>
 ```
 
 - [ ] **Step 2: Update `src/pages/about.astro`**
@@ -629,13 +639,21 @@ import ExternalLink from "../components/ExternalLink.astro";
 Then change the GitHub link on line 21 (the second `<a>` in the final `<p>`). Change:
 
 ```astro
-on <a href="https://github.com/gtritchie" rel="me">GitHub</a>.
+on{" "}
+<a href="https://github.com/gtritchie" rel="me">
+  GitHub
+</a>
+.
 ```
 
 to:
 
 ```astro
-on <ExternalLink href="https://github.com/gtritchie" rel="me">GitHub</ExternalLink>.
+on{" "}
+<ExternalLink href="https://github.com/gtritchie" rel="me">
+  GitHub
+</ExternalLink>
+.
 ```
 
 The `mailto:` link on the same line stays as a raw `<a>` — it's not external per the spec.

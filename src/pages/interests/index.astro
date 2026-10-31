@@ -11,17 +11,15 @@ const interests = await listInterests();
     <h1>Interests</h1>
     <h2 class="section-label">All interests</h2>
     <ul class="list">
-      {
-        interests.map((i) => (
-          <li>
-            <h3>
-              <a href={`/interests/${i.id}/`}>{i.data.title}</a>
-            </h3>
-            <p>{i.data.summary}</p>
-            {i.data.kind && <small class="kind">{i.data.kind}</small>}
-          </li>
-        ))
-      }
+      {interests.map((i) => (
+        <li>
+          <h3>
+            <a href={`/interests/${i.id}/`}>{i.data.title}</a>
+          </h3>
+          <p>{i.data.summary}</p>
+          {i.data.kind && <small class="kind">{i.data.kind}</small>}
+        </li>
+      ))}
     </ul>
   </main>
 </BaseLayout>

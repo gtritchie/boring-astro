@@ -173,19 +173,19 @@ const countLabel = `${count} ${count === 1 ? "project" : "projects"}`;
   <main id="main">
     <h1>Tagged: {displayTag}</h1>
     <p class="meta">{countLabel}</p>
-    <p class="back"><a href="/projects/">← All projects</a></p>
-    {
-      entries.map((p) => (
-        <ProjectCard
-          href={`/projects/${p.id}/`}
-          title={p.data.title}
-          summary={p.data.summary}
-          tags={p.data.tags}
-          displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
-          status={p.data.status}
-        />
-      ))
-    }
+    <p class="back">
+      <a href="/projects/">← All projects</a>
+    </p>
+    {entries.map((p) => (
+      <ProjectCard
+        href={`/projects/${p.id}/`}
+        title={p.data.title}
+        summary={p.data.summary}
+        tags={p.data.tags}
+        displayYear={p.data.displayYear ?? String(p.data.startedAt.getUTCFullYear())}
+        status={p.data.status}
+      />
+    ))}
   </main>
 </BaseLayout>
 
@@ -292,13 +292,11 @@ Replace the tags `<ul>` (currently `{tags.map((t) => <li>{t}</li>)}`) so each ta
 
 ```astro
 <ul class="tags">
-  {
-    tags.map((t) => (
-      <li>
-        <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
-      </li>
-    ))
-  }
+  {tags.map((t) => (
+    <li>
+      <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+    </li>
+  ))}
   <li class="year">{displayYear}</li>
 </ul>
 ```
@@ -393,7 +391,10 @@ import { getCollection, render } from "astro:content";
 Replace the Tags row in the `<dl>`. The current line:
 
 ```astro
-<div><dt>Tags</dt><dd>{data.tags.join(", ")}</dd></div>
+<div>
+  <dt>Tags</dt>
+  <dd>{data.tags.join(", ")}</dd>
+</div>
 ```
 
 becomes:
@@ -403,13 +404,11 @@ becomes:
   <dt>Tags</dt>
   <dd>
     <ul class="tags">
-      {
-        data.tags.map((t) => (
-          <li>
-            <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
-          </li>
-        ))
-      }
+      {data.tags.map((t) => (
+        <li>
+          <a href={`/tags/${tagToSlug(t)}/`}>{t}</a>
+        </li>
+      ))}
     </ul>
   </dd>
 </div>
