@@ -56,7 +56,9 @@ function run(cmd, args) {
 // another one…" and binds N+1. The readiness poll and the audit both target the
 // requested port, so without this check a stray server there would be audited
 // instead of the build under test — silently, and with a green result. Checked
-// before the build so a collision fails in a second rather than after one.
+// before the build so a collision fails in a second rather than after one, and
+// again just before the preview starts, since a server can take the port during
+// the build and Astro's preview has no strict-port option.
 async function assertPortFree() {
   return new Promise((resolve, reject) => {
     const probe = createServer();
@@ -75,12 +77,16 @@ async function assertPortFree() {
   });
 }
 
-try {
-  await assertPortFree();
-} catch (err) {
-  console.error(`run-pa11y-full: ${err.message}`);
-  process.exit(1);
+async function exitIfPortTaken() {
+  try {
+    await assertPortFree();
+  } catch (err) {
+    console.error(`run-pa11y-full: ${err.message}`);
+    process.exit(1);
+  }
 }
+
+await exitIfPortTaken();
 
 // 2. Build — pa11y walks the sitemap of the freshly built dist/client, so a
 // stale or missing build must not be audited.
@@ -98,6 +104,7 @@ if (buildStatus !== 0) {
 // on the port. It is Astro's documented one-off foreground mode, and it skips
 // the lock file, so another preview elsewhere in the project can't refuse it.
 const previewArgs = ["astro", "preview", "--ignore-lock", "--host", hostname, "--port", port];
+await exitIfPortTaken();
 console.log(`run-pa11y-full: starting preview server at ${base} …`);
 const preview = spawn("npx", previewArgs, {
   stdio: "ignore",
