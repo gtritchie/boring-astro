@@ -8,7 +8,7 @@ Source for [boringbydesign.ca](https://boringbydesign.ca). Static Astro 7 site d
 
 ## Commands
 
-Node 24.16+ required (`.nvmrc` pins `24.22.1`; eslint-plugin-astro needs ≥24.16).
+Node 24.16+ required (`.nvmrc` pins `24.22.3`; eslint-plugin-astro needs ≥24.16).
 
 - `npm run dev` — Astro dev server on `:4321`
 - `npm run build` — outputs to `dist/client/` (not `dist/` — see below)
