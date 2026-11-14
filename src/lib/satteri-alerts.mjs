@@ -70,13 +70,13 @@ const satteriAlerts = {
         if (dropBreak) ctx.removeNode(next);
       }
     } else {
-      ctx.setProperty(firstText, "value", stripped);
+      ctx.setField(firstText, "value", stripped);
     }
 
     // Render the blockquote as the alert container. Spread the existing bag —
-    // setProperty replaces `data` wholesale, and clobbering would silently
+    // setField replaces `data` wholesale, and clobbering would silently
     // discard anything an earlier plugin put there.
-    ctx.setProperty(node, "data", {
+    ctx.setField(node, "data", {
       ...node.data,
       hName: "div",
       hProperties: { className: `markdown-alert markdown-alert-${type.toLowerCase()}` },
