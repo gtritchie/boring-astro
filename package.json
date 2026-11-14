@@ -22,30 +22,30 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/cloudflare": "^14.4.3",
-    "@astrojs/markdown-satteri": "0.4.6",
-    "@astrojs/mdx": "^8.1.2",
+    "@astrojs/cloudflare": "^14.4.8",
+    "@astrojs/markdown-satteri": "0.4.10",
+    "@astrojs/mdx": "^8.1.6",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/sitemap": "^3.7.5",
     "@open-adventure/core": "^1.0.2",
-    "astro": "^7.4.4",
+    "astro": "^7.4.12",
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {
-    "@lhci/cli": "^0.15.1",
-    "eslint": "^10.14.0",
+    "@lhci/cli": "^0.16.1",
+    "eslint": "^10.15.0",
     "eslint-plugin-astro": "^3.2.1",
     "pa11y-ci": "^5.0.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.1",
-    "wrangler": "^4.156.0"
+    "typescript-eslint": "^8.72.2",
+    "wrangler": "^4.160.0"
   },
   "allowScripts": {
     "fsevents@2.3.3": true,
     "esbuild@0.28.2": true,
-    "workerd@1.20261023.1": true,
+    "workerd@1.20261110.1": true,
     "puppeteer@25.16.0": true
   }
 }
